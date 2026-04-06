@@ -371,39 +371,51 @@ function updateAddressLabel() {
   addressLabelEl.value = fullLabel
 }
   
-  loginBtn.disabled = true
-  loginBtn.textContent = 'Skip login (admin)'
-  statusEl.textContent = 'Učitavam admin pristup...'
+ async function signInWithMagicLink() {
+  const email = emailInputEl.value.trim()
 
-  // SIMULACIJA ADMIN LOGIN-A (bypass email)
-  await new Promise(resolve => setTimeout(resolve, 1000))
-  
-  // Kreiraj fake admin user za testiranje
-  currentUser = { id: 'test-admin-123', email: 'admin@demo.com' }
-  currentProfile = { id: 'test-admin-123', role: 'admin', is_active: true }
-  
-  await initApp()
-  statusEl.textContent = '✅ Admin pristup aktivan - test mod!'
+  if (!email) {
+    statusEl.textContent = 'Unesi validnu email adresu.'
+    return
+  }
+
+  statusEl.textContent = 'Šaljem magic link...'
+  loginBtn.disabled = true
+  loginBtn.textContent = 'Šaljem...'
+
+  const { error } = await supabase.auth.signInWithOtp({
+    email,
+    options: {
+      emailRedirectTo: 'https://imicunovic83.github.io/Podbara/'
+    }
+  })
+
+  if (error) {
+    statusEl.textContent = `Greška pri slanju linka: ${error.message}`
+    loginBtn.disabled = false
+    loginBtn.textContent = 'Pošalji magic link'
+    return
+  }
+
+  statusEl.textContent = 'Magic link je poslat. Proveri email i klikni na link za prijavu.'
+  loginBtn.disabled = false
+  loginBtn.textContent = 'Pošalji magic link'
 }
 
-      const { error } = await supabase.auth.signInWithOtp({
-        email,
-        options: {
-          emailRedirectTo: 'https://imicunovic83.github.io/Podbara/'
-        }
-      })
+// OVO MOŽEŠ DA ZADRŽI AKO ŽELIŠ TEST ADMIN, ILI DA OBRUŠI
+loginBtn.disabled = true
+loginBtn.textContent = 'Skip login (admin)'
+statusEl.textContent = 'Učitavam admin pristup...'
 
-      if (error) {
-        statusEl.textContent = `Greška pri slanju linka: ${error.message}`
-        loginBtn.disabled = false
-        loginBtn.textContent = 'Pošalji magic link'
-        return
-      }
-
-      statusEl.textContent = 'Magic link je poslat. Proveri email i klikni na link za prijavu.'
-      loginBtn.disabled = false
-      loginBtn.textContent = 'Pošalji magic link'
-    }
+// SIMULACIJA ADMIN LOGIN-A (bypass email)
+await new Promise(resolve => setTimeout(resolve, 1000))
+  
+// Kreiraj fake admin user za testiranje
+currentUser = { id: 'test-admin-123', email: 'admin@demo.com' }
+currentProfile = { id: 'test-admin-123', role: 'admin', is_active: true }
+  
+await initApp()
+statusEl.textContent = '✅ Admin pristup aktivan - test mod!'
 
     async function signOutUser() {
       statusEl.textContent = 'Odjavljujem korisnika...'
