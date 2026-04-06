@@ -591,82 +591,84 @@ function updateAddressLabel() {
     }
 
     async function saveAddress() {
-      try {
-        const street_id = streetSelectEl.value
-        const house_number = houseNumberEl.value.trim()
-        const house_number_suffix = houseSuffixEl.value.trim()
-        const full_address_label = addressLabelEl.value.trim()
-        const address_type = addressTypeEl.value
+  try {
+    const street_id = streetSelectEl.value
+    const house_number = houseNumberEl.value.trim()
+    const house_number_suffix = houseSuffixEl.value.trim()
+    const full_address_label = addressLabelEl.value.trim()
+    const address_type = addressTypeEl.value
 
-        if (!street_id || !house_number || !full_address_label || !address_type) {
-          statusEl.textContent = 'Popuni obavezna polja i izaberi ulicu.'
-          return
-        }
-
-        const selectedStreet = availableStreets.find(s => String(s.id) === String(street_id))
-        if (!selectedStreet) {
-          statusEl.textContent = 'Izabrana ulica nije validna.'
-          return
-        }
-
-// Provera duplikata
-const { data: existingRows, error: existingError } = await supabase
-  .from('addresses')
-  .select('id')
-  .eq('street_id', street_id)
-  .eq('full_address_label', full_address_label)
-  .limit(1)
-
-if (existingError) {
-  throw new Error(`Greška pri proveri duplikata: ${existingError.message}`)
-}
-
-if (existingRows && existingRows.length > 0) {
-  statusEl.textContent = `⚠️ Adresa "${full_address_label}" već postoji.`
-  return
-}
-        
-        saveBtn.disabled = true
-        saveBtn.textContent = 'Čuvam...'
-        statusEl.textContent = 'Upisujem novu adresu...'
-
-        const payload = {
-          street_id,
-          house_number,
-          house_number_suffix: house_number_suffix || null,
-          full_address_label,
-          address_type
-        }
-
-        const { error } = await supabase
-          .from('addresses')
-          .insert([payload])
-
-        if (error) {
-          throw new Error(error.message)
-        }
-
-        houseNumberEl.value = ''
-        houseSuffixEl.value = ''
-        addressLabelEl.value = ''
-        addressTypeEl.value = 'house'
-
-        if (availableStreets.length === 1) {
-          streetSelectEl.value = availableStreets[0].id
-        } else {
-          streetSelectEl.value = ''
-        }
-
-        statusEl.textContent = 'Adresa je uspešno sačuvana.'
-        await loadAddresses()
-      } catch (err) {
-        console.error('Greška pri upisu adrese:', err)
-        statusEl.textContent = `Greška pri upisu: ${err.message}`
-      } finally {
-        saveBtn.disabled = false
-        saveBtn.textContent = 'Sačuvaj adresu'
-      }
+    if (!street_id || !house_number || !full_address_label || !address_type) {
+      statusEl.textContent = 'Popuni obavezna polja i izaberi ulicu.'
+      return
     }
+
+    const selectedStreet = availableStreets.find(s => String(s.id) === String(street_id))
+    if (!selectedStreet) {
+      statusEl.textContent = 'Izabrana ulica nije validna.'
+      return
+    }
+
+    const normalizedLabel = full_address_label.trim()
+
+    const { data: existingRows, error: existingError } = await supabase
+      .from('addresses')
+      .select('id')
+      .eq('street_id', street_id)
+      .eq('full_address_label', normalizedLabel)
+      .limit(1)
+
+    if (existingError) {
+      throw new Error(`Greška pri proveri duplikata: ${existingError.message}`)
+    }
+
+    if (existingRows && existingRows.length > 0) {
+      statusEl.textContent = `⚠️ Adresa "${normalizedLabel}" već postoji.`
+      return
+    }
+
+    saveBtn.disabled = true
+    saveBtn.textContent = 'Čuvam...'
+    statusEl.textContent = 'Upisujem novu adresu...'
+
+    const payload = {
+      street_id,
+      house_number,
+      house_number_suffix: house_number_suffix || null,
+      full_address_label: normalizedLabel,
+      address_type
+    }
+
+    const { error } = await supabase
+      .from('addresses')
+      .insert([payload])
+
+    if (error) {
+      throw new Error(error.message)
+    }
+
+    houseNumberEl.value = ''
+    houseSuffixEl.value = ''
+    addressLabelEl.value = ''
+    addressTypeEl.value = 'house'
+
+    if (availableStreets.length === 1) {
+      streetSelectEl.value = availableStreets[0].id
+      updateAddressLabel()
+    } else {
+      streetSelectEl.value = ''
+    }
+
+    statusEl.textContent = 'Adresa je uspešno sačuvana.'
+    await loadAddresses()
+  } catch (err) {
+    console.error('Greška pri upisu adrese:', err)
+    statusEl.textContent = `Greška pri upisu: ${err.message}`
+  } finally {
+    saveBtn.disabled = false
+    saveBtn.textContent = 'Sačuvaj adresu'
+  }
+}
 
     async function initApp() {
       const ok = await loadCurrentUserAndProfile()
