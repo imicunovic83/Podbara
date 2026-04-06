@@ -610,14 +610,18 @@ function updateAddressLabel() {
         }
 
 // Provera duplikata
-const { data: existing } = await supabase
+const { data: existingRows, error: existingError } = await supabase
   .from('addresses')
   .select('id')
-  .eq('full_address_label', full_address_label)
   .eq('street_id', street_id)
-  .single()
+  .eq('full_address_label', full_address_label)
+  .limit(1)
 
-if (existing) {
+if (existingError) {
+  throw new Error(`Greška pri proveri duplikata: ${existingError.message}`)
+}
+
+if (existingRows && existingRows.length > 0) {
   statusEl.textContent = `⚠️ Adresa "${full_address_label}" već postoji.`
   return
 }
