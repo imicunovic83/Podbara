@@ -283,6 +283,10 @@
         </div>
         <div class="actions">
           <button id="saveBtn" type="button">Sačuvaj adresu</button>
+          <div class="actions">
+  <button id="saveBtn" type="button">Sačuvaj adresu</button>
+  <button id="deleteDuplicatesBtn" type="button" class="secondary-btn">❌ Obriši duplikate</button>
+</div>
         </div>
         <div class="note">
           Dropdown prikazuje samo ulice koje su dodeljene prijavljenom korisniku. Admin može videti sve aktivne ulice.
@@ -321,6 +325,8 @@
     const addressTypeEl = document.getElementById('addressType')
     const saveBtn = document.getElementById('saveBtn')
     const addressesEl = document.getElementById('addresses')
+    const deleteDuplicatesBtn = document.getElementById('deleteDuplicatesBtn')
+deleteDuplicatesBtn?.addEventListener('click', deleteDuplicateAddresses)
 
     let currentUser = null
     let currentProfile = null
@@ -559,7 +565,47 @@
         saveBtn.textContent = 'Sačuvaj adresu'
       }
     }
+async function deleteDuplicateAddresses() {
+  deleteDuplicatesBtn.disabled = true
+  deleteDuplicatesBtn.textContent = 'Brišem...'
+  statusEl.textContent = 'Tražim i brišem duplikate...'
 
+  try {
+    // Pronađi duplikate po full_address_label + street_id
+    const { data: duplicates, error } = await supabase
+      .rpc('find_duplicate_addresses')  // Ovo trebaš da napraviš u Supabase SQL Editor-u
+
+    if (error) throw error
+
+    if (!duplicates || duplicates.length === 0) {
+      statusEl.textContent = 'Nema duplikata za brisanje ✅'
+      return
+    }
+
+    // Obriši ih sve osim prvog
+    const deletedCount = 0
+    for (const dup of duplicates) {
+      const { error: deleteError } = await supabase
+        .from('addresses')
+        .delete()
+        .eq('id', dup.id)
+
+      if (deleteError) {
+        console.error('Greška brisanja:', deleteError)
+        continue
+      }
+      deletedCount++
+    }
+
+    statusEl.textContent = `🗑️ Obrišeno ${deletedCount} duplikata!`
+    await loadAddresses()
+  } catch (err) {
+    statusEl.textContent = `❌ Greška: ${err.message}`
+  } finally {
+    deleteDuplicatesBtn.disabled = false
+    deleteDuplicatesBtn.textContent = '❌ Obriši duplikate'
+  }
+}
     async function initApp() {
       statusEl.textContent = 'Pokretanje...'
       const ok = await loadCurrentUserAndProfile()
