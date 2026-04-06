@@ -4,10 +4,37 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Address Tracker</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 24px;
+      background: #f5f5f5;
+      color: #222;
+    }
+    .box {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      max-width: 900px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+    }
+    pre {
+      white-space: pre-wrap;
+      word-break: break-word;
+      background: #111;
+      color: #0f0;
+      padding: 16px;
+      border-radius: 8px;
+      overflow-x: auto;
+    }
+  </style>
 </head>
 <body>
-  <h1>Address Tracker</h1>
-  <p>Aplikacija je povezana u sledećem koraku.</p>
+  <div class="box">
+    <h1>Address Tracker</h1>
+    <p id="status">Povezivanje sa bazom...</p>
+    <pre id="result">Čekam odgovor...</pre>
+  </div>
 
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
@@ -17,7 +44,28 @@
 
     const supabase = createClient(supabaseUrl, supabaseKey)
 
-    console.log('Supabase povezan:', supabase)
+    const statusEl = document.getElementById('status')
+    const resultEl = document.getElementById('result')
+
+    async function testConnection() {
+      statusEl.textContent = 'Pokušavam da učitam podatke iz tabele addresses...'
+
+      const { data, error } = await supabase
+        .from('addresses')
+        .select('*')
+        .limit(5)
+
+      if (error) {
+        statusEl.textContent = 'Greška pri čitanju iz baze'
+        resultEl.textContent = JSON.stringify(error, null, 2)
+        return
+      }
+
+      statusEl.textContent = 'Uspešno povezano sa bazom'
+      resultEl.textContent = JSON.stringify(data, null, 2)
+    }
+
+    testConnection()
   </script>
 </body>
 </html>
