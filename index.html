@@ -38,6 +38,54 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.06);
     }
 
+    .form-box {
+      background: white;
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 24px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 6px;
+      font-weight: bold;
+    }
+
+    .field input,
+    .field select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 10px;
+      font-size: 14px;
+    }
+
+    .actions {
+      margin-top: 16px;
+    }
+
+    button {
+      background: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 12px 18px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #1d4ed8;
+    }
+
     .grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -75,14 +123,63 @@
       color: #6b7280;
       box-shadow: 0 4px 12px rgba(0,0,0,0.06);
     }
+
+    .note {
+      font-size: 13px;
+      color: #6b7280;
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>Address Tracker</h1>
-    <p class="subtitle">Pregled unetih adresa iz Supabase baze</p>
+    <p class="subtitle">Pregled i unos adresa iz Supabase baze</p>
 
-    <div id="status" class="status">Učitavanje adresa...</div>
+    <div id="status" class="status">Učitavanje...</div>
+
+    <div class="form-box">
+      <h2>Unos nove adrese</h2>
+
+      <div class="form-grid">
+        <div class="field">
+          <label for="streetId">Street ID</label>
+          <input id="streetId" type="text" value="02615204-824a-4e96-beff-d0cd367dae82" />
+        </div>
+
+        <div class="field">
+          <label for="houseNumber">Broj kuće</label>
+          <input id="houseNumber" type="text" placeholder="npr. 15" />
+        </div>
+
+        <div class="field">
+          <label for="houseSuffix">Dodatak broju</label>
+          <input id="houseSuffix" type="text" placeholder="npr. A" />
+        </div>
+
+        <div class="field">
+          <label for="addressLabel">Puna adresa</label>
+          <input id="addressLabel" type="text" placeholder="npr. Bele njive 15" />
+        </div>
+
+        <div class="field">
+          <label for="addressType">Tip adrese</label>
+          <select id="addressType">
+            <option value="house">house</option>
+            <option value="building">building</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="saveBtn">Sačuvaj adresu</button>
+      </div>
+
+      <div class="note">
+        Za sada je Street ID unapred popunjen posto već imamo ulicu "Bele njive".
+      </div>
+    </div>
+
     <div id="addresses"></div>
   </div>
 
@@ -96,6 +193,13 @@
 
     const statusEl = document.getElementById('status')
     const addressesEl = document.getElementById('addresses')
+    const saveBtn = document.getElementById('saveBtn')
+
+    const streetIdEl = document.getElementById('streetId')
+    const houseNumberEl = document.getElementById('houseNumber')
+    const houseSuffixEl = document.getElementById('houseSuffix')
+    const addressLabelEl = document.getElementById('addressLabel')
+    const addressTypeEl = document.getElementById('addressType')
 
     async function loadAddresses() {
       statusEl.textContent = 'Povezujem se sa bazom i učitavam adrese...'
@@ -132,6 +236,58 @@
         </div>
       `
     }
+
+    async function saveAddress() {
+      const street_id = streetIdEl.value.trim()
+      const house_number = houseNumberEl.value.trim()
+      const house_number_suffix = houseSuffixEl.value.trim()
+      const full_address_label = addressLabelEl.value.trim()
+      const address_type = addressTypeEl.value
+
+      if (!street_id || !house_number || !full_address_label || !address_type) {
+        statusEl.textContent = 'Popuni obavezna polja.'
+        return
+      }
+
+      saveBtn.disabled = true
+      saveBtn.textContent = 'Čuvam...'
+      statusEl.textContent = 'Upisujem novu adresu...'
+
+      const payload = {
+        street_id,
+        house_number,
+        full_address_label,
+        address_type
+      }
+
+      if (house_number_suffix) {
+        payload.house_number_suffix = house_number_suffix
+      }
+
+      const { error } = await supabase
+        .from('addresses')
+        .insert([payload])
+
+      if (error) {
+        statusEl.textContent = `Greška pri upisu: ${error.message}`
+        saveBtn.disabled = false
+        saveBtn.textContent = 'Sačuvaj adresu'
+        return
+      }
+
+      houseNumberEl.value = ''
+      houseSuffixEl.value = ''
+      addressLabelEl.value = ''
+      addressTypeEl.value = 'house'
+
+      statusEl.textContent = 'Adresa je uspešno sačuvana.'
+      saveBtn.disabled = false
+      saveBtn.textContent = 'Sačuvaj adresu'
+
+      await loadAddresses()
+    }
+
+    saveBtn.addEventListener('click', saveAddress)
 
     loadAddresses()
   </script>
