@@ -344,6 +344,11 @@
     let currentProfile = null
     let availableStreets = []
 
+    function cleanStreetName(value) {
+      if (!value) return ''
+      return String(value).replace(/^name\s*=\s*/i, '').trim()
+    }
+
     async function sendMagicLink() {
       const email = emailInputEl.value.trim()
 
@@ -501,14 +506,14 @@
         <option value="">Izaberi ulicu</option>
         ${availableStreets.map(street => `
           <option value="${street.id}">
-            ${street.name}${street.settlement_name ? ` (${street.settlement_name})` : ''}
+            ${cleanStreetName(street.name)}${street.settlement_name ? ` (${street.settlement_name})` : ''}
           </option>
         `).join('')}
       `
 
       assignedStreetsEl.innerHTML = `
         ${availableStreets.map(street => `
-          <li>${street.name}${street.settlement_name ? ` (${street.settlement_name})` : ''}</li>
+          <li>${cleanStreetName(street.name)}${street.settlement_name ? ` (${street.settlement_name})` : ''}</li>
         `).join('')}
       `
 
@@ -557,7 +562,7 @@
           ${data.map(item => `
             <div class="card">
               <h3>${item.full_address_label ?? 'Bez naziva adrese'}</h3>
-              <div class="row"><span class="label">Ulica:</span> ${item.streets?.name ?? '-'}</div>
+              <div class="row"><span class="label">Ulica:</span> ${cleanStreetName(item.streets?.name) || '-'}</div>
               <div class="row"><span class="label">Naselje:</span> ${item.streets?.settlement_name ?? '-'}</div>
               <div class="row"><span class="label">Broj:</span> ${item.house_number ?? '-'}</div>
               <div class="row"><span class="label">Dodatak:</span> ${item.house_number_suffix ?? '-'}</div>
