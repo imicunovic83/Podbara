@@ -5,67 +5,70 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Address Tracker</title>
   <style>
+    * { box-sizing: border-box; }
+
     body {
+      margin: 0;
       font-family: Arial, sans-serif;
-      padding: 24px;
-      background: #f5f5f5;
-      color: #222;
+      background: #f4f6f8;
+      color: #1f2937;
     }
-    .box {
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 32px 20px;
+    }
+
+    h1 {
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      color: #6b7280;
+      margin-bottom: 24px;
+    }
+
+    .status {
       background: white;
-      border-radius: 12px;
+      border-left: 4px solid #2563eb;
+      padding: 14px 16px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 14px;
+      padding: 18px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+    }
+
+    .card h3 {
+      margin-top: 0;
+      margin-bottom: 12px;
+      font-size: 20px;
+    }
+
+    .row {
+      margin: 6px 0;
+      font-size: 14px;
+      color: #374151;
+    }
+
+    .label {
+      font-weight: bold;
+      color: #111827;
+    }
+
+    .empty {
+      background: white;
       padding: 20px;
-      max-width: 900px;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
-    }
-    pre {
-      white-space: pre-wrap;
-      word-break: break-word;
-      background: #111;
-      color: #0f0;
-      padding: 16px;
-      border-radius: 8px;
-      overflow-x: auto;
-    }
-  </style>
-</head>
-<body>
-  <div class="box">
-    <h1>Address Tracker</h1>
-    <p id="status">Povezivanje sa bazom...</p>
-    <pre id="result">Čekam odgovor...</pre>
-  </div>
-
-  <script type="module">
-    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
-
-    const supabaseUrl = 'https://wdmipyooncrcdmvlloou.supabase.co'
-    const supabaseKey = 'sb_publishable_u-KtwCVzKm55-UAdFJ3FgQ_RsZSpm0u'
-
-    const supabase = createClient(supabaseUrl, supabaseKey)
-
-    const statusEl = document.getElementById('status')
-    const resultEl = document.getElementById('result')
-
-    async function testConnection() {
-      statusEl.textContent = 'Pokušavam da učitam podatke iz tabele addresses...'
-
-      const { data, error } = await supabase
-        .from('addresses')
-        .select('*')
-        .limit(5)
-
-      if (error) {
-        statusEl.textContent = 'Greška pri čitanju iz baze'
-        resultEl.textContent = JSON.stringify(error, null, 2)
-        return
-      }
-
-      statusEl.textContent = 'Uspešno povezano sa bazom'
-      resultEl.textContent = JSON.stringify(data, null, 2)
-    }
-
-    testConnection()
-  </script>
-</body>
-</html>
+      border-radius: 
