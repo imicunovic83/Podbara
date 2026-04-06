@@ -233,7 +233,7 @@
       </div>
 
       <div class="actions">
-        <button id="loginBtn">Pošalji magic link</button>
+        <button id="loginBtn" type="button">Pošalji magic link</button>
       </div>
 
       <div class="note">
@@ -247,7 +247,7 @@
           <div id="userBadge" class="user-badge">Nije prijavljen</div>
           <div id="roleBadge" class="role-badge">Rola: -</div>
         </div>
-        <button id="logoutBtn" class="secondary-btn">Logout</button>
+        <button id="logoutBtn" type="button" class="secondary-btn">Logout</button>
       </div>
 
       <div class="info-box">
@@ -296,11 +296,11 @@
         </div>
 
         <div class="actions">
-          <button id="saveBtn">Sačuvaj adresu</button>
+          <button id="saveBtn" type="button">Sačuvaj adresu</button>
         </div>
 
         <div class="note">
-          Dropdown prikazuje samo ulice koje su dodeljene prijavljenom korisniku. Admin može videti sve aktivne ulice, dok editor/viewer vidi samo dodeljene. RLS dodatno kontroliše pristup na nivou baze. [cite:519][web:761]
+          Dropdown prikazuje samo ulice koje su dodeljene prijavljenom korisniku. Admin može videti sve aktivne ulice, dok editor/viewer vidi samo dodeljene. RLS dodatno kontroliše pristup na nivou baze.
         </div>
       </div>
 
@@ -570,53 +570,64 @@
     }
 
     async function saveAddress() {
-      const street_id = streetSelectEl.value
-      const house_number = houseNumberEl.value.trim()
-      const house_number_suffix = houseSuffixEl.value.trim()
-      const full_address_label = addressLabelEl.value.trim()
-      const address_type = addressTypeEl.value
+      try {
+        const street_id = streetSelectEl.value
+        const house_number = houseNumberEl.value.trim()
+        const house_number_suffix = houseSuffixEl.value.trim()
+        const full_address_label = addressLabelEl.value.trim()
+        const address_type = addressTypeEl.value
 
-      if (!street_id || !house_number || !full_address_label || !address_type) {
-        statusEl.textContent = 'Popuni obavezna polja i izaberi ulicu.'
-        return
-      }
+        if (!street_id || !house_number || !full_address_label || !address_type) {
+          statusEl.textContent = 'Popuni obavezna polja i izaberi ulicu.'
+          return
+        }
 
-      saveBtn.disabled = true
-      saveBtn.textContent = 'Čuvam...'
-      statusEl.textContent = 'Upisujem novu adresu...'
+        const selectedStreet = availableStreets.find(s => String(s.id) === String(street_id))
+        if (!selectedStreet) {
+          statusEl.textContent = 'Izabrana ulica nije validna.'
+          return
+        }
 
-      const payload = {
-        street_id,
-        house_number,
-        full_address_label,
-        address_type
-      }
+        saveBtn.disabled = true
+        saveBtn.textContent = 'Čuvam...'
+        statusEl.textContent = 'Upisujem novu adresu...'
 
-      if (house_number_suffix) {
-        payload.house_number_suffix = house_number_suffix
-      }
+        const payload = {
+          street_id,
+          house_number,
+          house_number_suffix: house_number_suffix || null,
+          full_address_label,
+          address_type
+        }
 
-      const { error } = await supabase
-        .from('addresses')
-        .insert([payload])
+        const { error } = await supabase
+          .from('addresses')
+          .insert([payload])
 
-      if (error) {
-        statusEl.textContent = `Greška pri upisu: ${error.message}`
+        if (error) {
+          throw new Error(error.message)
+        }
+
+        houseNumberEl.value = ''
+        houseSuffixEl.value = ''
+        addressLabelEl.value = ''
+        addressTypeEl.value = 'house'
+
+        if (availableStreets.length === 1) {
+          streetSelectEl.value = availableStreets[0].id
+        } else {
+          streetSelectEl.value = ''
+        }
+
+        statusEl.textContent = 'Adresa je uspešno sačuvana.'
+        await loadAddresses()
+      } catch (err) {
+        console.error('Greška pri upisu adrese:', err)
+        statusEl.textContent = `Greška pri upisu: ${err.message}`
+      } finally {
         saveBtn.disabled = false
         saveBtn.textContent = 'Sačuvaj adresu'
-        return
       }
-
-      houseNumberEl.value = ''
-      houseSuffixEl.value = ''
-      addressLabelEl.value = ''
-      addressTypeEl.value = 'house'
-
-      saveBtn.disabled = false
-      saveBtn.textContent = 'Sačuvaj adresu'
-      statusEl.textContent = 'Adresa je uspešno sačuvana.'
-
-      await loadAddresses()
     }
 
     async function initApp() {
