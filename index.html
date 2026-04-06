@@ -345,10 +345,26 @@
     let availableStreets = []
 
     function cleanStreetName(value) {
-      if (!value) return ''
-      return String(value).replace(/^name\s*=\s*/i, '').trim()
-    }
+  if (!value) return ''
+  return String(value).replace(/^name\s*=\s*/i, '').trim()
+}
 
+function updateAddressLabel() {
+  const street_id = streetSelectEl.value
+  const house_number = houseNumberEl.value.trim()
+  const house_suffix = houseSuffixEl.value.trim()
+
+  const selectedStreet = availableStreets.find(s => String(s.id) === String(street_id))
+  const streetName = cleanStreetName(selectedStreet?.name || '')
+
+  if (!streetName && !house_number && !house_suffix) {
+    addressLabelEl.value = ''
+    return
+  }
+
+  const fullLabel = `${streetName}${house_number ? ` ${house_number}` : ''}${house_suffix || ''}`.trim()
+  addressLabelEl.value = fullLabel
+}
     async function sendMagicLink() {
       const email = emailInputEl.value.trim()
 
@@ -646,6 +662,10 @@
     loginBtn.addEventListener('click', sendMagicLink)
     logoutBtn.addEventListener('click', signOutUser)
     saveBtn.addEventListener('click', saveAddress)
+
+    streetSelectEl.addEventListener('change', updateAddressLabel)
+houseNumberEl.addEventListener('input', updateAddressLabel)
+houseSuffixEl.addEventListener('input', updateAddressLabel)
 
     supabase.auth.onAuthStateChange(async (event, session) => {
       if (session?.user) {
