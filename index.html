@@ -213,10 +213,11 @@
       color: #374151;
       line-height: 1.6;
     }
-    .card-actions
+   .card-actions {
   margin-top: 12px;
   display: flex;
-  gap
+  gap: 8px;
+}
   </style>
 </head>
 <body>
@@ -369,17 +370,21 @@ function updateAddressLabel() {
   const fullLabel = `${streetName}${house_number ? ` ${house_number}` : ''}${house_suffix || ''}`.trim()
   addressLabelEl.value = fullLabel
 }
-    async function sendMagicLink() {
-  loginBtn.disabled
+  
+  loginBtn.disabled = true
+  loginBtn.textContent = 'Skip login (admin)'
+  statusEl.textContent = 'Učitavam admin pristup...'
 
-      if (!email) {
-        statusEl.textContent = 'Unesi email adresu za prijavu.'
-        return
-      }
-
-      loginBtn.disabled = true
-      loginBtn.textContent = 'Šaljem...'
-      statusEl.textContent = 'Šaljem magic link na email...'
+  // SIMULACIJA ADMIN LOGIN-A (bypass email)
+  await new Promise(resolve => setTimeout(resolve, 1000))
+  
+  // Kreiraj fake admin user za testiranje
+  currentUser = { id: 'test-admin-123', email: 'admin@demo.com' }
+  currentProfile = { id: 'test-admin-123', role: 'admin', is_active: true }
+  
+  await initApp()
+  statusEl.textContent = '✅ Admin pristup aktivan - test mod!'
+}
 
       const { error } = await supabase.auth.signInWithOtp({
         email,
