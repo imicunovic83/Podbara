@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Address Tracker</title>
+</head>
+<body>
+  <h1>Address Tracker</h1>
+  <p>Aplikacija je povezana u sledećem koraku.</p>
+
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+
+    const supabaseUrl = 'https://wdmipyooncrcdmvlloou.supabase.co'
+    const supabaseKey = 'sb_publishable_u-KtwCVzKm55-UAdFJ3FgQ_RsZSpm0u'
+
+    const supabase = createClient(supabaseUrl, supabaseKey)
+
+    console.log('Supabase povezan:', supabase)
+  </script>
+</body>
+</html>
