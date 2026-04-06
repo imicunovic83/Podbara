@@ -374,6 +374,27 @@
       return String(value).replace(/^name\s*=\s*/i, '').trim()
     }
 
+    function normalizeStreetKey(name, settlement) {
+      return `${cleanStreetName(name).trim().toLowerCase()}||${String(settlement || '').trim().toLowerCase()}`
+    }
+
+    function dedupeStreets(streets) {
+      const uniqueMap = new Map()
+
+      for (const street of streets || []) {
+        const key = normalizeStreetKey(street.name, street.settlement_name)
+        if (!uniqueMap.has(key)) {
+          uniqueMap.set(key, street)
+        }
+      }
+
+      return Array.from(uniqueMap.values()).sort((a, b) => {
+        const nameA = cleanStreetName(a.name).toLowerCase()
+        const nameB = cleanStreetName(b.name).toLowerCase()
+        return nameA.localeCompare(nameB, 'sr')
+      })
+    }
+
     function setStatus(msg) {
       statusEl.textContent = msg
     }
@@ -492,23 +513,29 @@
         .from('streets')
         .select('id, name, settlement_name, is_active')
         .eq('is_active', true)
-        .order('name', { ascending: true })
 
       if (currentProfile.role !== 'admin') {
-        const { data: assignments } = await supabase
+        const { data: assignments, error: assignmentError } = await supabase
           .from('user_street_assignments')
           .select('street_id')
           .eq('user_id', currentUser.id)
           .eq('is_active', true)
 
-        const ids = assignments?.map(a => a.street_id) || []
-        if (ids.length === 0) {
-          streetSelectEl.innerHTML = '<option value="">Nema dozvoljenih ulica</option>'
-          assignedStreetsEl.innerHTML = '<li>Nema dodeljenih ulica</li>'
+        if (assignmentError) {
+          setStatus(`Greška assignments: ${assignmentError.message}`)
           return
         }
 
-        query = query.in('id', ids)
+        const uniqueIds = [...new Set((assignments || []).map(a => a.street_id).filter(Boolean))]
+
+        if (uniqueIds.length === 0) {
+          streetSelectEl.innerHTML = '<option value="">Nema dozvoljenih ulica</option>'
+          assignedStreetsEl.innerHTML = '<li>Nema dodeljenih ulica</li>'
+          availableStreets = []
+          return
+        }
+
+        query = query.in('id', uniqueIds)
       }
 
       const { data, error } = await query
@@ -517,7 +544,7 @@
         return
       }
 
-      availableStreets = data || []
+      availableStreets = dedupeStreets(data || [])
 
       streetSelectEl.innerHTML = `
         <option value="">Izaberi ulicu</option>
@@ -703,7 +730,7 @@
     }
 
     async function deleteAddress(id, label) {
-      const confirmed = confirm(`Da li sigurno želiš da obrišeš adresu \"${label}\"?`)
+      const confirmed = confirm(`Da li sigurno želiš da obrišeš adresu "${label}"?`)
       if (!confirmed) return
 
       try {
@@ -718,7 +745,7 @@
           exitEditMode()
         }
 
-        setStatus(`🗑️ Adresa \"${label}\" je obrisana.`)
+        setStatus(`🗑️ Adresa "${label}" je obrisana.`)
         await loadAddresses()
       } catch (err) {
         setStatus(`❌ Greška pri brisanju: ${err.message}`)
