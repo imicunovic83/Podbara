@@ -55,11 +55,6 @@
       border-radius: 14px;
       padding: 24px;
       box-shadow: 0 6px 18px rgba(0,0,0,0.08);
-    }
-
-    .auth-box,
-    .form-box,
-    .info-box {
       margin-bottom: 24px;
     }
 
@@ -213,11 +208,6 @@
       color: #374151;
       line-height: 1.6;
     }
-   .card-actions {
-  margin-top: 12px;
-  display: flex;
-  gap: 8px;
-}
   </style>
 </head>
 <body>
@@ -229,18 +219,15 @@
 
     <div id="authSection" class="auth-box">
       <h2>Prijava</h2>
-
       <div class="form-grid">
         <div class="field">
           <label for="emailInput">Email adresa</label>
           <input id="emailInput" type="email" placeholder="npr. tvojeime@email.com" />
         </div>
       </div>
-
       <div class="actions">
         <button id="loginBtn" type="button">Pošalji magic link</button>
       </div>
-
       <div class="note">
         Na email će stići link za prijavu. Kada klikneš link, vratiće te nazad na ovu aplikaciju.
       </div>
@@ -267,7 +254,6 @@
 
       <div class="form-box">
         <h2>Unos nove adrese</h2>
-
         <div class="form-grid">
           <div class="field">
             <label for="streetSelect">Ulica</label>
@@ -275,22 +261,18 @@
               <option value="">Učitavanje ulica...</option>
             </select>
           </div>
-
           <div class="field">
             <label for="houseNumber">Broj kuće</label>
             <input id="houseNumber" type="text" placeholder="npr. 15" />
           </div>
-
           <div class="field">
             <label for="houseSuffix">Dodatak broju</label>
             <input id="houseSuffix" type="text" placeholder="npr. A" />
           </div>
-
           <div class="field">
             <label for="addressLabel">Puna adresa</label>
             <input id="addressLabel" type="text" placeholder="npr. Bele njive 15" />
           </div>
-
           <div class="field">
             <label for="addressType">Tip adrese</label>
             <select id="addressType">
@@ -299,13 +281,11 @@
             </select>
           </div>
         </div>
-
         <div class="actions">
           <button id="saveBtn" type="button">Sačuvaj adresu</button>
         </div>
-
         <div class="note">
-          Dropdown prikazuje samo ulice koje su dodeljene prijavljenom korisniku. Admin može videti sve aktivne ulice, dok editor/viewer vidi samo dodeljene. RLS dodatno kontroliše pristup na nivou baze.
+          Dropdown prikazuje samo ulice koje su dodeljene prijavljenom korisniku. Admin može videti sve aktivne ulice.
         </div>
       </div>
 
@@ -315,34 +295,31 @@
   </div>
 
   <script type="module">
-    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
 
     const supabaseUrl = 'https://wdmipyooncrcdmvlloou.supabase.co'
     const supabaseKey = 'sb_publishable_u-KtwCVzKm55-UAdFJ3FgQ_RsZSpm0u'
 
     const supabase = createClient(supabaseUrl, supabaseKey)
 
+    // DOM elements
     const statusEl = document.getElementById('status')
     const authSectionEl = document.getElementById('authSection')
     const appSectionEl = document.getElementById('appSection')
-
     const userBadgeEl = document.getElementById('userBadge')
     const roleBadgeEl = document.getElementById('roleBadge')
     const infoEmailEl = document.getElementById('infoEmail')
     const infoRoleEl = document.getElementById('infoRole')
     const assignedStreetsEl = document.getElementById('assignedStreets')
-
     const emailInputEl = document.getElementById('emailInput')
     const loginBtn = document.getElementById('loginBtn')
     const logoutBtn = document.getElementById('logoutBtn')
-
     const streetSelectEl = document.getElementById('streetSelect')
     const houseNumberEl = document.getElementById('houseNumber')
     const houseSuffixEl = document.getElementById('houseSuffix')
     const addressLabelEl = document.getElementById('addressLabel')
     const addressTypeEl = document.getElementById('addressType')
     const saveBtn = document.getElementById('saveBtn')
-
     const addressesEl = document.getElementById('addresses')
 
     let currentUser = null
@@ -350,97 +327,54 @@
     let availableStreets = []
 
     function cleanStreetName(value) {
-  if (!value) return ''
-  return String(value).replace(/^name\s*=\s*/i, '').trim()
-}
-
-function updateAddressLabel() {
-  const street_id = streetSelectEl.value
-  const house_number = houseNumberEl.value.trim()
-  const house_suffix = houseSuffixEl.value.trim()
-
-  const selectedStreet = availableStreets.find(s => String(s.id) === String(street_id))
-  const streetName = cleanStreetName(selectedStreet?.name || '')
-
-  if (!streetName && !house_number && !house_suffix) {
-    addressLabelEl.value = ''
-    return
-  }
-
-  const fullLabel = `${streetName}${house_number ? ` ${house_number}` : ''}${house_suffix || ''}`.trim()
-  addressLabelEl.value = fullLabel
-}
-  
- async function signInWithMagicLink() {
-  const email = emailInputEl.value.trim()
-
-  if (!email) {
-    statusEl.textContent = 'Unesi validnu email adresu.'
-    return
-  }
-
-  statusEl.textContent = 'Šaljem magic link...'
-  loginBtn.disabled = true
-  loginBtn.textContent = 'Šaljem...'
-
-  const { error } = await supabase.auth.signInWithOtp({
-    email,
-    options: {
-      emailRedirectTo: 'https://imicunovic83.github.io/Podbara/'
+      if (!value) return ''
+      return String(value).replace(/^name\s*=\s*/i, '').trim()
     }
-  })
 
-  if (error) {
-    statusEl.textContent = `Greška pri slanju linka: ${error.message}`
-    loginBtn.disabled = false
-    loginBtn.textContent = 'Pošalji magic link'
-    return
-  }
+    function updateAddressLabel() {
+      const street_id = streetSelectEl.value
+      const house_number = houseNumberEl.value.trim()
+      const house_suffix = houseSuffixEl.value.trim()
 
-  statusEl.textContent = 'Magic link je poslat. Proveri email i klikni na link za prijavu.'
-  loginBtn.disabled = false
-  loginBtn.textContent = 'Pošalji magic link'
-}
+      const selectedStreet = availableStreets.find(s => String(s.id) === String(street_id))
+      const streetName = cleanStreetName(selectedStreet?.name || '')
 
-// OVO MOŽEŠ DA ZADRŽI AKO ŽELIŠ TEST ADMIN, ILI DA OBRUŠI
-loginBtn.disabled = true
-loginBtn.textContent = 'Skip login (admin)'
-statusEl.textContent = 'Učitavam admin pristup...'
+      if (streetName || house_number || house_suffix) {
+        const fullLabel = `${streetName}${house_number ? ` ${house_number}` : ''}${house_suffix || ''}`.trim()
+        addressLabelEl.value = fullLabel
+      }
+    }
 
-// SIMULACIJA ADMIN LOGIN-A (bypass email)
-await new Promise(resolve => setTimeout(resolve, 1000))
-  
-// Kreiraj fake admin user za testiranje
-currentUser = { id: 'test-admin-123', email: 'admin@demo.com' }
-currentProfile = { id: 'test-admin-123', role: 'admin', is_active: true }
-  
-await initApp()
-statusEl.textContent = '✅ Admin pristup aktivan - test mod!'
-
-    async function signOutUser() {
-      statusEl.textContent = 'Odjavljujem korisnika...'
-
-      const { error } = await supabase.auth.signOut()
-
-      if (error) {
-        statusEl.textContent = `Greška pri logout-u: ${error.message}`
+    async function signInWithMagicLink() {
+      const email = emailInputEl.value.trim()
+      if (!email) {
+        statusEl.textContent = 'Unesi validnu email adresu.'
         return
       }
 
-      renderLoggedOut()
-      statusEl.textContent = 'Uspešno si odjavljen.'
+      statusEl.textContent = 'Šaljem magic link...'
+      loginBtn.disabled = true
+
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          emailRedirectTo: window.location.origin + window.location.pathname
+        }
+      })
+
+      loginBtn.disabled = false
+
+      if (error) {
+        statusEl.textContent = `Greška: ${error.message}`
+        return
+      }
+
+      statusEl.textContent = 'Magic link poslat! Proveri email.'
     }
 
     function renderLoggedOut() {
       authSectionEl.classList.remove('hidden')
       appSectionEl.classList.add('hidden')
-      userBadgeEl.textContent = 'Nije prijavljen'
-      roleBadgeEl.textContent = 'Rola: -'
-      infoEmailEl.textContent = '-'
-      infoRoleEl.textContent = '-'
-      assignedStreetsEl.innerHTML = '<li>Nema podataka</li>'
-      streetSelectEl.innerHTML = '<option value="">Prijavi se prvo</option>'
-      addressesEl.innerHTML = ''
       currentUser = null
       currentProfile = null
       availableStreets = []
@@ -449,96 +383,72 @@ statusEl.textContent = '✅ Admin pristup aktivan - test mod!'
     function renderLoggedIn(user, profile) {
       authSectionEl.classList.add('hidden')
       appSectionEl.classList.remove('hidden')
-
-      userBadgeEl.textContent = `Prijavljen: ${user.email ?? 'Nepoznat korisnik'}`
+      userBadgeEl.textContent = `Prijavljen: ${user.email}`
       roleBadgeEl.textContent = `Rola: ${profile?.role ?? 'nepoznata'}`
-      infoEmailEl.textContent = user.email ?? '-'
+      infoEmailEl.textContent = user.email
       infoRoleEl.textContent = profile?.role ?? '-'
     }
 
     async function loadCurrentUserAndProfile() {
-      const { data: userData, error: userError } = await supabase.auth.getUser()
-
-      if (userError || !userData?.user) {
+      const { data: { user }, error } = await supabase.auth.getUser()
+      
+      if (error || !user) {
         renderLoggedOut()
-        statusEl.textContent = 'Nisi prijavljen. Pošalji magic link za pristup aplikaciji.'
         return false
       }
 
-      currentUser = userData.user
+      currentUser = user
 
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('id, email, full_name, role, is_active')
-        .eq('id', currentUser.id)
+        .eq('id', user.id)
         .single()
 
-      if (profileError) {
-        statusEl.textContent = `Greška pri učitavanju profila: ${profileError.message}`
+      if (profileError || !profile) {
+        statusEl.textContent = 'Profil nije pronađen.'
         return false
       }
 
       currentProfile = profile
-      renderLoggedIn(currentUser, currentProfile)
+      renderLoggedIn(user, profile)
       return true
     }
 
     async function loadAllowedStreets() {
       if (!currentProfile) return
 
-      statusEl.textContent = 'Učitavam dozvoljene ulice...'
+      let query = supabase
+        .from('streets')
+        .select('id, name, settlement_name, is_active')
+        .eq('is_active', true)
+        .order('name', { ascending: true })
 
-      if (currentProfile.role === 'admin') {
-        const { data, error } = await supabase
-          .from('streets')
-          .select('id, name, settlement_name, is_active')
-          .eq('is_active', true)
-          .order('name', { ascending: true })
-
-        if (error) {
-          statusEl.textContent = `Greška pri učitavanju ulica: ${error.message}`
-          streetSelectEl.innerHTML = '<option value="">Greška pri učitavanju</option>'
-          assignedStreetsEl.innerHTML = '<li>Greška pri učitavanju</li>'
-          return
-        }
-
-        availableStreets = data || []
-      } else {
-        const { data, error } = await supabase
+      if (currentProfile.role !== 'admin') {
+        const { data: assignments } = await supabase
           .from('user_street_assignments')
-          .select(`
-            id,
-            street_id,
-            is_active,
-            streets (
-              id,
-              name,
-              settlement_name,
-              is_active
-            )
-          `)
+          .select('street_id')
           .eq('user_id', currentUser.id)
           .eq('is_active', true)
 
-        if (error) {
-          statusEl.textContent = `Greška pri učitavanju assigned streets: ${error.message}`
-          streetSelectEl.innerHTML = '<option value="">Greška pri učitavanju</option>'
-          assignedStreetsEl.innerHTML = '<li>Greška pri učitavanju</li>'
+        const streetIds = assignments?.map(a => a.street_id) || []
+        if (streetIds.length === 0) {
+          streetSelectEl.innerHTML = '<option value="">Nema dozvoljenih ulica</option>'
+          assignedStreetsEl.innerHTML = '<li>Nema dodeljenih ulica</li>'
           return
         }
-
-        availableStreets = (data || [])
-          .map(item => item.streets)
-          .filter(Boolean)
-          .filter(street => street.is_active !== false)
+        query = query.in('id', streetIds)
       }
 
-      if (!availableStreets.length) {
-        streetSelectEl.innerHTML = '<option value="">Nema dozvoljenih ulica</option>'
-        assignedStreetsEl.innerHTML = '<li>Nema dodeljenih ulica</li>'
+      const { data, error } = await query
+
+      if (error) {
+        statusEl.textContent = `Greška ulice: ${error.message}`
         return
       }
 
+      availableStreets = data || []
+      
       streetSelectEl.innerHTML = `
         <option value="">Izaberi ulicu</option>
         ${availableStreets.map(street => `
@@ -548,49 +458,30 @@ statusEl.textContent = '✅ Admin pristup aktivan - test mod!'
         `).join('')}
       `
 
-      assignedStreetsEl.innerHTML = `
-        ${availableStreets.map(street => `
-          <li>${cleanStreetName(street.name)}${street.settlement_name ? ` (${street.settlement_name})` : ''}</li>
-        `).join('')}
-      `
-
-      if (availableStreets.length === 1) {
-        streetSelectEl.value = availableStreets[0].id
-      }
+      assignedStreetsEl.innerHTML = availableStreets.length 
+        ? availableStreets.map(street => `<li>${cleanStreetName(street.name)}${street.settlement_name ? ` (${street.settlement_name})` : ''}</li>`).join('')
+        : '<li>Nema dodeljenih ulica</li>'
     }
 
     async function loadAddresses() {
-      statusEl.textContent = 'Učitavam adrese...'
-
-      const { data, error } = await supabase
+      let query = supabase
         .from('addresses')
         .select(`
-          id,
-          street_id,
-          house_number,
-          house_number_suffix,
-          full_address_label,
-          address_type,
-          is_active,
-          created_at,
-          streets (
-            id,
-            name,
-            settlement_name
-          )
+          id, street_id, house_number, house_number_suffix, 
+          full_address_label, address_type, is_active, created_at,
+          streets (id, name, settlement_name)
         `)
         .order('created_at', { ascending: false })
 
+      const { data, error } = await query
+
       if (error) {
-        statusEl.textContent = `Greška pri učitavanju adresa: ${error.message}`
-        addressesEl.innerHTML = `<div class="empty">${error.message}</div>`
+        addressesEl.innerHTML = `<div class="empty">Greška: ${error.message}</div>`
         return
       }
 
-      statusEl.textContent = `Uspešno učitano adresa: ${data.length}`
-
-      if (!data || data.length === 0) {
-        addressesEl.innerHTML = `<div class="empty">Nema dostupnih adresa za ovog korisnika.</div>`
+      if (!data?.length) {
+        addressesEl.innerHTML = '<div class="empty">Nema adresa.</div>'
         return
       }
 
@@ -598,7 +489,7 @@ statusEl.textContent = '✅ Admin pristup aktivan - test mod!'
         <div class="grid">
           ${data.map(item => `
             <div class="card">
-              <h3>${item.full_address_label ?? 'Bez naziva adrese'}</h3>
+              <h3>${item.full_address_label ?? 'Bez naziva'}</h3>
               <div class="row"><span class="label">Ulica:</span> ${cleanStreetName(item.streets?.name) || '-'}</div>
               <div class="row"><span class="label">Naselje:</span> ${item.streets?.settlement_name ?? '-'}</div>
               <div class="row"><span class="label">Broj:</span> ${item.house_number ?? '-'}</div>
@@ -612,105 +503,90 @@ statusEl.textContent = '✅ Admin pristup aktivan - test mod!'
     }
 
     async function saveAddress() {
-  try {
-    const street_id = streetSelectEl.value
-    const house_number = houseNumberEl.value.trim()
-    const house_number_suffix = houseSuffixEl.value.trim()
-    const full_address_label = addressLabelEl.value.trim()
-    const address_type = addressTypeEl.value
+      const street_id = streetSelectEl.value
+      const house_number = houseNumberEl.value.trim()
+      const house_number_suffix = houseSuffixEl.value.trim()
+      const full_address_label = addressLabelEl.value.trim()
+      const address_type = addressTypeEl.value
 
-    if (!street_id || !house_number || !full_address_label || !address_type) {
-      statusEl.textContent = 'Popuni obavezna polja i izaberi ulicu.'
-      return
+      if (!street_id || !house_number || !full_address_label || !address_type) {
+        statusEl.textContent = 'Popuni sva obavezna polja!'
+        return
+      }
+
+      saveBtn.disabled = true
+      saveBtn.textContent = 'Čuvam...'
+
+      try {
+        // Check for duplicates
+        const { data: existing } = await supabase
+          .from('addresses')
+          .select('id')
+          .eq('street_id', street_id)
+          .eq('full_address_label', full_address_label)
+          .maybeSingle()
+
+        if (existing) {
+          statusEl.textContent = '❌ Adresa već postoji!'
+          return
+        }
+
+        const { error } = await supabase
+          .from('addresses')
+          .insert([{
+            street_id: Number(street_id),
+            house_number,
+            house_number_suffix: house_number_suffix || null,
+            full_address_label,
+            address_type
+          }])
+
+        if (error) throw error
+
+        // Reset form
+        streetSelectEl.value = ''
+        houseNumberEl.value = ''
+        houseSuffixEl.value = ''
+        addressLabelEl.value = ''
+        addressTypeEl.value = 'house'
+
+        statusEl.textContent = '✅ Adresa sačuvana!'
+        await loadAddresses()
+      } catch (error) {
+        statusEl.textContent = `❌ Greška: ${error.message}`
+      } finally {
+        saveBtn.disabled = false
+        saveBtn.textContent = 'Sačuvaj adresu'
+      }
     }
-
-    const selectedStreet = availableStreets.find(s => String(s.id) === String(street_id))
-    if (!selectedStreet) {
-      statusEl.textContent = 'Izabrana ulica nije validna.'
-      return
-    }
-
-    const normalizedLabel = full_address_label.trim()
-
-    const { data: existingRows, error: existingError } = await supabase
-      .from('addresses')
-      .select('id')
-      .eq('street_id', street_id)
-      .eq('full_address_label', normalizedLabel)
-      .limit(1)
-
-    if (existingError) {
-      throw new Error(`Greška pri proveri duplikata: ${existingError.message}`)
-    }
-
-    if (existingRows && existingRows.length > 0) {
-      statusEl.textContent = `⚠️ Adresa "${normalizedLabel}" već postoji.`
-      return
-    }
-
-    saveBtn.disabled = true
-    saveBtn.textContent = 'Čuvam...'
-    statusEl.textContent = 'Upisujem novu adresu...'
-
-    const payload = {
-      street_id,
-      house_number,
-      house_number_suffix: house_number_suffix || null,
-      full_address_label: normalizedLabel,
-      address_type
-    }
-
-    const { error } = await supabase
-      .from('addresses')
-      .insert([payload])
-
-    if (error) {
-      throw new Error(error.message)
-    }
-
-    houseNumberEl.value = ''
-    houseSuffixEl.value = ''
-    addressLabelEl.value = ''
-    addressTypeEl.value = 'house'
-
-    if (availableStreets.length === 1) {
-      streetSelectEl.value = availableStreets[0].id
-      updateAddressLabel()
-    } else {
-      streetSelectEl.value = ''
-    }
-
-    statusEl.textContent = 'Adresa je uspešno sačuvana.'
-    await loadAddresses()
-  } catch (err) {
-    console.error('Greška pri upisu adrese:', err)
-    statusEl.textContent = `Greška pri upisu: ${err.message}`
-  } finally {
-    saveBtn.disabled = false
-    saveBtn.textContent = 'Sačuvaj adresu'
-  }
-}
 
     async function initApp() {
+      statusEl.textContent = 'Pokretanje...'
       const ok = await loadCurrentUserAndProfile()
-      if (!ok) return
-
-      await loadAllowedStreets()
-      await loadAddresses()
+      if (ok) {
+        await loadAllowedStreets()
+        await loadAddresses()
+        statusEl.textContent = '✅ Spreman za rad!'
+      }
     }
 
-    streetSelectEl.addEventListener('change', updateAddressLabel)
-houseNumberEl.addEventListener('input', updateAddressLabel)
-houseSuffixEl.addEventListener('input', updateAddressLabel)
+    // Event listeners
+    loginBtn.addEventListener('click', signInWithMagicLink)
+    logoutBtn.addEventListener('click', async () => {
+      await supabase.auth.signOut()
+    })
+    saveBtn.addEventListener('click', saveAddress)
 
-    supabase.auth.onAuthStateChange(async (event, session) => {
-      if (session?.user) {
-        await initApp()
-      } else {
-        renderLoggedOut()
-      }
+    streetSelectEl.addEventListener('change', updateAddressLabel)
+    houseNumberEl.addEventListener('input', updateAddressLabel)
+    houseSuffixEl.addEventListener('input', updateAddressLabel)
+
+    // Auth state change
+    supabase.auth.onAuthStateChange(async () => {
+      await initApp()
     })
 
+    // Initial load
     initApp()
   </script>
 </body>
