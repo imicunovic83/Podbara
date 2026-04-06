@@ -609,6 +609,19 @@ function updateAddressLabel() {
           return
         }
 
+// Provera duplikata
+const { data: existing } = await supabase
+  .from('addresses')
+  .select('id')
+  .eq('full_address_label', full_address_label)
+  .eq('street_id', street_id)
+  .single()
+
+if (existing) {
+  statusEl.textContent = `⚠️ Adresa "${full_address_label}" već postoji.`
+  return
+}
+        
         saveBtn.disabled = true
         saveBtn.textContent = 'Čuvam...'
         statusEl.textContent = 'Upisujem novu adresu...'
