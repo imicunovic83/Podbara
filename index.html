@@ -47,12 +47,35 @@
       font-size: 16px;
     }
 
-    .form-box {
+    .auth-box,
+    .form-box,
+    .card {
       background: white;
       border-radius: 14px;
       padding: 24px;
-      margin-bottom: 24px;
       box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+    }
+
+    .auth-box,
+    .form-box {
+      margin-bottom: 24px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .user-badge {
+      background: white;
+      padding: 10px 14px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+      font-size: 14px;
     }
 
     .form-grid {
@@ -87,6 +110,9 @@
 
     .actions {
       margin-top: 18px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
     }
 
     button {
@@ -108,17 +134,18 @@
       cursor: not-allowed;
     }
 
+    .secondary-btn {
+      background: #111827;
+    }
+
+    .secondary-btn:hover {
+      background: #000000;
+    }
+
     .grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
       gap: 18px;
-    }
-
-    .card {
-      background: white;
-      border-radius: 14px;
-      padding: 18px;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
     }
 
     .card h3 {
@@ -151,12 +178,17 @@
       font-size: 13px;
       color: #6b7280;
       margin-top: 10px;
+      line-height: 1.5;
     }
 
     .section-title {
       margin: 26px 0 14px;
       font-size: 22px;
       color: #111827;
+    }
+
+    .hidden {
+      display: none;
     }
   </style>
 </head>
@@ -167,52 +199,79 @@
 
     <div id="status" class="status">Učitavanje...</div>
 
-    <div class="form-box">
-      <h2>Unos nove adrese</h2>
+    <div id="authSection" class="auth-box">
+      <h2>Prijava</h2>
 
       <div class="form-grid">
         <div class="field">
-          <label for="streetSelect">Ulica</label>
-          <select id="streetSelect">
-            <option value="">Učitavanje ulica...</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label for="houseNumber">Broj kuće</label>
-          <input id="houseNumber" type="text" placeholder="npr. 15" />
-        </div>
-
-        <div class="field">
-          <label for="houseSuffix">Dodatak broju</label>
-          <input id="houseSuffix" type="text" placeholder="npr. A" />
-        </div>
-
-        <div class="field">
-          <label for="addressLabel">Puna adresa</label>
-          <input id="addressLabel" type="text" placeholder="npr. Bele njive 15" />
-        </div>
-
-        <div class="field">
-          <label for="addressType">Tip adrese</label>
-          <select id="addressType">
-            <option value="house">house</option>
-            <option value="building">building</option>
-          </select>
+          <label for="emailInput">Email adresa</label>
+          <input id="emailInput" type="email" placeholder="npr. tvojeime@email.com" />
         </div>
       </div>
 
       <div class="actions">
-        <button id="saveBtn">Sačuvaj adresu</button>
+        <button id="loginBtn">Pošalji magic link</button>
       </div>
 
       <div class="note">
-        Sada biraš ulicu po imenu, a aplikacija u pozadini šalje odgovarajući street_id.
+        Na email će stići link za prijavu. Kada klikneš link, vratiće te nazad na ovu aplikaciju.  
+        Obavezno prethodno podesi Redirect URL u Supabase Auth podešavanjima.
       </div>
     </div>
 
-    <h2 class="section-title">Lista adresa</h2>
-    <div id="addresses"></div>
+    <div id="appSection" class="hidden">
+      <div class="topbar">
+        <div id="userBadge" class="user-badge">Nije prijavljen</div>
+        <button id="logoutBtn" class="secondary-btn">Logout</button>
+      </div>
+
+      <div class="form-box">
+        <h2>Unos nove adrese</h2>
+
+        <div class="form-grid">
+          <div class="field">
+            <label for="streetSelect">Ulica</label>
+            <select id="streetSelect">
+              <option value="">Učitavanje ulica...</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="houseNumber">Broj kuće</label>
+            <input id="houseNumber" type="text" placeholder="npr. 15" />
+          </div>
+
+          <div class="field">
+            <label for="houseSuffix">Dodatak broju</label>
+            <input id="houseSuffix" type="text" placeholder="npr. A" />
+          </div>
+
+          <div class="field">
+            <label for="addressLabel">Puna adresa</label>
+            <input id="addressLabel" type="text" placeholder="npr. Bele njive 15" />
+          </div>
+
+          <div class="field">
+            <label for="addressType">Tip adrese</label>
+            <select id="addressType">
+              <option value="house">house</option>
+              <option value="building">building</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button id="saveBtn">Sačuvaj adresu</button>
+        </div>
+
+        <div class="note">
+          Posle logina možeš unositi nove adrese. Sledeći korak posle ovoga biće role i ograničenje pristupa po ulicama.
+        </div>
+      </div>
+
+      <h2 class="section-title">Lista adresa</h2>
+      <div id="addresses"></div>
+    </div>
   </div>
 
   <script type="module">
@@ -224,6 +283,14 @@
     const supabase = createClient(supabaseUrl, supabaseKey)
 
     const statusEl = document.getElementById('status')
+    const authSectionEl = document.getElementById('authSection')
+    const appSectionEl = document.getElementById('appSection')
+    const userBadgeEl = document.getElementById('userBadge')
+
+    const emailInputEl = document.getElementById('emailInput')
+    const loginBtn = document.getElementById('loginBtn')
+    const logoutBtn = document.getElementById('logoutBtn')
+
     const addressesEl = document.getElementById('addresses')
     const saveBtn = document.getElementById('saveBtn')
 
@@ -233,7 +300,62 @@
     const addressLabelEl = document.getElementById('addressLabel')
     const addressTypeEl = document.getElementById('addressType')
 
-    let streetsCache = []
+    async function sendMagicLink() {
+      const email = emailInputEl.value.trim()
+
+      if (!email) {
+        statusEl.textContent = 'Unesi email adresu za prijavu.'
+        return
+      }
+
+      loginBtn.disabled = true
+      loginBtn.textContent = 'Šaljem...'
+      statusEl.textContent = 'Šaljem magic link na email...'
+
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          emailRedirectTo: 'https://imicunovic83.github.io/Podbara/'
+        }
+      })
+
+      if (error) {
+        statusEl.textContent = `Greška pri slanju linka: ${error.message}`
+        loginBtn.disabled = false
+        loginBtn.textContent = 'Pošalji magic link'
+        return
+      }
+
+      statusEl.textContent = 'Magic link je poslat. Proveri email i klikni na link za prijavu.'
+      loginBtn.disabled = false
+      loginBtn.textContent = 'Pošalji magic link'
+    }
+
+    async function signOutUser() {
+      statusEl.textContent = 'Odjavljujem korisnika...'
+
+      const { error } = await supabase.auth.signOut()
+
+      if (error) {
+        statusEl.textContent = `Greška pri logout-u: ${error.message}`
+        return
+      }
+
+      statusEl.textContent = 'Uspešno si odjavljen.'
+      renderLoggedOut()
+    }
+
+    function renderLoggedOut() {
+      authSectionEl.classList.remove('hidden')
+      appSectionEl.classList.add('hidden')
+      userBadgeEl.textContent = 'Nije prijavljen'
+    }
+
+    function renderLoggedIn(user) {
+      authSectionEl.classList.add('hidden')
+      appSectionEl.classList.remove('hidden')
+      userBadgeEl.textContent = `Prijavljen: ${user.email ?? 'Nepoznat korisnik'}`
+    }
 
     async function loadStreets() {
       const { data, error } = await supabase
@@ -248,29 +370,23 @@
         return
       }
 
-      streetsCache = data || []
-
-      if (streetsCache.length === 0) {
+      if (!data || data.length === 0) {
         streetSelectEl.innerHTML = `<option value="">Nema dostupnih ulica</option>`
         return
       }
 
       streetSelectEl.innerHTML = `
         <option value="">Izaberi ulicu</option>
-        ${streetsCache.map(street => `
+        ${data.map(street => `
           <option value="${street.id}">
             ${street.name}${street.settlement_name ? ` (${street.settlement_name})` : ''}
           </option>
         `).join('')}
       `
-
-      if (streetsCache.length === 1) {
-        streetSelectEl.value = streetsCache[0].id
-      }
     }
 
     async function loadAddresses() {
-      statusEl.textContent = 'Povezujem se sa bazom i učitavam adrese...'
+      statusEl.textContent = 'Učitavam adrese...'
 
       const { data, error } = await supabase
         .from('addresses')
@@ -371,14 +487,43 @@
       await loadAddresses()
     }
 
-    saveBtn.addEventListener('click', saveAddress)
+    async function handleSession() {
+      const { data, error } = await supabase.auth.getSession()
 
-    async function init() {
+      if (error) {
+        statusEl.textContent = `Greška pri proveri sesije: ${error.message}`
+        renderLoggedOut()
+        return
+      }
+
+      const session = data.session
+
+      if (!session || !session.user) {
+        statusEl.textContent = 'Nisi prijavljen. Pošalji magic link za pristup aplikaciji.'
+        renderLoggedOut()
+        return
+      }
+
+      renderLoggedIn(session.user)
       await loadStreets()
       await loadAddresses()
     }
 
-    init()
+    loginBtn.addEventListener('click', sendMagicLink)
+    logoutBtn.addEventListener('click', signOutUser)
+    saveBtn.addEventListener('click', saveAddress)
+
+    supabase.auth.onAuthStateChange(async (event, session) => {
+      if (session?.user) {
+        renderLoggedIn(session.user)
+        await loadStreets()
+        await loadAddresses()
+      } else {
+        renderLoggedOut()
+      }
+    })
+
+    handleSession()
   </script>
 </body>
 </html>
