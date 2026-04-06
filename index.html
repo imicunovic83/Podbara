@@ -15,18 +15,26 @@
     }
 
     .container {
-      max-width: 1000px;
+      max-width: 1100px;
       margin: 0 auto;
       padding: 32px 20px;
     }
 
     h1 {
       margin-bottom: 8px;
+      font-size: 48px;
+    }
+
+    h2 {
+      margin-top: 0;
+      margin-bottom: 20px;
+      font-size: 22px;
     }
 
     .subtitle {
       color: #6b7280;
       margin-bottom: 24px;
+      font-size: 16px;
     }
 
     .status {
@@ -36,20 +44,21 @@
       border-radius: 10px;
       margin-bottom: 20px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+      font-size: 16px;
     }
 
     .form-box {
       background: white;
       border-radius: 14px;
-      padding: 20px;
+      padding: 24px;
       margin-bottom: 24px;
       box-shadow: 0 6px 18px rgba(0,0,0,0.08);
     }
 
     .form-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 14px;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
     }
 
     .field label {
@@ -62,14 +71,22 @@
     .field input,
     .field select {
       width: 100%;
-      padding: 10px 12px;
+      padding: 12px 14px;
       border: 1px solid #d1d5db;
       border-radius: 10px;
-      font-size: 14px;
+      font-size: 15px;
+      background: white;
+    }
+
+    .field input:focus,
+    .field select:focus {
+      outline: none;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
     }
 
     .actions {
-      margin-top: 16px;
+      margin-top: 18px;
     }
 
     button {
@@ -78,7 +95,7 @@
       border: none;
       border-radius: 10px;
       padding: 12px 18px;
-      font-size: 14px;
+      font-size: 15px;
       cursor: pointer;
     }
 
@@ -86,10 +103,15 @@
       background: #1d4ed8;
     }
 
+    button:disabled {
+      background: #93c5fd;
+      cursor: not-allowed;
+    }
+
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 18px;
     }
 
     .card {
@@ -107,8 +129,9 @@
 
     .row {
       margin: 6px 0;
-      font-size: 14px;
+      font-size: 15px;
       color: #374151;
+      line-height: 1.5;
     }
 
     .label {
@@ -129,6 +152,12 @@
       color: #6b7280;
       margin-top: 10px;
     }
+
+    .section-title {
+      margin: 26px 0 14px;
+      font-size: 22px;
+      color: #111827;
+    }
   </style>
 </head>
 <body>
@@ -143,8 +172,10 @@
 
       <div class="form-grid">
         <div class="field">
-          <label for="streetId">Street ID</label>
-          <input id="streetId" type="text" value="02615204-824a-4e96-beff-d0cd367dae82" />
+          <label for="streetSelect">Ulica</label>
+          <select id="streetSelect">
+            <option value="">Učitavanje ulica...</option>
+          </select>
         </div>
 
         <div class="field">
@@ -176,10 +207,11 @@
       </div>
 
       <div class="note">
-        Za sada je Street ID unapred popunjen posto već imamo ulicu "Bele njive".
+        Sada biraš ulicu po imenu, a aplikacija u pozadini šalje odgovarajući street_id.
       </div>
     </div>
 
+    <h2 class="section-title">Lista adresa</h2>
     <div id="addresses"></div>
   </div>
 
@@ -195,18 +227,68 @@
     const addressesEl = document.getElementById('addresses')
     const saveBtn = document.getElementById('saveBtn')
 
-    const streetIdEl = document.getElementById('streetId')
+    const streetSelectEl = document.getElementById('streetSelect')
     const houseNumberEl = document.getElementById('houseNumber')
     const houseSuffixEl = document.getElementById('houseSuffix')
     const addressLabelEl = document.getElementById('addressLabel')
     const addressTypeEl = document.getElementById('addressType')
+
+    let streetsCache = []
+
+    async function loadStreets() {
+      const { data, error } = await supabase
+        .from('streets')
+        .select('id, name, settlement_name, is_active')
+        .eq('is_active', true)
+        .order('name', { ascending: true })
+
+      if (error) {
+        streetSelectEl.innerHTML = `<option value="">Greška pri učitavanju ulica</option>`
+        statusEl.textContent = `Greška pri učitavanju ulica: ${error.message}`
+        return
+      }
+
+      streetsCache = data || []
+
+      if (streetsCache.length === 0) {
+        streetSelectEl.innerHTML = `<option value="">Nema dostupnih ulica</option>`
+        return
+      }
+
+      streetSelectEl.innerHTML = `
+        <option value="">Izaberi ulicu</option>
+        ${streetsCache.map(street => `
+          <option value="${street.id}">
+            ${street.name}${street.settlement_name ? ` (${street.settlement_name})` : ''}
+          </option>
+        `).join('')}
+      `
+
+      if (streetsCache.length === 1) {
+        streetSelectEl.value = streetsCache[0].id
+      }
+    }
 
     async function loadAddresses() {
       statusEl.textContent = 'Povezujem se sa bazom i učitavam adrese...'
 
       const { data, error } = await supabase
         .from('addresses')
-        .select('*')
+        .select(`
+          id,
+          street_id,
+          house_number,
+          house_number_suffix,
+          full_address_label,
+          address_type,
+          is_active,
+          created_at,
+          streets (
+            id,
+            name,
+            settlement_name
+          )
+        `)
         .order('created_at', { ascending: false })
 
       if (error) {
@@ -227,10 +309,12 @@
           ${data.map(item => `
             <div class="card">
               <h3>${item.full_address_label ?? 'Bez naziva adrese'}</h3>
+              <div class="row"><span class="label">Ulica:</span> ${item.streets?.name ?? '-'}</div>
+              <div class="row"><span class="label">Naselje:</span> ${item.streets?.settlement_name ?? '-'}</div>
               <div class="row"><span class="label">Broj:</span> ${item.house_number ?? '-'}</div>
+              <div class="row"><span class="label">Dodatak:</span> ${item.house_number_suffix ?? '-'}</div>
               <div class="row"><span class="label">Tip:</span> ${item.address_type ?? '-'}</div>
               <div class="row"><span class="label">Aktivna:</span> ${item.is_active ? 'Da' : 'Ne'}</div>
-              <div class="row"><span class="label">Street ID:</span> ${item.street_id ?? '-'}</div>
             </div>
           `).join('')}
         </div>
@@ -238,14 +322,14 @@
     }
 
     async function saveAddress() {
-      const street_id = streetIdEl.value.trim()
+      const street_id = streetSelectEl.value
       const house_number = houseNumberEl.value.trim()
       const house_number_suffix = houseSuffixEl.value.trim()
       const full_address_label = addressLabelEl.value.trim()
       const address_type = addressTypeEl.value
 
       if (!street_id || !house_number || !full_address_label || !address_type) {
-        statusEl.textContent = 'Popuni obavezna polja.'
+        statusEl.textContent = 'Popuni obavezna polja i izaberi ulicu.'
         return
       }
 
@@ -289,7 +373,12 @@
 
     saveBtn.addEventListener('click', saveAddress)
 
-    loadAddresses()
+    async function init() {
+      await loadStreets()
+      await loadAddresses()
+    }
+
+    init()
   </script>
 </body>
 </html>
