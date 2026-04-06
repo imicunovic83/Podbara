@@ -687,10 +687,6 @@ function updateAddressLabel() {
       await loadAddresses()
     }
 
-    loginBtn.addEventListener('click', sendMagicLink)
-    logoutBtn.addEventListener('click', signOutUser)
-    saveBtn.addEventListener('click', saveAddress)
-
     streetSelectEl.addEventListener('change', updateAddressLabel)
 houseNumberEl.addEventListener('input', updateAddressLabel)
 houseSuffixEl.addEventListener('input', updateAddressLabel)
