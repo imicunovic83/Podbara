@@ -5,208 +5,249 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Address Tracker</title>
   <style>
-    * { box-sizing: border-box; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --color-bg: #f7f6f2;
+      --color-surface: #f9f8f5;
+      --color-surface-2: #ffffff;
+      --color-border: #d4d1ca;
+      --color-text: #28251d;
+      --color-text-muted: #7a7974;
+      --color-primary: #01696f;
+      --color-primary-hover: #0c4e54;
+      --color-error: #a12c7b;
+      --color-dark: #111827;
+      --color-dark-hover: #000000;
+      --radius-md: 0.5rem;
+      --radius-lg: 0.75rem;
+      --radius-xl: 1rem;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.06);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+      --shadow-lg: 0 6px 18px rgba(0,0,0,0.10);
+      --space-2: 0.5rem;
+      --space-3: 0.75rem;
+      --space-4: 1rem;
+      --space-6: 1.5rem;
+      --space-8: 2rem;
+      --text-sm: clamp(0.875rem, 0.8rem + 0.35vw, 1rem);
+      --text-base: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+      --text-lg: clamp(1.125rem, 1rem + 0.75vw, 1.5rem);
+      --text-xl: clamp(1.5rem, 1.2rem + 1.25vw, 2.25rem);
+      --text-hero: clamp(2rem, 1rem + 3vw, 3rem);
+    }
 
     body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f4f6f8;
-      color: #1f2937;
+      font-family: 'Inter', Arial, sans-serif;
+      background: var(--color-bg);
+      color: var(--color-text);
+      min-height: 100dvh;
+      font-size: var(--text-base);
+      line-height: 1.6;
     }
 
     .container {
       max-width: 1150px;
       margin: 0 auto;
-      padding: 32px 20px;
+      padding: var(--space-8) var(--space-4);
     }
 
     h1 {
-      margin-bottom: 8px;
-      font-size: 48px;
+      font-size: var(--text-hero);
+      font-weight: 700;
+      margin-bottom: var(--space-2);
+      line-height: 1.15;
     }
 
     h2 {
-      margin-top: 0;
-      margin-bottom: 20px;
-      font-size: 22px;
+      font-size: var(--text-lg);
+      font-weight: 600;
+      margin-bottom: var(--space-4);
     }
 
     .subtitle {
-      color: #6b7280;
-      margin-bottom: 24px;
-      font-size: 16px;
+      color: var(--color-text-muted);
+      margin-bottom: var(--space-6);
+      font-size: var(--text-sm);
     }
 
     .status {
-      background: white;
-      border-left: 4px solid #2563eb;
-      padding: 14px 16px;
-      border-radius: 10px;
-      margin-bottom: 20px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-      font-size: 16px;
+      background: var(--color-surface-2);
+      border-left: 4px solid var(--color-primary);
+      padding: var(--space-3) var(--space-4);
+      border-radius: var(--radius-lg);
+      margin-bottom: var(--space-6);
+      box-shadow: var(--shadow-sm);
+      font-size: var(--text-sm);
     }
 
-    .auth-box,
-    .form-box,
-    .card,
-    .info-box {
-      background: white;
-      border-radius: 14px;
-      padding: 24px;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
-      margin-bottom: 24px;
+    .card-box {
+      background: var(--color-surface-2);
+      border-radius: var(--radius-xl);
+      padding: var(--space-6);
+      box-shadow: var(--shadow-lg);
+      margin-bottom: var(--space-6);
     }
 
     .topbar {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      gap: 16px;
-      margin-bottom: 20px;
+      gap: var(--space-4);
+      margin-bottom: var(--space-6);
       flex-wrap: wrap;
     }
 
-    .user-panel {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
+    .user-panel { display: flex; flex-direction: column; gap: var(--space-2); }
 
-    .user-badge,
-    .role-badge {
-      background: white;
-      padding: 10px 14px;
-      border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-      font-size: 14px;
+    .user-badge {
+      background: var(--color-surface-2);
+      padding: var(--space-2) var(--space-3);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      font-size: var(--text-sm);
       width: fit-content;
     }
 
     .role-badge {
       background: #eff6ff;
       color: #1d4ed8;
-      font-weight: bold;
+      font-weight: 600;
+      padding: var(--space-2) var(--space-3);
+      border-radius: var(--radius-lg);
+      font-size: var(--text-sm);
+      width: fit-content;
     }
 
     .form-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: var(--space-4);
     }
 
     .field label {
       display: block;
-      font-size: 14px;
-      margin-bottom: 6px;
-      font-weight: bold;
+      font-size: var(--text-sm);
+      margin-bottom: var(--space-2);
+      font-weight: 600;
     }
 
     .field input,
     .field select {
       width: 100%;
-      padding: 12px 14px;
-      border: 1px solid #d1d5db;
-      border-radius: 10px;
-      font-size: 15px;
-      background: white;
+      padding: var(--space-3) var(--space-3);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      font-size: var(--text-sm);
+      background: var(--color-surface-2);
+      color: var(--color-text);
+      transition: border-color 180ms ease, box-shadow 180ms ease;
     }
 
     .field input:focus,
     .field select:focus {
       outline: none;
-      border-color: #2563eb;
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(1, 105, 111, 0.12);
     }
 
     .actions {
-      margin-top: 18px;
+      margin-top: var(--space-4);
       display: flex;
-      gap: 12px;
+      gap: var(--space-3);
       flex-wrap: wrap;
     }
 
     button {
-      background: #2563eb;
+      background: var(--color-primary);
       color: white;
       border: none;
-      border-radius: 10px;
-      padding: 12px 18px;
-      font-size: 15px;
+      border-radius: var(--radius-md);
+      padding: var(--space-3) var(--space-4);
+      font-size: var(--text-sm);
+      font-weight: 600;
       cursor: pointer;
+      transition: background 180ms ease;
     }
 
-    button:hover {
-      background: #1d4ed8;
-    }
+    button:hover { background: var(--color-primary-hover); }
 
     button:disabled {
       background: #93c5fd;
       cursor: not-allowed;
     }
 
-    .secondary-btn {
-      background: #111827;
-    }
+    .btn-dark { background: var(--color-dark); }
+    .btn-dark:hover { background: var(--color-dark-hover); }
 
-    .secondary-btn:hover {
-      background: #000000;
-    }
+    .btn-danger { background: #dc2626; }
+    .btn-danger:hover { background: #b91c1c; }
 
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 18px;
+      grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr));
+      gap: var(--space-4);
     }
 
-    .card h3 {
-      margin-top: 0;
-      margin-bottom: 12px;
-      font-size: 20px;
+    .addr-card {
+      background: var(--color-surface-2);
+      border-radius: var(--radius-xl);
+      padding: var(--space-6);
+      box-shadow: var(--shadow-md);
+      border: 1px solid rgba(0,0,0,0.06);
     }
 
-    .row {
-      margin: 6px 0;
-      font-size: 15px;
+    .addr-card h3 {
+      font-size: var(--text-lg);
+      font-weight: 700;
+      margin-bottom: var(--space-3);
+      color: var(--color-text);
+    }
+
+    .addr-row {
+      margin: var(--space-2) 0;
+      font-size: var(--text-sm);
       color: #374151;
       line-height: 1.5;
     }
 
-    .label {
-      font-weight: bold;
-      color: #111827;
-    }
+    .addr-label { font-weight: 700; color: var(--color-text); }
 
     .empty {
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      color: #6b7280;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+      background: var(--color-surface-2);
+      padding: var(--space-6);
+      border-radius: var(--radius-xl);
+      color: var(--color-text-muted);
+      box-shadow: var(--shadow-sm);
+      text-align: center;
     }
 
     .note {
       font-size: 13px;
-      color: #6b7280;
-      margin-top: 10px;
+      color: var(--color-text-muted);
+      margin-top: var(--space-3);
       line-height: 1.5;
     }
 
     .section-title {
-      margin: 26px 0 14px;
-      font-size: 22px;
-      color: #111827;
+      font-size: var(--text-lg);
+      font-weight: 700;
+      margin: var(--space-8) 0 var(--space-4);
+      color: var(--color-text);
     }
 
-    .hidden {
-      display: none;
-    }
+    .hidden { display: none !important; }
 
     .street-list {
-      margin: 0;
-      padding-left: 18px;
+      margin: var(--space-2) 0 0 var(--space-4);
       color: #374151;
-      line-height: 1.6;
+      line-height: 1.8;
+      font-size: var(--text-sm);
+    }
+
+    @media (max-width: 600px) {
+      h1 { font-size: 2rem; }
+      .topbar { flex-direction: column; }
     }
   </style>
 </head>
@@ -217,48 +258,51 @@
 
     <div id="status" class="status">Učitavanje...</div>
 
-    <div id="authSection" class="auth-box">
+    <!-- AUTH -->
+    <div id="authSection" class="card-box">
       <h2>Prijava</h2>
       <div class="form-grid">
         <div class="field">
           <label for="emailInput">Email adresa</label>
-          <input id="emailInput" type="email" placeholder="npr. tvojeime@email.com" />
+          <input id="emailInput" type="email" placeholder="npr. ime@email.com" />
         </div>
       </div>
       <div class="actions">
         <button id="loginBtn" type="button">Pošalji magic link</button>
       </div>
-      <div class="note">
-        Na email će stići link za prijavu. Kada klikneš link, vratiće te nazad na ovu aplikaciju.
-      </div>
+      <p class="note">Na email će stići link za prijavu. Klikni ga i vratiće te nazad na ovu stranicu.</p>
     </div>
 
+    <!-- APP -->
     <div id="appSection" class="hidden">
+
       <div class="topbar">
         <div class="user-panel">
           <div id="userBadge" class="user-badge">Nije prijavljen</div>
           <div id="roleBadge" class="role-badge">Rola: -</div>
         </div>
-        <button id="logoutBtn" type="button" class="secondary-btn">Logout</button>
+        <button id="logoutBtn" type="button" class="btn-dark">Logout</button>
       </div>
 
-      <div class="info-box">
+      <!-- INFO -->
+      <div class="card-box">
         <h2>Tvoje dozvole</h2>
-        <div class="row"><span class="label">Korisnik:</span> <span id="infoEmail">-</span></div>
-        <div class="row"><span class="label">Rola:</span> <span id="infoRole">-</span></div>
-        <div class="row"><span class="label">Dozvoljene ulice:</span></div>
+        <div class="addr-row"><span class="addr-label">Korisnik:</span> <span id="infoEmail">-</span></div>
+        <div class="addr-row"><span class="addr-label">Rola:</span> <span id="infoRole">-</span></div>
+        <div class="addr-row"><span class="addr-label">Dozvoljene ulice:</span></div>
         <ul id="assignedStreets" class="street-list">
           <li>Učitavanje...</li>
         </ul>
       </div>
 
-      <div class="form-box">
+      <!-- FORM -->
+      <div class="card-box">
         <h2>Unos nove adrese</h2>
         <div class="form-grid">
           <div class="field">
             <label for="streetSelect">Ulica</label>
             <select id="streetSelect">
-              <option value="">Učitavanje ulica...</option>
+              <option value="">Izaberi ulicu...</option>
             </select>
           </div>
           <div class="field">
@@ -283,107 +327,89 @@
         </div>
         <div class="actions">
           <button id="saveBtn" type="button">Sačuvaj adresu</button>
-          <div class="actions">
-  <button id="saveBtn" type="button">Sačuvaj adresu</button>
-  <button id="deleteDuplicatesBtn" type="button" class="secondary-btn">❌ Obriši duplikate</button>
-</div>
+          <button id="deleteDuplicatesBtn" type="button" class="btn-danger">🗑️ Obriši duplikate</button>
         </div>
-        <div class="note">
-          Dropdown prikazuje samo ulice koje su dodeljene prijavljenom korisniku. Admin može videti sve aktivne ulice.
-        </div>
+        <p class="note">Dropdown prikazuje samo ulice koje su dodeljene prijavljenom korisniku. Admin vidi sve aktivne ulice.</p>
       </div>
 
       <h2 class="section-title">Lista adresa</h2>
       <div id="addresses"></div>
+
     </div>
   </div>
 
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
 
-    const supabaseUrl = 'https://wdmipyooncrcdmvlloou.supabase.co'
-    const supabaseKey = 'sb_publishable_u-KtwCVzKm55-UAdFJ3FgQ_RsZSpm0u'
+    const SUPABASE_URL = 'https://wdmipyooncrcdmvlloou.supabase.co'
+    const SUPABASE_KEY = 'sb_publishable_u-KtwCVzKm55-UAdFJ3FgQ_RsZSpm0u'
+    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
 
-    const supabase = createClient(supabaseUrl, supabaseKey)
+    // DOM refs
+    const statusEl             = document.getElementById('status')
+    const authSectionEl        = document.getElementById('authSection')
+    const appSectionEl         = document.getElementById('appSection')
+    const userBadgeEl          = document.getElementById('userBadge')
+    const roleBadgeEl          = document.getElementById('roleBadge')
+    const infoEmailEl          = document.getElementById('infoEmail')
+    const infoRoleEl           = document.getElementById('infoRole')
+    const assignedStreetsEl    = document.getElementById('assignedStreets')
+    const emailInputEl         = document.getElementById('emailInput')
+    const loginBtn             = document.getElementById('loginBtn')
+    const logoutBtn            = document.getElementById('logoutBtn')
+    const streetSelectEl       = document.getElementById('streetSelect')
+    const houseNumberEl        = document.getElementById('houseNumber')
+    const houseSuffixEl        = document.getElementById('houseSuffix')
+    const addressLabelEl       = document.getElementById('addressLabel')
+    const addressTypeEl        = document.getElementById('addressType')
+    const saveBtn              = document.getElementById('saveBtn')
+    const deleteDuplicatesBtn  = document.getElementById('deleteDuplicatesBtn')
+    const addressesEl          = document.getElementById('addresses')
 
-    // DOM elements
-    const statusEl = document.getElementById('status')
-    const authSectionEl = document.getElementById('authSection')
-    const appSectionEl = document.getElementById('appSection')
-    const userBadgeEl = document.getElementById('userBadge')
-    const roleBadgeEl = document.getElementById('roleBadge')
-    const infoEmailEl = document.getElementById('infoEmail')
-    const infoRoleEl = document.getElementById('infoRole')
-    const assignedStreetsEl = document.getElementById('assignedStreets')
-    const emailInputEl = document.getElementById('emailInput')
-    const loginBtn = document.getElementById('loginBtn')
-    const logoutBtn = document.getElementById('logoutBtn')
-    const streetSelectEl = document.getElementById('streetSelect')
-    const houseNumberEl = document.getElementById('houseNumber')
-    const houseSuffixEl = document.getElementById('houseSuffix')
-    const addressLabelEl = document.getElementById('addressLabel')
-    const addressTypeEl = document.getElementById('addressType')
-    const saveBtn = document.getElementById('saveBtn')
-    const addressesEl = document.getElementById('addresses')
-    const deleteDuplicatesBtn = document.getElementById('deleteDuplicatesBtn')
-deleteDuplicatesBtn?.addEventListener('click', deleteDuplicateAddresses)
-
-    let currentUser = null
+    let currentUser    = null
     let currentProfile = null
     let availableStreets = []
+
+    // ── Helpers ───────────────────────────────────────────────────────────────
 
     function cleanStreetName(value) {
       if (!value) return ''
       return String(value).replace(/^name\s*=\s*/i, '').trim()
     }
 
+    function setStatus(msg) { statusEl.textContent = msg }
+
     function updateAddressLabel() {
-      const street_id = streetSelectEl.value
-      const house_number = houseNumberEl.value.trim()
-      const house_suffix = houseSuffixEl.value.trim()
-
-      const selectedStreet = availableStreets.find(s => String(s.id) === String(street_id))
-      const streetName = cleanStreetName(selectedStreet?.name || '')
-
-      if (streetName || house_number || house_suffix) {
-        const fullLabel = `${streetName}${house_number ? ` ${house_number}` : ''}${house_suffix || ''}`.trim()
-        addressLabelEl.value = fullLabel
-      }
+      const sid    = streetSelectEl.value
+      const num    = houseNumberEl.value.trim()
+      const suffix = houseSuffixEl.value.trim()
+      const street = availableStreets.find(s => String(s.id) === String(sid))
+      const name   = cleanStreetName(street?.name || '')
+      addressLabelEl.value = [name, num ? `${num}${suffix}` : ''].filter(Boolean).join(' ').trim()
     }
+
+    // ── Auth ──────────────────────────────────────────────────────────────────
 
     async function signInWithMagicLink() {
       const email = emailInputEl.value.trim()
-      if (!email) {
-        statusEl.textContent = 'Unesi validnu email adresu.'
-        return
-      }
+      if (!email) { setStatus('Unesi validnu email adresu.'); return }
 
-      statusEl.textContent = 'Šaljem magic link...'
+      setStatus('Šaljem magic link...')
       loginBtn.disabled = true
 
       const { error } = await supabase.auth.signInWithOtp({
         email,
-        options: {
-          emailRedirectTo: window.location.origin + window.location.pathname
-        }
+        options: { emailRedirectTo: window.location.origin + window.location.pathname }
       })
 
       loginBtn.disabled = false
-
-      if (error) {
-        statusEl.textContent = `Greška: ${error.message}`
-        return
-      }
-
-      statusEl.textContent = 'Magic link poslat! Proveri email.'
+      setStatus(error ? `Greška: ${error.message}` : '✅ Magic link poslat! Proveri email.')
     }
 
     function renderLoggedOut() {
       authSectionEl.classList.remove('hidden')
       appSectionEl.classList.add('hidden')
-      currentUser = null
-      currentProfile = null
-      availableStreets = []
+      currentUser = null; currentProfile = null; availableStreets = []
     }
 
     function renderLoggedIn(user, profile) {
@@ -392,16 +418,12 @@ deleteDuplicatesBtn?.addEventListener('click', deleteDuplicateAddresses)
       userBadgeEl.textContent = `Prijavljen: ${user.email}`
       roleBadgeEl.textContent = `Rola: ${profile?.role ?? 'nepoznata'}`
       infoEmailEl.textContent = user.email
-      infoRoleEl.textContent = profile?.role ?? '-'
+      infoRoleEl.textContent  = profile?.role ?? '-'
     }
 
     async function loadCurrentUserAndProfile() {
       const { data: { user }, error } = await supabase.auth.getUser()
-      
-      if (error || !user) {
-        renderLoggedOut()
-        return false
-      }
+      if (error || !user) { renderLoggedOut(); return false }
 
       currentUser = user
 
@@ -412,7 +434,7 @@ deleteDuplicatesBtn?.addEventListener('click', deleteDuplicateAddresses)
         .single()
 
       if (profileError || !profile) {
-        statusEl.textContent = 'Profil nije pronađen.'
+        setStatus('Profil nije pronađen.')
         return false
       }
 
@@ -420,6 +442,8 @@ deleteDuplicatesBtn?.addEventListener('click', deleteDuplicateAddresses)
       renderLoggedIn(user, profile)
       return true
     }
+
+    // ── Streets ───────────────────────────────────────────────────────────────
 
     async function loadAllowedStreets() {
       if (!currentProfile) return
@@ -437,71 +461,56 @@ deleteDuplicatesBtn?.addEventListener('click', deleteDuplicateAddresses)
           .eq('user_id', currentUser.id)
           .eq('is_active', true)
 
-        const streetIds = assignments?.map(a => a.street_id) || []
-        if (streetIds.length === 0) {
+        const ids = assignments?.map(a => a.street_id) || []
+        if (ids.length === 0) {
           streetSelectEl.innerHTML = '<option value="">Nema dozvoljenih ulica</option>'
           assignedStreetsEl.innerHTML = '<li>Nema dodeljenih ulica</li>'
           return
         }
-        query = query.in('id', streetIds)
+        query = query.in('id', ids)
       }
 
       const { data, error } = await query
-
-      if (error) {
-        statusEl.textContent = `Greška ulice: ${error.message}`
-        return
-      }
+      if (error) { setStatus(`Greška ulice: ${error.message}`); return }
 
       availableStreets = data || []
-      
+
       streetSelectEl.innerHTML = `
         <option value="">Izaberi ulicu</option>
-        ${availableStreets.map(street => `
-          <option value="${street.id}">
-            ${cleanStreetName(street.name)}${street.settlement_name ? ` (${street.settlement_name})` : ''}
-          </option>
+        ${availableStreets.map(s => `
+          <option value="${s.id}">${cleanStreetName(s.name)}${s.settlement_name ? ` (${s.settlement_name})` : ''}</option>
         `).join('')}
       `
 
-      assignedStreetsEl.innerHTML = availableStreets.length 
-        ? availableStreets.map(street => `<li>${cleanStreetName(street.name)}${street.settlement_name ? ` (${street.settlement_name})` : ''}</li>`).join('')
+      assignedStreetsEl.innerHTML = availableStreets.length
+        ? availableStreets.map(s => `<li>${cleanStreetName(s.name)}${s.settlement_name ? ` (${s.settlement_name})` : ''}</li>`).join('')
         : '<li>Nema dodeljenih ulica</li>'
     }
 
+    // ── Addresses ─────────────────────────────────────────────────────────────
+
     async function loadAddresses() {
-      let query = supabase
+      const { data, error } = await supabase
         .from('addresses')
-        .select(`
-          id, street_id, house_number, house_number_suffix, 
-          full_address_label, address_type, is_active, created_at,
-          streets (id, name, settlement_name)
-        `)
+        .select(`id, street_id, house_number, house_number_suffix,
+                 full_address_label, address_type, is_active, created_at,
+                 streets (id, name, settlement_name)`)
         .order('created_at', { ascending: false })
 
-      const { data, error } = await query
-
-      if (error) {
-        addressesEl.innerHTML = `<div class="empty">Greška: ${error.message}</div>`
-        return
-      }
-
-      if (!data?.length) {
-        addressesEl.innerHTML = '<div class="empty">Nema adresa.</div>'
-        return
-      }
+      if (error) { addressesEl.innerHTML = `<div class="empty">Greška: ${error.message}</div>`; return }
+      if (!data?.length) { addressesEl.innerHTML = '<div class="empty">Nema adresa.</div>'; return }
 
       addressesEl.innerHTML = `
         <div class="grid">
           ${data.map(item => `
-            <div class="card">
+            <div class="addr-card">
               <h3>${item.full_address_label ?? 'Bez naziva'}</h3>
-              <div class="row"><span class="label">Ulica:</span> ${cleanStreetName(item.streets?.name) || '-'}</div>
-              <div class="row"><span class="label">Naselje:</span> ${item.streets?.settlement_name ?? '-'}</div>
-              <div class="row"><span class="label">Broj:</span> ${item.house_number ?? '-'}</div>
-              <div class="row"><span class="label">Dodatak:</span> ${item.house_number_suffix ?? '-'}</div>
-              <div class="row"><span class="label">Tip:</span> ${item.address_type ?? '-'}</div>
-              <div class="row"><span class="label">Aktivna:</span> ${item.is_active ? 'Da' : 'Ne'}</div>
+              <div class="addr-row"><span class="addr-label">Ulica:</span> ${cleanStreetName(item.streets?.name) || '-'}</div>
+              <div class="addr-row"><span class="addr-label">Naselje:</span> ${item.streets?.settlement_name ?? '-'}</div>
+              <div class="addr-row"><span class="addr-label">Broj:</span> ${item.house_number ?? '-'}</div>
+              <div class="addr-row"><span class="addr-label">Dodatak:</span> ${item.house_number_suffix ?? '-'}</div>
+              <div class="addr-row"><span class="addr-label">Tip:</span> ${item.address_type ?? '-'}</div>
+              <div class="addr-row"><span class="addr-label">Aktivna:</span> ${item.is_active ? 'Da' : 'Ne'}</div>
             </div>
           `).join('')}
         </div>
@@ -509,22 +518,20 @@ deleteDuplicatesBtn?.addEventListener('click', deleteDuplicateAddresses)
     }
 
     async function saveAddress() {
-      const street_id = streetSelectEl.value
-      const house_number = houseNumberEl.value.trim()
+      const street_id           = streetSelectEl.value
+      const house_number        = houseNumberEl.value.trim()
       const house_number_suffix = houseSuffixEl.value.trim()
-      const full_address_label = addressLabelEl.value.trim()
-      const address_type = addressTypeEl.value
+      const full_address_label  = addressLabelEl.value.trim()
+      const address_type        = addressTypeEl.value
 
       if (!street_id || !house_number || !full_address_label || !address_type) {
-        statusEl.textContent = 'Popuni sva obavezna polja!'
-        return
+        setStatus('❌ Popuni sva obavezna polja!'); return
       }
 
       saveBtn.disabled = true
       saveBtn.textContent = 'Čuvam...'
 
       try {
-        // Check for duplicates
         const { data: existing } = await supabase
           .from('addresses')
           .select('id')
@@ -532,104 +539,115 @@ deleteDuplicatesBtn?.addEventListener('click', deleteDuplicateAddresses)
           .eq('full_address_label', full_address_label)
           .maybeSingle()
 
-        if (existing) {
-          statusEl.textContent = '❌ Adresa već postoji!'
-          return
-        }
+        if (existing) { setStatus('⚠️ Adresa već postoji!'); return }
 
         const { error } = await supabase
           .from('addresses')
-          .insert([{
-            street_id: Number(street_id),
-            house_number,
-            house_number_suffix: house_number_suffix || null,
-            full_address_label,
-            address_type
-          }])
+          .insert([{ street_id, house_number, house_number_suffix: house_number_suffix || null, full_address_label, address_type }])
 
         if (error) throw error
 
-        // Reset form
         streetSelectEl.value = ''
         houseNumberEl.value = ''
         houseSuffixEl.value = ''
         addressLabelEl.value = ''
         addressTypeEl.value = 'house'
 
-        statusEl.textContent = '✅ Adresa sačuvana!'
+        setStatus('✅ Adresa sačuvana!')
         await loadAddresses()
-      } catch (error) {
-        statusEl.textContent = `❌ Greška: ${error.message}`
+      } catch (err) {
+        setStatus(`❌ Greška: ${err.message}`)
       } finally {
         saveBtn.disabled = false
         saveBtn.textContent = 'Sačuvaj adresu'
       }
     }
-async function deleteDuplicateAddresses() {
-  deleteDuplicatesBtn.disabled = true
-  deleteDuplicatesBtn.textContent = 'Brišem...'
-  statusEl.textContent = 'Tražim i brišem duplikate...'
 
-  try {
-    // Pronađi duplikate po full_address_label + street_id
-    const { data: duplicates, error } = await supabase
-      .rpc('find_duplicate_addresses')  // Ovo trebaš da napraviš u Supabase SQL Editor-u
+    // ── Delete Duplicates ─────────────────────────────────────────────────────
 
-    if (error) throw error
+    async function deleteDuplicateAddresses() {
+      if (!confirm('Da li si siguran? Ovo će obrisati sve duplikate i ostaviti samo prvu (najstariju) adresu za svaki isti label.')) return
 
-    if (!duplicates || duplicates.length === 0) {
-      statusEl.textContent = 'Nema duplikata za brisanje ✅'
-      return
-    }
+      deleteDuplicatesBtn.disabled = true
+      deleteDuplicatesBtn.textContent = '⏳ Brišem...'
+      setStatus('Tražim duplikate...')
 
-    // Obriši ih sve osim prvog
-    const deletedCount = 0
-    for (const dup of duplicates) {
-      const { error: deleteError } = await supabase
-        .from('addresses')
-        .delete()
-        .eq('id', dup.id)
+      try {
+        // Dohvati sve adrese sortirane po created_at
+        const { data: all, error } = await supabase
+          .from('addresses')
+          .select('id, street_id, full_address_label, created_at')
+          .order('created_at', { ascending: true })
 
-      if (deleteError) {
-        console.error('Greška brisanja:', deleteError)
-        continue
+        if (error) throw error
+
+        // Grupišemo po street_id + lower(full_address_label)
+        const seen = new Map()
+        const toDelete = []
+
+        for (const row of all) {
+          const key = `${row.street_id}||${(row.full_address_label || '').toLowerCase().trim()}`
+          if (seen.has(key)) {
+            toDelete.push(row.id)  // duplikat - briši
+          } else {
+            seen.set(key, row.id)  // prvi - zadrži
+          }
+        }
+
+        if (toDelete.length === 0) {
+          setStatus('✅ Nema duplikata za brisanje!')
+          return
+        }
+
+        // Briši u batch-evima od po 50
+        let deleted = 0
+        const batchSize = 50
+        for (let i = 0; i < toDelete.length; i += batchSize) {
+          const batch = toDelete.slice(i, i + batchSize)
+          const { error: delErr } = await supabase
+            .from('addresses')
+            .delete()
+            .in('id', batch)
+          if (delErr) throw delErr
+          deleted += batch.length
+        }
+
+        setStatus(`🗑️ Obrišeno ${deleted} duplikat${deleted === 1 ? '' : deleted < 5 ? 'a' : 'a'}! Lista je osvežena.`)
+        await loadAddresses()
+      } catch (err) {
+        setStatus(`❌ Greška pri brisanju: ${err.message}`)
+      } finally {
+        deleteDuplicatesBtn.disabled = false
+        deleteDuplicatesBtn.textContent = '🗑️ Obriši duplikate'
       }
-      deletedCount++
     }
 
-    statusEl.textContent = `🗑️ Obrišeno ${deletedCount} duplikata!`
-    await loadAddresses()
-  } catch (err) {
-    statusEl.textContent = `❌ Greška: ${err.message}`
-  } finally {
-    deleteDuplicatesBtn.disabled = false
-    deleteDuplicatesBtn.textContent = '❌ Obriši duplikate'
-  }
-}
+    // ── Init ──────────────────────────────────────────────────────────────────
+
     async function initApp() {
-      statusEl.textContent = 'Pokretanje...'
+      setStatus('Pokretanje...')
       const ok = await loadCurrentUserAndProfile()
       if (ok) {
         await loadAllowedStreets()
         await loadAddresses()
-        statusEl.textContent = '✅ Spreman za rad!'
+        setStatus('✅ Spreman za rad!')
+      } else {
+        setStatus('Nisi prijavljen. Pošalji magic link za pristup.')
       }
     }
 
     // Event listeners
     loginBtn.addEventListener('click', signInWithMagicLink)
-    logoutBtn.addEventListener('click', async () => {
-      await supabase.auth.signOut()
-    })
+    logoutBtn.addEventListener('click', () => supabase.auth.signOut())
     saveBtn.addEventListener('click', saveAddress)
-
+    deleteDuplicatesBtn.addEventListener('click', deleteDuplicateAddresses)
     streetSelectEl.addEventListener('change', updateAddressLabel)
     houseNumberEl.addEventListener('input', updateAddressLabel)
     houseSuffixEl.addEventListener('input', updateAddressLabel)
 
-    // Auth state change
-    supabase.auth.onAuthStateChange(async () => {
-      await initApp()
+    supabase.auth.onAuthStateChange(async (event) => {
+      if (event === 'SIGNED_IN') await initApp()
+      if (event === 'SIGNED_OUT') { renderLoggedOut(); setStatus('Uspešno si odjavljen.') }
     })
 
     // Initial load
