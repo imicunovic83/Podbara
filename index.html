@@ -71,4 +71,69 @@
     .empty {
       background: white;
       padding: 20px;
-      border-radius: 
+      border-radius: 12px;
+      color: #6b7280;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Address Tracker</h1>
+    <p class="subtitle">Pregled unetih adresa iz Supabase baze</p>
+
+    <div id="status" class="status">Učitavanje adresa...</div>
+    <div id="addresses"></div>
+  </div>
+
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+
+    const supabaseUrl = 'https://wdmipyooncrcdmvlloou.supabase.co'
+    const supabaseKey = 'sb_publishable_u-KtwCVzKm55-UAdFJ3FgQ_RsZSpm0u'
+
+    const supabase = createClient(supabaseUrl, supabaseKey)
+
+    const statusEl = document.getElementById('status')
+    const addressesEl = document.getElementById('addresses')
+
+    async function loadAddresses() {
+      statusEl.textContent = 'Povezujem se sa bazom i učitavam adrese...'
+
+      const { data, error } = await supabase
+        .from('addresses')
+        .select('*')
+        .order('created_at', { ascending: false })
+
+      if (error) {
+        statusEl.textContent = 'Greška pri učitavanju adresa'
+        addressesEl.innerHTML = `<div class="empty">${error.message}</div>`
+        return
+      }
+
+      statusEl.textContent = `Uspešno učitano adresa: ${data.length}`
+
+      if (!data || data.length === 0) {
+        addressesEl.innerHTML = `<div class="empty">Nema unetih adresa.</div>`
+        return
+      }
+
+      addressesEl.innerHTML = `
+        <div class="grid">
+          ${data.map(item => `
+            <div class="card">
+              <h3>${item.full_address_label ?? 'Bez naziva adrese'}</h3>
+              <div class="row"><span class="label">Broj:</span> ${item.house_number ?? '-'}</div>
+              <div class="row"><span class="label">Tip:</span> ${item.address_type ?? '-'}</div>
+              <div class="row"><span class="label">Aktivna:</span> ${item.is_active ? 'Da' : 'Ne'}</div>
+              <div class="row"><span class="label">Street ID:</span> ${item.street_id ?? '-'}</div>
+            </div>
+          `).join('')}
+        </div>
+      `
+    }
+
+    loadAddresses()
+  </script>
+</body>
+</html>
