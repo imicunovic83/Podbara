@@ -455,6 +455,8 @@
         <div class="actions">
           <button id="applyFiltersBtn" type="button">Primeni filtere</button>
           <button id="resetFiltersBtn" type="button" class="btn-dark">Reset filtera</button>
+          <button id="exportCsvBtn" type="button" class="btn-dark">Export CSV</button>
+          <button id="printBtn" type="button" class="btn-dark">Print pregled</button>
         </div>
       </div>
 
@@ -502,6 +504,8 @@
     const searchInputEl = document.getElementById('searchInput')
     const applyFiltersBtn = document.getElementById('applyFiltersBtn')
     const resetFiltersBtn = document.getElementById('resetFiltersBtn')
+    const exportCsvBtn = document.getElementById('exportCsvBtn')
+    const printBtn = document.getElementById('printBtn')
     const paginationEl = document.getElementById('pagination')
     const pageInfoEl = document.getElementById('pageInfo')
 
@@ -722,6 +726,130 @@
       })
 
       renderPagination(filtered.length)
+    }
+
+    function downloadCsv(filename, rows) {
+      const csvContent = rows.map(row =>
+        row.map(value => {
+          const safe = String(value ?? '').replace(/"/g, '""')
+          return `"${safe}"`
+        }).join(',')
+      ).join('\n')
+
+      const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' })
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = filename
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      URL.revokeObjectURL(url)
+    }
+
+    function exportFilteredCsv() {
+      const filtered = getFilteredAddresses()
+
+      if (!filtered.length) {
+        setStatus('❌ Nema podataka za CSV export.')
+        return
+      }
+
+      const rows = [
+        ['Ulica', 'Naselje', 'Broj', 'Dodatak', 'Puna adresa', 'Tip', 'Status', 'Aktivna']
+      ]
+
+      filtered.forEach(item => {
+        rows.push([
+          cleanStreetName(item.streets?.name || ''),
+          item.streets?.settlement_name || '',
+          item.house_number || '',
+          item.house_number_suffix || '',
+          item.full_address_label || '',
+          item.address_type || '',
+          getStatusLabel(item.census_status),
+          item.is_active ? 'Da' : 'Ne'
+        ])
+      })
+
+      const now = new Date()
+      const stamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+      downloadCsv(`adrese-export-${stamp}.csv`, rows)
+      setStatus(`✅ CSV export uspešan. Izvezeno: ${filtered.length} redova.`)
+    }
+
+    function printFilteredView() {
+      const filtered = getFilteredAddresses()
+
+      if (!filtered.length) {
+        setStatus('❌ Nema podataka za štampu.')
+        return
+      }
+
+      const printWindow = window.open('', '_blank', 'width=1200,height=800')
+      if (!printWindow) {
+        setStatus('❌ Browser je blokirao print prozor.')
+        return
+      }
+
+      const rowsHtml = filtered.map(item => `
+        <tr>
+          <td>${cleanStreetName(item.streets?.name || '')}</td>
+          <td>${item.streets?.settlement_name || ''}</td>
+          <td>${item.house_number || ''}</td>
+          <td>${item.house_number_suffix || ''}</td>
+          <td>${item.full_address_label || ''}</td>
+          <td>${item.address_type || ''}</td>
+          <td>${getStatusLabel(item.census_status)}</td>
+          <td>${item.is_active ? 'Da' : 'Ne'}</td>
+        </tr>
+      `).join('')
+
+      printWindow.document.write(`
+        <!DOCTYPE html>
+        <html lang="sr">
+        <head>
+          <meta charset="UTF-8">
+          <title>Print pregled adresa</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 24px; color: #111; }
+            h1 { margin-bottom: 8px; }
+            p { margin-bottom: 18px; color: #444; }
+            table { width: 100%; border-collapse: collapse; font-size: 12px; }
+            th, td { border: 1px solid #ccc; padding: 8px; text-align: left; vertical-align: top; }
+            th { background: #f3f4f6; }
+          </style>
+        </head>
+        <body>
+          <h1>Pregled adresa</h1>
+          <p>Ukupno redova: ${filtered.length}</p>
+          <table>
+            <thead>
+              <tr>
+                <th>Ulica</th>
+                <th>Naselje</th>
+                <th>Broj</th>
+                <th>Dodatak</th>
+                <th>Puna adresa</th>
+                <th>Tip</th>
+                <th>Status</th>
+                <th>Aktivna</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rowsHtml}
+            </tbody>
+          </table>
+        </body>
+        </html>
+      `)
+
+      printWindow.document.close()
+      printWindow.focus()
+      setTimeout(() => {
+        printWindow.print()
+      }, 300)
+      setStatus(`✅ Print pregled spreman. Redova: ${filtered.length}`)
     }
 
     async function signInWithMagicLink() {
@@ -1180,6 +1308,9 @@
       renderAddresses()
       setStatus('✅ Filteri resetovani.')
     })
+
+    exportCsvBtn.addEventListener('click', exportFilteredCsv)
+    printBtn.addEventListener('click', printFilteredView)
 
     streetSelectEl.addEventListener('change', updateAddressLabel)
     houseNumberEl.addEventListener('input', updateAddressLabel)
