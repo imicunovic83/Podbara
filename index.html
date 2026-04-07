@@ -1423,59 +1423,79 @@ const passwordLoginBtn = document.getElementById('passwordLoginBtn')
       populateStreetFilters()
     }
 
-    async function loadDashboardStats() {
-      const { data: addresses, error: addrError } = await supabase
-        .from('addresses')
-        .select('id, census_status')
+   async function loadDashboardStats() {
+  let addressQuery = supabase
+    .from('addresses')
+    .select('id, street_id, census_status')
 
-      if (addrError) {
-        statsCardsEl.innerHTML = `<div class="empty">Greška statistika: ${addrError.message}</div>`
-        return
-      }
+  if (!isAdmin()) {
+    const allowedStreetIds = (availableStreets || []).map(s => s.id).filter(Boolean)
 
-      const total = addresses.length
-      const pending = addresses.filter(a => a.census_status === 'pending').length
-      const visited = addresses.filter(a => a.census_status === 'visited').length
-      const other = addresses.filter(a => a.census_status === 'refused' || a.census_status === 'scheduled').length
-
+    if (!allowedStreetIds.length) {
       statsCardsEl.innerHTML = `
-        <div class="stat-card"><h3>Ukupno adresa</h3><div class="stat-value">${total}</div></div>
-        <div class="stat-card"><h3>Pending</h3><div class="stat-value">${pending}</div></div>
-        <div class="stat-card"><h3>Visited</h3><div class="stat-value">${visited}</div></div>
-        <div class="stat-card"><h3>Refused + Scheduled</h3><div class="stat-value">${other}</div></div>
+        <div class="stat-card"><h3>Ukupno adresa</h3><div class="stat-value">0</div></div>
+        <div class="stat-card"><h3>Pending</h3><div class="stat-value">0</div></div>
+        <div class="stat-card"><h3>Visited</h3><div class="stat-value">0</div></div>
+        <div class="stat-card"><h3>Refused + Scheduled</h3><div class="stat-value">0</div></div>
       `
-
-      const { data: streetStats, error: streetError } = await supabase
-        .rpc('get_address_stats_for_user')
-
-      if (streetError) {
-        streetStatsEl.innerHTML = `<div class="empty">Greška view: ${streetError.message}</div>`
-        return
-      }
-
-      if (!streetStats?.length) {
-        streetStatsEl.innerHTML = '<div class="empty">Nema statistike po ulicama.</div>'
-        return
-      }
-
-      const grouped = {}
-      for (const row of streetStats) {
-        if (!grouped[row.ulica]) {
-          grouped[row.ulica] = { pending: 0, visited: 0, refused: 0, scheduled: 0 }
-        }
-        grouped[row.ulica][row.census_status] = row.broj_adresa
-      }
-
-      streetStatsEl.innerHTML = Object.entries(grouped).map(([street, values]) => `
-        <div class="street-stat-item">
-          <div class="street-stat-name">${street}</div>
-          <div class="street-stat-row">Pending: ${values.pending || 0}</div>
-          <div class="street-stat-row">Visited: ${values.visited || 0}</div>
-          <div class="street-stat-row">Refused: ${values.refused || 0}</div>
-          <div class="street-stat-row">Scheduled: ${values.scheduled || 0}</div>
-        </div>
-      `).join('')
+      streetStatsEl.innerHTML = '<div class="empty">Nema statistike po ulicama.</div>'
+      return
     }
+
+    addressQuery = addressQuery.in('street_id', allowedStreetIds)
+  }
+
+  const { data: addresses, error: addrError } = await addressQuery
+
+  if (addrError) {
+    statsCardsEl.innerHTML = `<div class="empty">Greška statistika: ${addrError.message}</div>`
+    return
+  }
+
+  const total = (addresses || []).length
+  const pending = (addresses || []).filter(a => a.census_status === 'pending').length
+  const visited = (addresses || []).filter(a => a.census_status === 'visited').length
+  const other = (addresses || []).filter(a =>
+    a.census_status === 'refused' || a.census_status === 'scheduled'
+  ).length
+
+  statsCardsEl.innerHTML = `
+    <div class="stat-card"><h3>Ukupno adresa</h3><div class="stat-value">${total}</div></div>
+    <div class="stat-card"><h3>Pending</h3><div class="stat-value">${pending}</div></div>
+    <div class="stat-card"><h3>Visited</h3><div class="stat-value">${visited}</div></div>
+    <div class="stat-card"><h3>Refused + Scheduled</h3><div class="stat-value">${other}</div></div>
+  `
+
+  const { data: streetStats, error: streetError } = await supabase.rpc('get_address_stats_for_user')
+
+  if (streetError) {
+    streetStatsEl.innerHTML = `<div class="empty">Greška view: ${streetError.message}</div>`
+    return
+  }
+
+  if (!streetStats?.length) {
+    streetStatsEl.innerHTML = '<div class="empty">Nema statistike po ulicama.</div>'
+    return
+  }
+
+  const grouped = {}
+  for (const row of streetStats) {
+    if (!grouped[row.ulica]) {
+      grouped[row.ulica] = { pending: 0, visited: 0, refused: 0, scheduled: 0 }
+    }
+    grouped[row.ulica][row.census_status] = row.broj_adresa
+  }
+
+  streetStatsEl.innerHTML = Object.entries(grouped).map(([street, values]) => `
+    <div class="street-stat-item">
+      <div class="street-stat-name">${street}</div>
+      <div class="street-stat-row">Pending: ${values.pending || 0}</div>
+      <div class="street-stat-row">Visited: ${values.visited || 0}</div>
+      <div class="street-stat-row">Refused: ${values.refused || 0}</div>
+      <div class="street-stat-row">Scheduled: ${values.scheduled || 0}</div>
+    </div>
+  `).join('')
+}
 
     async function updateCensusStatus(addressId, newStatus) {
       if (!canEdit()) {
@@ -1501,31 +1521,46 @@ const passwordLoginBtn = document.getElementById('passwordLoginBtn')
     }
 
     async function loadAddresses() {
-      const { data, error } = await supabase
-        .from('addresses')
-        .select(`
-          id,
-          street_id,
-          house_number,
-          house_number_suffix,
-          full_address_label,
-          address_type,
-          census_status,
-          is_active,
-          created_at,
-          streets (id, name, settlement_name)
-        `)
-        .order('created_at', { ascending: false })
+  let query = supabase
+    .from('addresses')
+    .select(`
+      id,
+      street_id,
+      house_number,
+      house_number_suffix,
+      full_address_label,
+      address_type,
+      census_status,
+      is_active,
+      created_at,
+      streets (id, name, settlement_name)
+    `)
+    .order('created_at', { ascending: false })
 
-      if (error) {
-        addressesEl.innerHTML = `<div class="empty">Greška: ${error.message}</div>`
-        return
-      }
+  if (!isAdmin()) {
+    const allowedStreetIds = (availableStreets || []).map(s => s.id).filter(Boolean)
 
-      allAddresses = data || []
+    if (!allowedStreetIds.length) {
+      allAddresses = []
       currentPage = 1
       renderAddresses()
+      return
     }
+
+    query = query.in('street_id', allowedStreetIds)
+  }
+
+  const { data, error } = await query
+
+  if (error) {
+    addressesEl.innerHTML = `<div class="empty">Greška: ${error.message}</div>`
+    return
+  }
+
+  allAddresses = data || []
+  currentPage = 1
+  renderAddresses()
+}
 
     async function saveAddress() {
       if (!canEdit()) {
