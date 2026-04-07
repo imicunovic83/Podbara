@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Address Tracker</title>
-  <link rel="icon" href="data:," />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -183,7 +182,11 @@
     }
 
     button:hover { background: var(--color-primary-hover); }
-    button:disabled { background: #93c5fd; cursor: not-allowed; }
+
+    button:disabled {
+      background: #93c5fd;
+      cursor: not-allowed;
+    }
 
     .btn-dark { background: var(--color-dark); }
     .btn-dark:hover { background: var(--color-dark-hover); }
@@ -351,9 +354,7 @@
       font-size: var(--text-sm);
     }
 
-    .checkbox-item input {
-      width: auto;
-    }
+    .checkbox-item input { width: auto; }
 
     @media (max-width: 600px) {
       h1 { font-size: 2rem; }
@@ -378,16 +379,15 @@
         </div>
       </div>
       <div class="actions">
-  <button id="loginBtn" type="button">Pošalji magic link</button>
-  <button id="passwordLoginBtn" type="button" class="btn-dark">Login lozinkom</button>
-</div>
-
-<div class="form-grid" style="margin-top: 1rem;">
-  <div class="field">
-    <label for="passwordInput">Lozinka</label>
-    <input id="passwordInput" type="password" placeholder="Unesi lozinku za test login" />
-  </div>
-</div>
+        <button id="loginBtn" type="button">Pošalji magic link</button>
+        <button id="passwordLoginBtn" type="button" class="btn-dark">Login lozinkom</button>
+      </div>
+      <div class="form-grid" style="margin-top: 1rem;">
+        <div class="field">
+          <label for="passwordInput">Lozinka</label>
+          <input id="passwordInput" type="password" placeholder="Unesi lozinku za test login" />
+        </div>
+      </div>
       <p class="note">Na email će stići link za prijavu. Klikni ga i vratiće te nazad na ovu stranicu.</p>
     </div>
 
@@ -435,7 +435,7 @@
 
         <div class="assignments-box">
           <h2>Dodela ulica korisniku</h2>
-          <div id="adminAssignmentsInfo" class="note">Izaberi korisnika da vidiš i menjaš dodeljene ulice.</div>
+          <div id="adminAssignmentsInfo" class="note">Izaberi korisnika da vidi i menja dodeljene ulice.</div>
           <div id="adminStreetCheckboxes" class="checkbox-grid"></div>
           <div class="actions">
             <button id="saveAssignmentsBtn" type="button">Sačuvaj dodeljene ulice</button>
@@ -558,8 +558,9 @@
     const assignedStreetsEl = document.getElementById('assignedStreets')
     const emailInputEl = document.getElementById('emailInput')
     const loginBtn = document.getElementById('loginBtn')
-const passwordInputEl = document.getElementById('passwordInput')
-const passwordLoginBtn = document.getElementById('passwordLoginBtn')
+    const passwordInputEl = document.getElementById('passwordInput')
+    const passwordLoginBtn = document.getElementById('passwordLoginBtn')
+    const logoutBtn = document.getElementById('logoutBtn')
     const streetSelectEl = document.getElementById('streetSelect')
     const houseNumberEl = document.getElementById('houseNumber')
     const houseSuffixEl = document.getElementById('houseSuffix')
@@ -606,7 +607,7 @@ const passwordLoginBtn = document.getElementById('passwordLoginBtn')
 
     function cleanStreetName(value) {
       if (!value) return ''
-      return String(value).replace(/^name\\s*=\\s*/i, '').trim()
+      return String(value).replace(/^name\s*=\s*/i, '').trim()
     }
 
     function normalizeStreetKey(name, settlement) {
@@ -735,14 +736,9 @@ const passwordLoginBtn = document.getElementById('passwordLoginBtn')
 
     function renderAdminUsers() {
       if (!isAdmin()) return
-
       adminUserSelectEl.innerHTML = `
         <option value="">Izaberi korisnika...</option>
-        ${allProfiles.map(p => `
-          <option value="${p.id}">
-            ${(p.full_name || p.email || 'Bez naziva')} (${p.role || 'viewer'})
-          </option>
-        `).join('')}
+        ${allProfiles.map(p => `<option value="${p.id}">${p.fullname || p.email || 'Bez naziva'} (${p.role || 'viewer'})</option>`).join('')}
       `
     }
 
@@ -751,7 +747,7 @@ const passwordLoginBtn = document.getElementById('passwordLoginBtn')
 
       if (!adminUserSelectEl.value) {
         adminStreetCheckboxesEl.innerHTML = ''
-        adminAssignmentsInfoEl.textContent = 'Izaberi korisnika da vidiš i menjaš dodeljene ulice.'
+        adminAssignmentsInfoEl.textContent = 'Izaberi korisnika da vidi i menja dodeljene ulice.'
         return
       }
 
@@ -759,208 +755,16 @@ const passwordLoginBtn = document.getElementById('passwordLoginBtn')
 
       adminStreetCheckboxesEl.innerHTML = allSystemStreets.map(street => `
         <label class="checkbox-item">
-          <input
-            type="checkbox"
-            value="${street.id}"
-            ${selectedSet.has(String(street.id)) ? 'checked' : ''}
-          />
+          <input type="checkbox" value="${street.id}" ${selectedSet.has(String(street.id)) ? 'checked' : ''}>
           <span>${cleanStreetName(street.name)}</span>
         </label>
       `).join('')
 
       const selectedUser = allProfiles.find(p => String(p.id) === String(adminUserSelectEl.value))
       adminAssignmentsInfoEl.textContent = selectedUser
-        ? `Menjaš dodeljene ulice za: ${selectedUser.full_name || selectedUser.email}`
-        : 'Izaberi korisnika da vidiš i menjaš dodeljene ulice.'
+        ? `Menjaš dodeljene ulice za: ${selectedUser.fullname || selectedUser.email}`
+        : 'Izaberi korisnika da vidi i menja dodeljene ulice.'
     }
-
-    async function loadAdminProfiles() {
-      if (!isAdmin()) return
-
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('id, email, full_name, role, is_active')
-        .order('email', { ascending: true })
-
-      if (error) {
-        setStatus(`❌ Greška profiles: ${error.message}`)
-        return
-      }
-
-      allProfiles = data || []
-      renderAdminUsers()
-    }
-
-    async function loadAllSystemStreets() {
-      if (!isAdmin()) return
-
-      const { data, error } = await supabase
-        .from('streets')
-        .select('id, name, settlement_name, is_active')
-        .eq('is_active', true)
-        .order('name', { ascending: true })
-
-      if (error) {
-        setStatus(`❌ Greška streets admin: ${error.message}`)
-        return
-      }
-
-      allSystemStreets = dedupeStreets(data || [])
-      renderStreetCheckboxes()
-    }
-
-    async function loadSelectedUserAssignments() {
-      if (!isAdmin()) return
-
-      const selectedUserId = adminUserSelectEl.value
-      if (!selectedUserId) {
-        selectedAdminUserAssignments = []
-        renderStreetCheckboxes()
-        return
-      }
-
-      const { data, error } = await supabase
-        .from('user_street_assignments')
-        .select('id, user_id, street_id, is_active')
-        .eq('user_id', selectedUserId)
-        .eq('is_active', true)
-
-      if (error) {
-        setStatus(`❌ Greška assignments: ${error.message}`)
-        return
-      }
-
-      selectedAdminUserAssignments = data || []
-
-      const selectedUser = allProfiles.find(p => String(p.id) === String(selectedUserId))
-      if (selectedUser) {
-        adminRoleSelectEl.value = selectedUser.role || 'viewer'
-      }
-
-      renderStreetCheckboxes()
-    }
-
-    async function saveSelectedUserRole() {
-      if (!isAdmin()) {
-        setStatus('❌ Samo admin može menjati role.')
-        return
-      }
-
-      const selectedUserId = adminUserSelectEl.value
-      const selectedRole = adminRoleSelectEl.value
-
-      if (!selectedUserId) {
-        setStatus('❌ Izaberi korisnika.')
-        return
-      }
-
-      saveUserRoleBtn.disabled = true
-      saveUserRoleBtn.textContent = 'Čuvam rolu...'
-
-      try {
-        const { error } = await supabase
-          .from('profiles')
-          .update({ role: selectedRole })
-          .eq('id', selectedUserId)
-
-        if (error) throw error
-
-        await loadAdminProfiles()
-        setStatus(`✅ Rola korisnika je sačuvana: ${selectedRole}`)
-      } catch (err) {
-        setStatus(`❌ Greška role: ${err.message}`)
-      } finally {
-        saveUserRoleBtn.disabled = false
-        saveUserRoleBtn.textContent = 'Sačuvaj rolu'
-      }
-    }
-
-   async function saveSelectedUserAssignments() {
-  if (!isAdmin()) {
-    setStatus('❌ Samo admin može menjati dodele ulica.')
-    return
-  }
-
-  const selectedUserId = adminUserSelectEl.value
-  if (!selectedUserId) {
-    setStatus('❌ Izaberi korisnika.')
-    return
-  }
-
-  const checkedStreetIds = Array.from(
-    adminStreetCheckboxesEl.querySelectorAll('input[type="checkbox"]:checked')
-  ).map(input => input.value)
-
-  saveAssignmentsBtn.disabled = true
-  saveAssignmentsBtn.textContent = 'Čuvam dodele...'
-
-  try {
-    const { data: existing, error: existingError } = await supabase
-      .from('user_street_assignments')
-      .select('id, street_id, is_active')
-      .eq('user_id', selectedUserId)
-
-    if (existingError) throw existingError
-
-    const existingByStreet = new Map(
-      (existing || []).map(row => [String(row.street_id), row])
-    )
-
-    const checkedSet = new Set(checkedStreetIds.map(String))
-
-    const idsToDeactivate = (existing || [])
-      .filter(row => row.is_active && !checkedSet.has(String(row.street_id)))
-      .map(row => row.id)
-
-    const idsToReactivate = (existing || [])
-      .filter(row => !row.is_active && checkedSet.has(String(row.street_id)))
-      .map(row => row.id)
-
-    const rowsToInsert = checkedStreetIds
-      .filter(streetId => !existingByStreet.has(String(streetId)))
-      .map(streetId => ({
-        user_id: selectedUserId,
-        street_id: streetId,
-        is_active: true
-      }))
-
-    if (idsToDeactivate.length) {
-      const { error } = await supabase
-        .from('user_street_assignments')
-        .update({ is_active: false })
-        .in('id', idsToDeactivate)
-
-      if (error) throw error
-    }
-
-    if (idsToReactivate.length) {
-      const { error } = await supabase
-        .from('user_street_assignments')
-        .update({ is_active: true })
-        .in('id', idsToReactivate)
-
-      if (error) throw error
-    }
-
-    if (rowsToInsert.length) {
-      const { error } = await supabase
-        .from('user_street_assignments')
-        .insert(rowsToInsert)
-
-      if (error) throw error
-    }
-
-    await loadSelectedUserAssignments()
-    await loadAllowedStreets()
-
-    setStatus(`✅ Sačuvane dodele ulica. Ukupno aktivnih: ${checkedStreetIds.length}`)
-  } catch (err) {
-    setStatus(`❌ Greška assignments save: ${err.message}`)
-  } finally {
-    saveAssignmentsBtn.disabled = false
-    saveAssignmentsBtn.textContent = 'Sačuvaj dodeljene ulice'
-  }
-}
 
     function getFilteredAddresses() {
       const selectedStreet = filterStreetEl.value
@@ -1084,6 +888,40 @@ const passwordLoginBtn = document.getElementById('passwordLoginBtn')
       renderPagination(filtered.length)
     }
 
+    function renderStreetStatsFromAddresses(addressRows) {
+      if (!addressRows?.length) {
+        streetStatsEl.innerHTML = '<div class="empty">Nema statistike po ulicama.</div>'
+        return
+      }
+
+      const grouped = {}
+
+      for (const row of addressRows) {
+        const street = cleanStreetName(row.streets?.name || 'Nepoznata ulica')
+        const status = row.census_status || 'pending'
+
+        if (!grouped[street]) {
+          grouped[street] = { pending: 0, visited: 0, refused: 0, scheduled: 0, total: 0 }
+        }
+
+        grouped[street][status] = (grouped[street][status] || 0) + 1
+        grouped[street].total += 1
+      }
+
+      const sortedEntries = Object.entries(grouped).sort((a, b) => a[0].localeCompare(b[0], 'sr'))
+
+      streetStatsEl.innerHTML = sortedEntries.map(([street, values]) => `
+        <div class="street-stat-item">
+          <div class="street-stat-name">${street}</div>
+          <div class="street-stat-row">Ukupno: ${values.total || 0}</div>
+          <div class="street-stat-row">Pending: ${values.pending || 0}</div>
+          <div class="street-stat-row">Visited: ${values.visited || 0}</div>
+          <div class="street-stat-row">Refused: ${values.refused || 0}</div>
+          <div class="street-stat-row">Scheduled: ${values.scheduled || 0}</div>
+        </div>
+      `).join('')
+    }
+
     function downloadCsv(filename, rows) {
       const csvContent = rows.map(row =>
         row.map(value => {
@@ -1111,7 +949,9 @@ const passwordLoginBtn = document.getElementById('passwordLoginBtn')
         return
       }
 
-      const rows = [['Ulica', 'Naselje', 'Broj', 'Dodatak', 'Puna adresa', 'Tip', 'Status', 'Aktivna']]
+      const rows = [
+        ['Ulica', 'Naselje', 'Broj', 'Dodatak', 'Puna adresa', 'Tip', 'Status', 'Aktivna']
+      ]
 
       filtered.forEach(item => {
         rows.push([
@@ -1271,53 +1111,56 @@ const passwordLoginBtn = document.getElementById('passwordLoginBtn')
       setTimeout(() => {
         printWindow.print()
       }, 300)
-
       setStatus(`✅ Print pregled spreman. Redova: ${filtered.length}`)
     }
 
- async function signInWithPassword() {
-  const email = emailInputEl.value.trim()
-  const password = passwordInputEl.value.trim()
+    async function signInWithMagicLink() {
+      const email = emailInputEl.value.trim()
+      if (!email) {
+        setStatus('Unesi validnu email adresu.')
+        return
+      }
 
-  if (!email || !password) {
-    setStatus('Unesi email i lozinku.')
-    return
-  }
+      setStatus('Šaljem magic link...')
+      loginBtn.disabled = true
 
-  passwordLoginBtn.disabled = true
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          emailRedirectTo: window.location.origin + window.location.pathname
+        }
+      })
 
-  try {
-    setStatus('Prijava lozinkom...')
-
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    })
-
-    if (error) {
-      setStatus(`Greška: ${error.message}`)
-      return
+      loginBtn.disabled = false
+      setStatus(error ? `Greška: ${error.message}` : '✅ Magic link poslat! Proveri email.')
     }
 
-    setStatus('✅ Uspešna prijava lozinkom.')
-    await initApp()
-  } catch (err) {
-    setStatus(`❌ Login exception: ${err.message}`)
-  } finally {
-    passwordLoginBtn.disabled = false
-  }
-}
-    async function hardResetAuth() {
-  try {
-    await supabase.auth.signOut({ scope: 'local' })
-  } catch (e) {}
+    async function signInWithPassword() {
+      const email = emailInputEl.value.trim()
+      const password = passwordInputEl.value.trim()
 
-  currentUser = null
-  currentProfile = null
-  renderLoggedOut()
-  setStatus('Sesija očišćena. Probaj ponovo login.')
-}
+      if (!email || !password) {
+        setStatus('Unesi email i lozinku.')
+        return
+      }
 
+      setStatus('Prijava lozinkom...')
+      passwordLoginBtn.disabled = true
+
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      })
+
+      passwordLoginBtn.disabled = false
+
+      if (error) {
+        setStatus(`Greška: ${error.message}`)
+        return
+      }
+
+      setStatus('✅ Uspešna prijava lozinkom.')
+    }
 
     function renderLoggedOut() {
       authSectionEl.classList.remove('hidden')
@@ -1342,66 +1185,213 @@ const passwordLoginBtn = document.getElementById('passwordLoginBtn')
       infoRoleEl.textContent = profile?.role ?? '-'
     }
 
- async function loadCurrentUserAndProfile() {
-  try {
-    setStatus('Korak 1/4: proveravam sesiju...')
+    async function loadCurrentUserAndProfile() {
+      const { data: { user }, error } = await supabase.auth.getUser()
+      if (error || !user) {
+        renderLoggedOut()
+        return false
+      }
 
-    const sessionResult = await Promise.race([
-      supabase.auth.getSession(),
-      new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('Session timeout posle 5 sekundi')), 5000)
-      )
-    ])
+      currentUser = user
 
-    const { data: { session }, error: sessionError } = sessionResult
-
-    if (sessionError) {
-      setStatus(`❌ Session greška: ${sessionError.message}`)
-      renderLoggedOut()
-      return false
-    }
-
-    if (!session?.user) {
-      setStatus('❌ Nema aktivne sesije.')
-      renderLoggedOut()
-      return false
-    }
-
-    currentUser = session.user
-    setStatus(`Korak 2/4: sesija OK (${currentUser.email})`)
-
-    const { data: profile, error: profileError } = await Promise.race([
-      supabase
+      const { data: profile, error: profileError } = await supabase
         .from('profiles')
-        .select('id, email, full_name, role, is_active')
-        .eq('id', currentUser.id)
-        .maybeSingle(),
-      new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('Profiles timeout posle 5 sekundi')), 5000)
-      )
-    ])
+        .select('id, email, fullname, role, is_active')
+        .eq('id', user.id)
+        .single()
 
-    if (profileError) {
-      setStatus(`❌ Profile greška: ${profileError.message}`)
-      return false
+      if (profileError || !profile) {
+        setStatus('Profil nije pronađen.')
+        return false
+      }
+
+      currentProfile = profile
+      renderLoggedIn(user, profile)
+      applyRolePermissions()
+      return true
     }
 
-    if (!profile) {
-      setStatus(`❌ Profil ne postoji za user ID: ${currentUser.id}`)
-      return false
+    async function loadAdminProfiles() {
+      if (!isAdmin()) return
+
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, email, fullname, role, is_active')
+        .order('email', { ascending: true })
+
+      if (error) {
+        setStatus(`Greška profiles: ${error.message}`)
+        return
+      }
+
+      allProfiles = data || []
+      renderAdminUsers()
     }
 
-    currentProfile = profile
-    renderLoggedIn(currentUser, profile)
-    applyRolePermissions()
+    async function loadAllSystemStreets() {
+      if (!isAdmin()) return
 
-    setStatus(`✅ Profil učitan. Rola: ${profile.role || 'nema role'}`)
-    return true
-  } catch (err) {
-    setStatus(`❌ loadCurrentUserAndProfile exception: ${err.message}`)
-    return false
-  }
-}
+      const { data, error } = await supabase
+        .from('streets')
+        .select('id, name, settlement_name, is_active')
+        .eq('is_active', true)
+        .order('name', { ascending: true })
+
+      if (error) {
+        setStatus(`Greška streets admin: ${error.message}`)
+        return
+      }
+
+      allSystemStreets = dedupeStreets(data || [])
+      renderStreetCheckboxes()
+    }
+
+    async function loadSelectedUserAssignments() {
+      if (!isAdmin()) return
+
+      const selectedUserId = adminUserSelectEl.value
+
+      if (!selectedUserId) {
+        selectedAdminUserAssignments = []
+        renderStreetCheckboxes()
+        return
+      }
+
+      const { data, error } = await supabase
+        .from('user_street_assignments')
+        .select('id, user_id, street_id, is_active')
+        .eq('user_id', selectedUserId)
+        .eq('is_active', true)
+
+      if (error) {
+        setStatus(`Greška assignments: ${error.message}`)
+        return
+      }
+
+      selectedAdminUserAssignments = data || []
+
+      const selectedUser = allProfiles.find(p => String(p.id) === String(selectedUserId))
+      if (selectedUser) adminRoleSelectEl.value = selectedUser.role || 'viewer'
+
+      renderStreetCheckboxes()
+    }
+
+    async function saveSelectedUserRole() {
+      if (!isAdmin()) {
+        setStatus('Samo admin može menjati role.')
+        return
+      }
+
+      const selectedUserId = adminUserSelectEl.value
+      const selectedRole = adminRoleSelectEl.value
+
+      if (!selectedUserId) {
+        setStatus('Izaberi korisnika.')
+        return
+      }
+
+      saveUserRoleBtn.disabled = true
+      saveUserRoleBtn.textContent = 'Čuvam rolu...'
+
+      try {
+        const { error } = await supabase
+          .from('profiles')
+          .update({ role: selectedRole })
+          .eq('id', selectedUserId)
+
+        if (error) throw error
+
+        await loadAdminProfiles()
+        setStatus(`✅ Rola korisnika je sačuvana: ${selectedRole}`)
+      } catch (err) {
+        setStatus(`❌ Greška role: ${err.message}`)
+      } finally {
+        saveUserRoleBtn.disabled = false
+        saveUserRoleBtn.textContent = 'Sačuvaj rolu'
+      }
+    }
+
+    async function saveSelectedUserAssignments() {
+      if (!isAdmin()) {
+        setStatus('Samo admin može menjati dodele ulica.')
+        return
+      }
+
+      const selectedUserId = adminUserSelectEl.value
+      if (!selectedUserId) {
+        setStatus('Izaberi korisnika.')
+        return
+      }
+
+      const checkedStreetIds = Array.from(
+        adminStreetCheckboxesEl.querySelectorAll('input[type="checkbox"]:checked')
+      ).map(input => input.value)
+
+      saveAssignmentsBtn.disabled = true
+      saveAssignmentsBtn.textContent = 'Čuvam dodele...'
+
+      try {
+        const { data: existing, error: existingError } = await supabase
+          .from('user_street_assignments')
+          .select('id, street_id, is_active')
+          .eq('user_id', selectedUserId)
+
+        if (existingError) throw existingError
+
+        const existingRows = existing || []
+        const existingByStreet = new Map(existingRows.map(row => [String(row.street_id), row]))
+        const checkedSet = new Set(checkedStreetIds.map(String))
+
+        const idsToDeactivate = existingRows
+          .filter(row => row.is_active && !checkedSet.has(String(row.street_id)))
+          .map(row => row.id)
+
+        const idsToReactivate = existingRows
+          .filter(row => !row.is_active && checkedSet.has(String(row.street_id)))
+          .map(row => row.id)
+
+        const rowsToInsert = checkedStreetIds
+          .filter(streetId => !existingByStreet.has(String(streetId)))
+          .map(streetId => ({
+            user_id: selectedUserId,
+            street_id: streetId,
+            is_active: true
+          }))
+
+        if (idsToDeactivate.length) {
+          const { error } = await supabase
+            .from('user_street_assignments')
+            .update({ is_active: false })
+            .in('id', idsToDeactivate)
+          if (error) throw error
+        }
+
+        if (idsToReactivate.length) {
+          const { error } = await supabase
+            .from('user_street_assignments')
+            .update({ is_active: true })
+            .in('id', idsToReactivate)
+          if (error) throw error
+        }
+
+        if (rowsToInsert.length) {
+          const { error } = await supabase
+            .from('user_street_assignments')
+            .insert(rowsToInsert)
+          if (error) throw error
+        }
+
+        await loadSelectedUserAssignments()
+        await loadAllowedStreets()
+        setStatus(`✅ Sačuvane dodele ulica. Ukupno aktivnih: ${checkedStreetIds.length}`)
+      } catch (err) {
+        setStatus(`❌ Greška assignments save: ${err.message}`)
+      } finally {
+        saveAssignmentsBtn.disabled = false
+        saveAssignmentsBtn.textContent = 'Sačuvaj dodeljene ulice'
+      }
+    }
+
     async function loadAllowedStreets() {
       if (!currentProfile) return
 
@@ -1435,7 +1425,8 @@ const passwordLoginBtn = document.getElementById('passwordLoginBtn')
         query = query.in('id', uniqueIds)
       }
 
-      const { data, error } = await query
+      const { data, error } = await query.order('name', { ascending: true })
+
       if (error) {
         setStatus(`Greška ulice: ${error.message}`)
         return
@@ -1455,79 +1446,57 @@ const passwordLoginBtn = document.getElementById('passwordLoginBtn')
       populateStreetFilters()
     }
 
-   async function loadDashboardStats() {
-  let addressQuery = supabase
-    .from('addresses')
-    .select('id, street_id, census_status')
+    async function loadDashboardStats() {
+      let addressQuery = supabase
+        .from('addresses')
+        .select(`
+          id,
+          street_id,
+          census_status,
+          streets (
+            id,
+            name,
+            settlement_name
+          )
+        `)
 
-  if (!isAdmin()) {
-    const allowedStreetIds = (availableStreets || []).map(s => s.id).filter(Boolean)
+      if (!isAdmin()) {
+        const allowedStreetIds = availableStreets.map(s => s.id).filter(Boolean)
+        if (!allowedStreetIds.length) {
+          statsCardsEl.innerHTML = `
+            <div class="stat-card"><h3>Ukupno adresa</h3><div class="stat-value">0</div></div>
+            <div class="stat-card"><h3>Pending</h3><div class="stat-value">0</div></div>
+            <div class="stat-card"><h3>Visited</h3><div class="stat-value">0</div></div>
+            <div class="stat-card"><h3>Refused + Scheduled</h3><div class="stat-value">0</div></div>
+          `
+          streetStatsEl.innerHTML = '<div class="empty">Nema statistike po ulicama.</div>'
+          return
+        }
+        addressQuery = addressQuery.in('street_id', allowedStreetIds)
+      }
 
-    if (!allowedStreetIds.length) {
+      const { data: addresses, error: addrError } = await addressQuery
+
+      if (addrError) {
+        statsCardsEl.innerHTML = `<div class="empty">Greška statistika: ${addrError.message}</div>`
+        return
+      }
+
+      const rows = addresses || []
+      const total = rows.length
+      const pending = rows.filter(a => a.census_status === 'pending').length
+      const visited = rows.filter(a => a.census_status === 'visited').length
+      const other = rows.filter(a => a.census_status === 'refused' || a.census_status === 'scheduled').length
+
       statsCardsEl.innerHTML = `
-        <div class="stat-card"><h3>Ukupno adresa</h3><div class="stat-value">0</div></div>
-        <div class="stat-card"><h3>Pending</h3><div class="stat-value">0</div></div>
-        <div class="stat-card"><h3>Visited</h3><div class="stat-value">0</div></div>
-        <div class="stat-card"><h3>Refused + Scheduled</h3><div class="stat-value">0</div></div>
+        <div class="stat-card"><h3>Ukupno adresa</h3><div class="stat-value">${total}</div></div>
+        <div class="stat-card"><h3>Pending</h3><div class="stat-value">${pending}</div></div>
+        <div class="stat-card"><h3>Visited</h3><div class="stat-value">${visited}</div></div>
+        <div class="stat-card"><h3>Refused + Scheduled</h3><div class="stat-value">${other}</div></div>
       `
-      streetStatsEl.innerHTML = '<div class="empty">Nema statistike po ulicama.</div>'
-      return
+
+      renderStreetStatsFromAddresses(rows)
     }
-
-    addressQuery = addressQuery.in('street_id', allowedStreetIds)
-  }
-
-  const { data: addresses, error: addrError } = await addressQuery
-
-  if (addrError) {
-    statsCardsEl.innerHTML = `<div class="empty">Greška statistika: ${addrError.message}</div>`
-    return
-  }
-
-  const total = (addresses || []).length
-  const pending = (addresses || []).filter(a => a.census_status === 'pending').length
-  const visited = (addresses || []).filter(a => a.census_status === 'visited').length
-  const other = (addresses || []).filter(a =>
-    a.census_status === 'refused' || a.census_status === 'scheduled'
-  ).length
-
-  statsCardsEl.innerHTML = `
-    <div class="stat-card"><h3>Ukupno adresa</h3><div class="stat-value">${total}</div></div>
-    <div class="stat-card"><h3>Pending</h3><div class="stat-value">${pending}</div></div>
-    <div class="stat-card"><h3>Visited</h3><div class="stat-value">${visited}</div></div>
-    <div class="stat-card"><h3>Refused + Scheduled</h3><div class="stat-value">${other}</div></div>
-  `
-
-  const { data: streetStats, error: streetError } = await supabase.rpc('get_address_stats_for_user')
-
-  if (streetError) {
-    streetStatsEl.innerHTML = `<div class="empty">Greška view: ${streetError.message}</div>`
-    return
-  }
-
-  if (!streetStats?.length) {
-    streetStatsEl.innerHTML = '<div class="empty">Nema statistike po ulicama.</div>'
-    return
-  }
-
-  const grouped = {}
-  for (const row of streetStats) {
-    if (!grouped[row.ulica]) {
-      grouped[row.ulica] = { pending: 0, visited: 0, refused: 0, scheduled: 0 }
-    }
-    grouped[row.ulica][row.census_status] = row.broj_adresa
-  }
-
-  streetStatsEl.innerHTML = Object.entries(grouped).map(([street, values]) => `
-    <div class="street-stat-item">
-      <div class="street-stat-name">${street}</div>
-      <div class="street-stat-row">Pending: ${values.pending || 0}</div>
-      <div class="street-stat-row">Visited: ${values.visited || 0}</div>
-      <div class="street-stat-row">Refused: ${values.refused || 0}</div>
-      <div class="street-stat-row">Scheduled: ${values.scheduled || 0}</div>
-    </div>
-  `).join('')
-}
 
     async function updateCensusStatus(addressId, newStatus) {
       if (!canEdit()) {
@@ -1539,7 +1508,10 @@ const passwordLoginBtn = document.getElementById('passwordLoginBtn')
 
       const { error } = await supabase
         .from('addresses')
-        .update({ census_status: newStatus })
+        .update({
+          census_status: newStatus,
+          updated_by: currentUser.id
+        })
         .eq('id', addressId)
 
       if (error) {
@@ -1553,46 +1525,51 @@ const passwordLoginBtn = document.getElementById('passwordLoginBtn')
     }
 
     async function loadAddresses() {
-  let query = supabase
-    .from('addresses')
-    .select(`
-      id,
-      street_id,
-      house_number,
-      house_number_suffix,
-      full_address_label,
-      address_type,
-      census_status,
-      is_active,
-      created_at,
-      streets (id, name, settlement_name)
-    `)
-    .order('created_at', { ascending: false })
+      let query = supabase
+        .from('addresses')
+        .select(`
+          id,
+          street_id,
+          house_number,
+          house_number_suffix,
+          full_address_label,
+          address_type,
+          census_status,
+          is_active,
+          created_by,
+          updated_by,
+          streets (
+            id,
+            name,
+            settlement_name
+          )
+        `)
+        .order('id', { ascending: false })
 
-  if (!isAdmin()) {
-    const allowedStreetIds = (availableStreets || []).map(s => s.id).filter(Boolean)
+      if (!isAdmin()) {
+        const allowedStreetIds = availableStreets.map(s => s.id).filter(Boolean)
 
-    if (!allowedStreetIds.length) {
-      allAddresses = []
+        if (!allowedStreetIds.length) {
+          allAddresses = []
+          currentPage = 1
+          renderAddresses()
+          return
+        }
+
+        query = query.in('street_id', allowedStreetIds)
+      }
+
+      const { data, error } = await query
+
+      if (error) {
+        addressesEl.innerHTML = `<div class="empty">Greška: ${error.message}</div>`
+        return
+      }
+
+      allAddresses = data || []
       currentPage = 1
       renderAddresses()
-      return
     }
-
-    query = query.in('street_id', allowedStreetIds)
-  }
-
-  const { data, error } = await query
-
-  if (error) {
-    addressesEl.innerHTML = `<div class="empty">Greška: ${error.message}</div>`
-    return
-  }
-
-  allAddresses = data || []
-  currentPage = 1
-  renderAddresses()
-}
 
     async function saveAddress() {
       if (!canEdit()) {
@@ -1615,12 +1592,14 @@ const passwordLoginBtn = document.getElementById('passwordLoginBtn')
       saveBtn.textContent = 'Čuvam...'
 
       try {
-        const { data: existing } = await supabase
+        const { data: existing, error: existingError } = await supabase
           .from('addresses')
           .select('id')
           .eq('street_id', street_id)
           .eq('full_address_label', full_address_label)
           .maybeSingle()
+
+        if (existingError) throw existingError
 
         if (existing) {
           setStatus('⚠️ Adresa već postoji!')
@@ -1635,7 +1614,10 @@ const passwordLoginBtn = document.getElementById('passwordLoginBtn')
             house_number_suffix: house_number_suffix || null,
             full_address_label,
             address_type,
-            census_status: 'pending'
+            census_status: 'pending',
+            is_active: true,
+            created_by: currentUser.id,
+            updated_by: currentUser.id
           }])
 
         if (error) throw error
@@ -1700,7 +1682,8 @@ const passwordLoginBtn = document.getElementById('passwordLoginBtn')
             house_number,
             house_number_suffix: house_number_suffix || null,
             full_address_label,
-            address_type
+            address_type,
+            updated_by: currentUser.id
           })
           .eq('id', editingAddressId)
 
@@ -1753,7 +1736,7 @@ const passwordLoginBtn = document.getElementById('passwordLoginBtn')
         return
       }
 
-      if (!confirm('Da li si siguran? Ovo će obrisati sve duplikate i ostaviti samo prvu (najstariju) adresu za svaki isti label.')) return
+      if (!confirm('Da li si siguran? Ovo će obrisati sve duplikate i ostaviti samo prvu adresu za isti street_id + full_address_label.')) return
 
       deleteDuplicatesBtn.disabled = true
       deleteDuplicatesBtn.textContent = '⏳ Brišem...'
@@ -1762,15 +1745,15 @@ const passwordLoginBtn = document.getElementById('passwordLoginBtn')
       try {
         const { data: all, error } = await supabase
           .from('addresses')
-          .select('id, street_id, full_address_label, created_at')
-          .order('created_at', { ascending: true })
+          .select('id, street_id, full_address_label')
+          .order('id', { ascending: true })
 
         if (error) throw error
 
         const seen = new Map()
         const toDelete = []
 
-        for (const row of all) {
+        for (const row of all || []) {
           const key = `${row.street_id}||${(row.full_address_label || '').toLowerCase().trim()}`
           if (seen.has(key)) {
             toDelete.push(row.id)
@@ -1784,12 +1767,17 @@ const passwordLoginBtn = document.getElementById('passwordLoginBtn')
           return
         }
 
-        const { error: delErr } = await supabase
-          .from('addresses')
-          .delete()
-          .in('id', toDelete)
+        const batchSize = 50
 
-        if (delErr) throw delErr
+        for (let i = 0; i < toDelete.length; i += batchSize) {
+          const batch = toDelete.slice(i, i + batchSize)
+          const { error: delErr } = await supabase
+            .from('addresses')
+            .delete()
+            .in('id', batch)
+
+          if (delErr) throw delErr
+        }
 
         setStatus(`🗑️ Obrišeno ${toDelete.length} duplikata! Lista je osvežena.`)
         await loadAddresses()
@@ -1825,6 +1813,7 @@ const passwordLoginBtn = document.getElementById('passwordLoginBtn')
     loginBtn.addEventListener('click', signInWithMagicLink)
     passwordLoginBtn.addEventListener('click', signInWithPassword)
     logoutBtn.addEventListener('click', () => supabase.auth.signOut())
+
     saveBtn.addEventListener('click', saveAddress)
     updateBtn.addEventListener('click', updateAddress)
     cancelEditBtn.addEventListener('click', () => exitEditMode())
@@ -1882,18 +1871,14 @@ const passwordLoginBtn = document.getElementById('passwordLoginBtn')
     houseNumberEl.addEventListener('input', updateAddressLabel)
     houseSuffixEl.addEventListener('input', updateAddressLabel)
 
-supabase.auth.onAuthStateChange((event) => {
-  if (event === 'SIGNED_IN') {
-    setTimeout(() => {
-      initApp()
-    }, 0)
-  }
+    supabase.auth.onAuthStateChange(async (event) => {
+      if (event === 'SIGNED_IN') await initApp()
+      if (event === 'SIGNED_OUT') {
+        renderLoggedOut()
+        setStatus('Uspešno si odjavljen.')
+      }
+    })
 
-  if (event === 'SIGNED_OUT') {
-    renderLoggedOut()
-    setStatus('Uspešno si odjavljen.')
-  }
-})
     initApp()
   </script>
 </body>
