@@ -55,7 +55,7 @@
     }
 
     .container {
-      max-width: 1200px;
+      max-width: 1280px;
       margin: 0 auto;
       padding: var(--space-8) var(--space-4);
     }
@@ -130,7 +130,8 @@
 
     .form-grid,
     .stats-grid,
-    .filters-grid {
+    .filters-grid,
+    .admin-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
       gap: var(--space-4);
@@ -181,11 +182,7 @@
     }
 
     button:hover { background: var(--color-primary-hover); }
-
-    button:disabled {
-      background: #93c5fd;
-      cursor: not-allowed;
-    }
+    button:disabled { background: #93c5fd; cursor: not-allowed; }
 
     .btn-dark { background: var(--color-dark); }
     .btn-dark:hover { background: var(--color-dark-hover); }
@@ -200,7 +197,8 @@
     }
 
     .addr-card,
-    .stat-card {
+    .stat-card,
+    .admin-user-card {
       background: var(--color-surface-2);
       border-radius: var(--radius-xl);
       padding: var(--space-6);
@@ -221,7 +219,8 @@
       line-height: 1.1;
     }
 
-    .addr-card h3 {
+    .addr-card h3,
+    .admin-user-card h3 {
       font-size: var(--text-lg);
       font-weight: 700;
       margin-bottom: var(--space-3);
@@ -229,7 +228,8 @@
 
     .addr-row,
     .street-stat-row,
-    .page-info {
+    .page-info,
+    .admin-row {
       margin: var(--space-2) 0;
       font-size: var(--text-sm);
       color: #374151;
@@ -326,1052 +326,32 @@
       margin-bottom: var(--space-2);
     }
 
-    @media (max-width: 600px) {
-      h1 { font-size: 2rem; }
-      .topbar { flex-direction: column; }
-    }
-  </style>
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-</head>
-<body>
-  <div class="container">
-    <h1>Address Tracker</h1>
-    <p class="subtitle">Pregled i unos adresa iz Supabase baze</p>
-
-    <div id="status" class="status">Učitavanje...</div>
-
-    <div id="authSection" class="card-box">
-      <h2>Prijava</h2>
-      <div class="form-grid">
-        <div class="field">
-          <label for="emailInput">Email adresa</label>
-          <input id="emailInput" type="email" placeholder="npr. ime@email.com" />
-        </div>
-      </div>
-      <div class="actions">
-        <button id="loginBtn" type="button">Pošalji magic link</button>
-      </div>
-      <p class="note">Na email će stići link za prijavu. Klikni ga i vratiće te nazad na ovu stranicu.</p>
-    </div>
-
-    <div id="appSection" class="hidden">
-      <div class="topbar">
-        <div class="user-panel">
-          <div id="userBadge" class="user-badge">Nije prijavljen</div>
-          <div id="roleBadge" class="role-badge">Rola: -</div>
-        </div>
-        <button id="logoutBtn" type="button" class="btn-dark">Logout</button>
-      </div>
-
-      <div class="card-box">
-        <h2>Tvoje dozvole</h2>
-        <div class="addr-row"><span class="addr-label">Korisnik:</span> <span id="infoEmail">-</span></div>
-        <div class="addr-row"><span class="addr-label">Rola:</span> <span id="infoRole">-</span></div>
-        <div class="addr-row"><span class="addr-label">Dozvoljene ulice:</span></div>
-        <ul id="assignedStreets" class="street-list">
-          <li>Učitavanje...</li>
-        </ul>
-      </div>
-
-      <div class="card-box">
-        <h2>Dashboard</h2>
-        <div id="statsCards" class="stats-grid">
-          <div class="stat-card"><h3>Ukupno adresa</h3><div class="stat-value">0</div></div>
-          <div class="stat-card"><h3>Pending</h3><div class="stat-value">0</div></div>
-          <div class="stat-card"><h3>Visited</h3><div class="stat-value">0</div></div>
-          <div class="stat-card"><h3>Refused + Scheduled</h3><div class="stat-value">0</div></div>
-        </div>
-      </div>
-
-      <div class="card-box">
-        <h2>Statistika po ulicama</h2>
-        <div id="streetStats" class="street-stats-box">
-          <div class="empty">Učitavanje statistike...</div>
-        </div>
-      </div>
-
-      <div id="editorSection" class="card-box">
-        <h2 id="formTitle">Unos nove adrese</h2>
-        <div class="form-grid">
-          <div class="field">
-            <label for="streetSelect">Ulica</label>
-            <select id="streetSelect">
-              <option value="">Izaberi ulicu...</option>
-            </select>
-          </div>
-          <div class="field">
-            <label for="houseNumber">Broj kuće</label>
-            <input id="houseNumber" type="text" placeholder="npr. 15" />
-          </div>
-          <div class="field">
-            <label for="houseSuffix">Dodatak broju</label>
-            <input id="houseSuffix" type="text" placeholder="npr. A" />
-          </div>
-          <div class="field">
-            <label for="addressLabel">Puna adresa</label>
-            <input id="addressLabel" type="text" placeholder="npr. Bele njive 15" />
-          </div>
-          <div class="field">
-            <label for="addressType">Tip adrese</label>
-            <select id="addressType">
-              <option value="house">house</option>
-              <option value="building">building</option>
-            </select>
-          </div>
-        </div>
-        <div class="actions">
-          <button id="saveBtn" type="button">Sačuvaj adresu</button>
-          <button id="updateBtn" type="button" class="btn-dark hidden">Sačuvaj izmene</button>
-          <button id="cancelEditBtn" type="button" class="btn-dark hidden">Otkaži izmenu</button>
-          <button id="refreshStreetsBtn" type="button" class="btn-dark">🔄 Osveži ulice</button>
-          <button id="deleteDuplicatesBtn" type="button" class="btn-danger">🗑️ Obriši duplikate</button>
-        </div>
-        <p class="note">Admin vidi sve aktivne ulice, ostali korisnici samo dodeljene.</p>
-      </div>
-
-      <div class="card-box">
-        <h2>Filteri</h2>
-        <div class="filters-grid">
-          <div class="field">
-            <label for="filterStreet">Filter po ulici</label>
-            <select id="filterStreet">
-              <option value="">Sve ulice</option>
-            </select>
-          </div>
-          <div class="field">
-            <label for="filterStatus">Filter po statusu</label>
-            <select id="filterStatus">
-              <option value="">Svi statusi</option>
-              <option value="pending">Pending</option>
-              <option value="visited">Visited</option>
-              <option value="refused">Refused</option>
-              <option value="scheduled">Scheduled</option>
-            </select>
-          </div>
-          <div class="field">
-            <label for="searchInput">Pretraga</label>
-            <input id="searchInput" type="text" placeholder="Ulica, broj ili puna adresa" />
-          </div>
-        </div>
-        <div class="actions">
-          <button id="applyFiltersBtn" type="button">Primeni filtere</button>
-          <button id="resetFiltersBtn" type="button" class="btn-dark">Reset filtera</button>
-          <button id="exportCsvBtn" type="button" class="btn-dark">Export CSV</button>
-          <button id="exportExcelBtn" type="button" class="btn-dark">Export Excel</button>
-          <button id="printBtn" type="button" class="btn-dark">Print pregled</button>
-        </div>
-      </div>
-
-      <h2 class="section-title">Lista adresa</h2>
-      <div id="pageInfo" class="page-info"></div>
-      <div id="addresses"></div>
-      <div id="pagination" class="pagination"></div>
-    </div>
-  </div>
-
-  <script type="module">
-    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
-
-    const SUPABASE_URL = 'https://wdmipyooncrcdmvlloou.supabase.co'
-    const SUPABASE_KEY = 'sb_publishable_u-KtwCVzKm55-UAdFJ3FgQ_RsZSpm0u'
-    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
-
-    const statusEl = document.getElementById('status')
-    const authSectionEl = document.getElementById('authSection')
-    const appSectionEl = document.getElementById('appSection')
-    const editorSectionEl = document.getElementById('editorSection')
-    const userBadgeEl = document.getElementById('userBadge')
-    const roleBadgeEl = document.getElementById('roleBadge')
-    const infoEmailEl = document.getElementById('infoEmail')
-    const infoRoleEl = document.getElementById('infoRole')
-    const assignedStreetsEl = document.getElementById('assignedStreets')
-    const emailInputEl = document.getElementById('emailInput')
-    const loginBtn = document.getElementById('loginBtn')
-    const logoutBtn = document.getElementById('logoutBtn')
-    const streetSelectEl = document.getElementById('streetSelect')
-    const houseNumberEl = document.getElementById('houseNumber')
-    const houseSuffixEl = document.getElementById('houseSuffix')
-    const addressLabelEl = document.getElementById('addressLabel')
-    const addressTypeEl = document.getElementById('addressType')
-    const saveBtn = document.getElementById('saveBtn')
-    const updateBtn = document.getElementById('updateBtn')
-    const cancelEditBtn = document.getElementById('cancelEditBtn')
-    const deleteDuplicatesBtn = document.getElementById('deleteDuplicatesBtn')
-    const refreshStreetsBtn = document.getElementById('refreshStreetsBtn')
-    const addressesEl = document.getElementById('addresses')
-    const formTitleEl = document.getElementById('formTitle')
-    const statsCardsEl = document.getElementById('statsCards')
-    const streetStatsEl = document.getElementById('streetStats')
-    const filterStreetEl = document.getElementById('filterStreet')
-    const filterStatusEl = document.getElementById('filterStatus')
-    const searchInputEl = document.getElementById('searchInput')
-    const applyFiltersBtn = document.getElementById('applyFiltersBtn')
-    const resetFiltersBtn = document.getElementById('resetFiltersBtn')
-    const exportCsvBtn = document.getElementById('exportCsvBtn')
-    const exportExcelBtn = document.getElementById('exportExcelBtn')
-    const printBtn = document.getElementById('printBtn')
-    const paginationEl = document.getElementById('pagination')
-    const pageInfoEl = document.getElementById('pageInfo')
-
-    let currentUser = null
-    let currentProfile = null
-    let availableStreets = []
-    let editingAddressId = null
-    let allAddresses = []
-    let currentPage = 1
-    const pageSize = 20
-
-    function cleanStreetName(value) {
-      if (!value) return ''
-      return String(value).replace(/^name\\s*=\\s*/i, '').trim()
+    .assignments-box {
+      margin-top: var(--space-4);
+      border-top: 1px solid rgba(0,0,0,0.08);
+      padding-top: var(--space-4);
     }
 
-    function normalizeStreetKey(name, settlement) {
-      return `${cleanStreetName(name).trim().toLowerCase()}||${String(settlement || '').trim().toLowerCase()}`
-    }
-
-    function dedupeStreets(streets) {
-      const uniqueMap = new Map()
-      for (const street of streets || []) {
-        const key = normalizeStreetKey(street.name, street.settlement_name)
-        if (!uniqueMap.has(key)) uniqueMap.set(key, street)
-      }
-      return Array.from(uniqueMap.values()).sort((a, b) => {
-        const nameA = cleanStreetName(a.name).toLowerCase()
-        const nameB = cleanStreetName(b.name).toLowerCase()
-        return nameA.localeCompare(nameB, 'sr')
-      })
-    }
-
-    function setStatus(msg) {
-      statusEl.textContent = msg
-    }
-
-    function isAdmin() {
-      return currentProfile?.role === 'admin'
-    }
-
-    function isEditor() {
-      return currentProfile?.role === 'editor' || isAdmin()
-    }
-
-    function isViewer() {
-      return currentProfile?.role === 'viewer'
-    }
-
-    function applyRoleUI() {
-      if (isViewer()) {
-        editorSectionEl.classList.add('hidden')
-      } else {
-        editorSectionEl.classList.remove('hidden')
-      }
-
-      if (!isAdmin()) {
-        refreshStreetsBtn.classList.add('hidden')
-        deleteDuplicatesBtn.classList.add('hidden')
-      } else {
-        refreshStreetsBtn.classList.remove('hidden')
-        deleteDuplicatesBtn.classList.remove('hidden')
-      }
-    }
-
-    function resetForm() {
-      streetSelectEl.value = ''
-      houseNumberEl.value = ''
-      houseSuffixEl.value = ''
-      addressLabelEl.value = ''
-      addressTypeEl.value = 'house'
-    }
-
-    function updateAddressLabel() {
-      const sid = streetSelectEl.value
-      const num = houseNumberEl.value.trim()
-      const suffix = houseSuffixEl.value.trim()
-      const street = availableStreets.find(s => String(s.id) === String(sid))
-      const name = cleanStreetName(street?.name || '')
-      addressLabelEl.value = [name, num ? `${num}${suffix}` : ''].filter(Boolean).join(' ').trim()
-    }
-
-    function enterEditMode(item) {
-      if (!isEditor()) return
-
-      editingAddressId = item.id
-      streetSelectEl.value = item.street_id ?? ''
-      houseNumberEl.value = item.house_number ?? ''
-      houseSuffixEl.value = item.house_number_suffix ?? ''
-      addressLabelEl.value = item.full_address_label ?? ''
-      addressTypeEl.value = item.address_type ?? 'house'
-      formTitleEl.textContent = 'Izmena adrese'
-      saveBtn.classList.add('hidden')
-      updateBtn.classList.remove('hidden')
-      cancelEditBtn.classList.remove('hidden')
-      setStatus(`✏️ Menjaš adresu: ${item.full_address_label}`)
-      window.scrollTo({ top: 0, behavior: 'smooth' })
-    }
-
-    function exitEditMode() {
-      editingAddressId = null
-      resetForm()
-      formTitleEl.textContent = 'Unos nove adrese'
-      saveBtn.classList.remove('hidden')
-      updateBtn.classList.add('hidden')
-      cancelEditBtn.classList.add('hidden')
-      setStatus('✅ Edit mod zatvoren.')
-    }
-
-    function getStatusClass(status) {
-      switch (status) {
-        case 'visited': return 'status-visited'
-        case 'refused': return 'status-refused'
-        case 'scheduled': return 'status-scheduled'
-        default: return 'status-pending'
-      }
-    }
-
-    function getStatusLabel(status) {
-      switch (status) {
-        case 'visited': return 'Obiđeno'
-        case 'refused': return 'Odbijeno'
-        case 'scheduled': return 'Zakazano'
-        default: return 'Na čekanju'
-      }
-    }
-
-    function populateStreetFilters() {
-      filterStreetEl.innerHTML = `
-        <option value="">Sve ulice</option>
-        ${availableStreets.map(s => `<option value="${s.id}">${cleanStreetName(s.name)}</option>`).join('')}
-      `
-    }
-
-    function getFilteredAddresses() {
-      const selectedStreet = filterStreetEl.value
-      const selectedStatus = filterStatusEl.value
-      const search = searchInputEl.value.trim().toLowerCase()
-
-      return allAddresses.filter(item => {
-        const streetName = cleanStreetName(item.streets?.name || '').toLowerCase()
-        const fullLabel = String(item.full_address_label || '').toLowerCase()
-        const houseNumber = String(item.house_number || '').toLowerCase()
-
-        const matchStreet = !selectedStreet || String(item.street_id) === String(selectedStreet)
-        const matchStatus = !selectedStatus || String(item.census_status) === String(selectedStatus)
-        const matchSearch = !search || streetName.includes(search) || fullLabel.includes(search) || houseNumber.includes(search)
-
-        return matchStreet && matchStatus && matchSearch
-      })
-    }
-
-    function renderPagination(totalItems) {
-      const totalPages = Math.max(1, Math.ceil(totalItems / pageSize))
-      if (currentPage > totalPages) currentPage = totalPages
-
-      paginationEl.innerHTML = `
-        <button type="button" class="btn-dark" id="prevPageBtn" ${currentPage === 1 ? 'disabled' : ''}>Prethodna</button>
-        <button type="button" class="btn-dark" id="nextPageBtn" ${currentPage === totalPages ? 'disabled' : ''}>Sledeća</button>
-      `
-
-      document.getElementById('prevPageBtn')?.addEventListener('click', () => {
-        if (currentPage > 1) {
-          currentPage--
-          renderAddresses()
-        }
-      })
-
-      document.getElementById('nextPageBtn')?.addEventListener('click', () => {
-        if (currentPage < totalPages) {
-          currentPage++
-          renderAddresses()
-        }
-      })
-    }
-
-    function renderAddresses() {
-      const filtered = getFilteredAddresses()
-
-      if (!filtered.length) {
-        pageInfoEl.textContent = 'Nema rezultata za izabrane filtere.'
-        addressesEl.innerHTML = '<div class="empty">Nema adresa za prikaz.</div>'
-        paginationEl.innerHTML = ''
-        return
-      }
-
-      const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize))
-      if (currentPage > totalPages) currentPage = totalPages
-
-      const start = (currentPage - 1) * pageSize
-      const end = start + pageSize
-      const pageItems = filtered.slice(start, end)
-
-      pageInfoEl.textContent = `Prikaz ${start + 1}-${Math.min(end, filtered.length)} od ${filtered.length} adresa | Strana ${currentPage}/${totalPages}`
-
-      addressesEl.innerHTML = `
-        <div class="grid">
-          ${pageItems.map(item => `
-            <div class="addr-card">
-              <h3>${item.full_address_label ?? 'Bez naziva'}</h3>
-              <div class="addr-row"><span class="addr-label">Ulica:</span> ${cleanStreetName(item.streets?.name) || '-'}</div>
-              <div class="addr-row"><span class="addr-label">Naselje:</span> ${item.streets?.settlement_name ?? '-'}</div>
-              <div class="addr-row"><span class="addr-label">Broj:</span> ${item.house_number ?? '-'}</div>
-              <div class="addr-row"><span class="addr-label">Dodatak:</span> ${item.house_number_suffix ?? '-'}</div>
-              <div class="addr-row"><span class="addr-label">Tip:</span> ${item.address_type ?? '-'}</div>
-              <div class="addr-row"><span class="addr-label">Aktivna:</span> ${item.is_active ? 'Da' : 'Ne'}</div>
-              <div class="addr-row">
-                <span class="addr-label">Status:</span>
-                <span class="status-badge ${getStatusClass(item.census_status)}">${getStatusLabel(item.census_status)}</span>
-              </div>
-
-              ${isEditor() ? `
-                <div class="status-editor">
-                  <label for="status-${item.id}">Promeni status</label>
-                  <select class="status-select" id="status-${item.id}" data-status-id="${item.id}">
-                    <option value="pending" ${item.census_status === 'pending' ? 'selected' : ''}>Pending</option>
-                    <option value="visited" ${item.census_status === 'visited' ? 'selected' : ''}>Visited</option>
-                    <option value="refused" ${item.census_status === 'refused' ? 'selected' : ''}>Refused</option>
-                    <option value="scheduled" ${item.census_status === 'scheduled' ? 'selected' : ''}>Scheduled</option>
-                  </select>
-                </div>
-
-                <div class="actions">
-                  <button type="button" class="btn-dark" data-edit-id="${item.id}">Izmeni</button>
-                  <button type="button" class="btn-danger" data-delete-id="${item.id}" data-delete-label="${(item.full_address_label ?? 'Bez naziva').replace(/"/g, '&quot;')}">Obriši</button>
-                </div>
-              ` : ''}
-            </div>
-          `).join('')}
-        </div>
-      `
-
-      if (isEditor()) {
-        addressesEl.querySelectorAll('[data-edit-id]').forEach(btn => {
-          btn.addEventListener('click', () => {
-            const item = allAddresses.find(row => String(row.id) === String(btn.dataset.editId))
-            if (item) enterEditMode(item)
-          })
-        })
-
-        addressesEl.querySelectorAll('[data-delete-id]').forEach(btn => {
-          btn.addEventListener('click', () => {
-            deleteAddress(btn.dataset.deleteId, btn.dataset.deleteLabel)
-          })
-        })
-
-        addressesEl.querySelectorAll('[data-status-id]').forEach(select => {
-          select.addEventListener('change', () => {
-            updateCensusStatus(select.dataset.statusId, select.value)
-          })
-        })
-      }
-
-      renderPagination(filtered.length)
-    }
-
-    function downloadCsv(filename, rows) {
-      const csvContent = rows.map(row =>
-        row.map(value => {
-          const safe = String(value ?? '').replace(/"/g, '""')
-          return `"${safe}"`
-        }).join(',')
-      ).join('\n')
-
-      const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' })
-      const url = URL.createObjectURL(blob)
-      const link = document.createElement('a')
-      link.href = url
-      link.download = filename
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-      URL.revokeObjectURL(url)
-    }
-
-    function exportFilteredCsv() {
-      const filtered = getFilteredAddresses()
-
-      if (!filtered.length) {
-        setStatus('❌ Nema podataka za CSV export.')
-        return
-      }
-
-      const rows = [
-        ['Ulica', 'Naselje', 'Broj', 'Dodatak', 'Puna adresa', 'Tip', 'Status', 'Aktivna']
-      ]
-
-      filtered.forEach(item => {
-        rows.push([
-          cleanStreetName(item.streets?.name || ''),
-          item.streets?.settlement_name || '',
-          item.house_number || '',
-          item.house_number_suffix || '',
-          item.full_address_label || '',
-          item.address_type || '',
-          getStatusLabel(item.census_status),
-          item.is_active ? 'Da' : 'Ne'
-        ])
-      })
-
-      const now = new Date()
-      const stamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
-      downloadCsv(`adrese-export-${stamp}.csv`, rows)
-      setStatus(`✅ CSV export uspešan. Izvezeno: ${filtered.length} redova.`)
-    }
-
-    function exportFilteredExcel() {
-      const filtered = getFilteredAddresses()
-
-      if (!filtered.length) {
-        setStatus('❌ Nema podataka za Excel export.')
-        return
-      }
-
-      const detailRows = filtered.map(item => ({
-        Ulica: cleanStreetName(item.streets?.name || ''),
-        Naselje: item.streets?.settlement_name || '',
-        Broj: item.house_number || '',
-        Dodatak: item.house_number_suffix || '',
-        'Puna adresa': item.full_address_label || '',
-        Tip: item.address_type || '',
-        Status: getStatusLabel(item.census_status),
-        Aktivna: item.is_active ? 'Da' : 'Ne'
-      }))
-
-      const summaryMap = new Map()
-
-      filtered.forEach(item => {
-        const street = cleanStreetName(item.streets?.name || '')
-        if (!summaryMap.has(street)) {
-          summaryMap.set(street, {
-            Ulica: street,
-            Pending: 0,
-            Visited: 0,
-            Refused: 0,
-            Scheduled: 0,
-            Ukupno: 0
-          })
-        }
-
-        const row = summaryMap.get(street)
-        if (item.census_status === 'pending') row.Pending++
-        if (item.census_status === 'visited') row.Visited++
-        if (item.census_status === 'refused') row.Refused++
-        if (item.census_status === 'scheduled') row.Scheduled++
-        row.Ukupno++
-      })
-
-      const summaryRows = Array.from(summaryMap.values()).sort((a, b) =>
-        String(a.Ulica).localeCompare(String(b.Ulica), 'sr')
-      )
-
-      const wb = XLSX.utils.book_new()
-      const wsDetails = XLSX.utils.json_to_sheet(detailRows)
-      const wsSummary = XLSX.utils.json_to_sheet(summaryRows)
-
-      XLSX.utils.book_append_sheet(wb, wsDetails, 'Adrese')
-      XLSX.utils.book_append_sheet(wb, wsSummary, 'Sumarni pregled')
-
-      wsDetails['!cols'] = [
-        { wch: 24 }, { wch: 18 }, { wch: 10 }, { wch: 10 },
-        { wch: 30 }, { wch: 12 }, { wch: 14 }, { wch: 10 }
-      ]
-
-      wsSummary['!cols'] = [
-        { wch: 24 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 10 }
-      ]
-
-      const now = new Date()
-      const stamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
-      XLSX.writeFile(wb, `adrese-export-${stamp}.xlsx`)
-      setStatus(`✅ Excel export uspešan. Izvezeno: ${filtered.length} redova.`)
-    }
-
-    function printFilteredView() {
-      const filtered = getFilteredAddresses()
-
-      if (!filtered.length) {
-        setStatus('❌ Nema podataka za štampu.')
-        return
-      }
-
-      const printWindow = window.open('', '_blank', 'width=1200,height=800')
-      if (!printWindow) {
-        setStatus('❌ Browser je blokirao print prozor.')
-        return
-      }
-
-      const rowsHtml = filtered.map(item => `
-        <tr>
-          <td>${cleanStreetName(item.streets?.name || '')}</td>
-          <td>${item.streets?.settlement_name || ''}</td>
-          <td>${item.house_number || ''}</td>
-          <td>${item.house_number_suffix || ''}</td>
-          <td>${item.full_address_label || ''}</td>
-          <td>${item.address_type || ''}</td>
-          <td>${getStatusLabel(item.census_status)}</td>
-          <td>${item.is_active ? 'Da' : 'Ne'}</td>
-        </tr>
-      `).join('')
-
-      printWindow.document.write(`
-        <!DOCTYPE html>
-        <html lang="sr">
-        <head>
-          <meta charset="UTF-8">
-          <title>Print pregled adresa</title>
-          <style>
-            body { font-family: Arial, sans-serif; padding: 24px; color: #111; }
-            h1 { margin-bottom: 8px; }
-            p { margin-bottom: 18px; color: #444; }
-            table { width: 100%; border-collapse: collapse; font-size: 12px; }
-            th, td { border: 1px solid #ccc; padding: 8px; text-align: left; vertical-align: top; }
-            th { background: #f3f4f6; }
-          </style>
-        </head>
-        <body>
-          <h1>Pregled adresa</h1>
-          <p>Ukupno redova: ${filtered.length}</p>
-          <table>
-            <thead>
-              <tr>
-                <th>Ulica</th>
-                <th>Naselje</th>
-                <th>Broj</th>
-                <th>Dodatak</th>
-                <th>Puna adresa</th>
-                <th>Tip</th>
-                <th>Status</th>
-                <th>Aktivna</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${rowsHtml}
-            </tbody>
-          </table>
-        </body>
-        </html>
-      `)
-
-      printWindow.document.close()
-      printWindow.focus()
-      setTimeout(() => {
-        printWindow.print()
-      }, 300)
-      setStatus(`✅ Print pregled spreman. Redova: ${filtered.length}`)
-    }
-
-    async function signInWithMagicLink() {
-      const email = emailInputEl.value.trim()
-      if (!email) {
-        setStatus('Unesi validnu email adresu.')
-        return
-      }
-
-      setStatus('Šaljem magic link...')
-      loginBtn.disabled = true
-
-      const { error } = await supabase.auth.signInWithOtp({
-        email,
-        options: {
-          emailRedirectTo: window.location.origin + window.location.pathname
-        }
-      })
-
-      loginBtn.disabled = false
-      setStatus(error ? `Greška: ${error.message}` : '✅ Magic link poslat! Proveri email.')
-    }
-
-    function renderLoggedOut() {
-      authSectionEl.classList.remove('hidden')
-      appSectionEl.classList.add('hidden')
-      currentUser = null
-      currentProfile = null
-      availableStreets = []
-      editingAddressId = null
-      allAddresses = []
-      resetForm()
-    }
-
-    function renderLoggedIn(user, profile) {
-      authSectionEl.classList.add('hidden')
-      appSectionEl.classList.remove('hidden')
-      userBadgeEl.textContent = `Prijavljen: ${user.email}`
-      roleBadgeEl.textContent = `Rola: ${profile?.role ?? 'nepoznata'}`
-      infoEmailEl.textContent = user.email
-      infoRoleEl.textContent = profile?.role ?? '-'
-      applyRoleUI()
-    }
-
-    async function loadCurrentUserAndProfile() {
-      const { data: { user }, error } = await supabase.auth.getUser()
-      if (error || !user) {
-        renderLoggedOut()
-        return false
-      }
-
-      currentUser = user
-
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('id, email, full_name, role, is_active')
-        .eq('id', user.id)
-        .single()
-
-      if (profileError || !profile) {
-        setStatus('Profil nije pronađen.')
-        return false
-      }
-
-      currentProfile = profile
-      renderLoggedIn(user, profile)
-      return true
-    }
-
-    async function loadAllowedStreets() {
-      if (!currentProfile) return
-
-      let query = supabase
-        .from('streets')
-        .select('id, name, settlement_name, is_active')
-        .eq('is_active', true)
-
-      if (!isAdmin()) {
-        const { data: assignments, error: assignmentError } = await supabase
-          .from('user_street_assignmentsVaži — ispod je **kompletan `index.html`** sa uvedenim **rolama u UI-ju**: `viewer`, `editor`, `admin`. `Viewer` može samo pregled, filter, CSV/Excel export i print; `editor` može unos, izmenu i brisanje adresa; `admin` može sve, uključujući osvežavanje ulica i brisanje duplikata. Supabase `signInWithOtp` koristi `emailRedirectTo`, `auth.getUser()` je validan obrazac u v2 dokumentaciji, a SheetJS `XLSX.writeFile()` radi za browser export fajlova. [web:297][web:305][web:301]
-
-## Kako radi
-
-UI sada automatski prilagođava šta je vidljivo i dozvoljeno na osnovu `profile.role`, pa se forma za unos, admin dugmad i akcije po kartici skrivaju ili prikazuju zavisno od role. `Viewer` ne vidi dugmad za `Izmeni`, `Obriši`, promenu statusa niti sekciju za unos, dok `editor` i `admin` imaju operativne akcije, a `admin` dobija i dodatne administrativne kontrole. [web:305][web:301]
-
-## Kompletan kod
-
-Zameni ceo postojeći fajl ovim sadržajem:
-
-```html
-<!DOCTYPE html>
-<html lang="sr">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Address Tracker</title>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --color-bg: #f7f6f2;
-      --color-surface: #f9f8f5;
-      --color-surface-2: #ffffff;
-      --color-border: #d4d1ca;
-      --color-text: #28251d;
-      --color-text-muted: #7a7974;
-      --color-primary: #01696f;
-      --color-primary-hover: #0c4e54;
-      --color-dark: #111827;
-      --color-dark-hover: #000000;
-      --color-danger: #dc2626;
-      --color-danger-hover: #b91c1c;
-      --color-warning-bg: #fef3c7;
-      --color-warning-text: #92400e;
-      --color-success-bg: #dcfce7;
-      --color-success-text: #166534;
-      --color-refused-bg: #fee2e2;
-      --color-refused-text: #991b1b;
-      --color-scheduled-bg: #dbeafe;
-      --color-scheduled-text: #1d4ed8;
-      --radius-md: 0.5rem;
-      --radius-lg: 0.75rem;
-      --radius-xl: 1rem;
-      --shadow-sm: 0 1px 2px rgba(0,0,0,0.06);
-      --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
-      --shadow-lg: 0 6px 18px rgba(0,0,0,0.10);
-      --space-2: 0.5rem;
-      --space-3: 0.75rem;
-      --space-4: 1rem;
-      --space-6: 1.5rem;
-      --space-8: 2rem;
-      --text-sm: clamp(0.875rem, 0.8rem + 0.35vw, 1rem);
-      --text-base: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
-      --text-lg: clamp(1.125rem, 1rem + 0.75vw, 1.5rem);
-      --text-hero: clamp(2rem, 1rem + 3vw, 3rem);
-    }
-
-    body {
-      font-family: Arial, sans-serif;
-      background: var(--color-bg);
-      color: var(--color-text);
-      min-height: 100dvh;
-      font-size: var(--text-base);
-      line-height: 1.6;
-    }
-
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: var(--space-8) var(--space-4);
-    }
-
-    h1 {
-      font-size: var(--text-hero);
-      font-weight: 700;
-      margin-bottom: var(--space-2);
-      line-height: 1.15;
-    }
-
-    h2 {
-      font-size: var(--text-lg);
-      font-weight: 600;
-      margin-bottom: var(--space-4);
-    }
-
-    .subtitle {
-      color: var(--color-text-muted);
-      margin-bottom: var(--space-6);
-      font-size: var(--text-sm);
-    }
-
-    .status {
-      background: var(--color-surface-2);
-      border-left: 4px solid var(--color-primary);
-      padding: var(--space-3) var(--space-4);
-      border-radius: var(--radius-lg);
-      margin-bottom: var(--space-6);
-      box-shadow: var(--shadow-sm);
-      font-size: var(--text-sm);
-    }
-
-    .card-box {
-      background: var(--color-surface-2);
-      border-radius: var(--radius-xl);
-      padding: var(--space-6);
-      box-shadow: var(--shadow-lg);
-      margin-bottom: var(--space-6);
-    }
-
-    .topbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: var(--space-4);
-      margin-bottom: var(--space-6);
-      flex-wrap: wrap;
-    }
-
-    .user-panel {
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-2);
-    }
-
-    .user-badge,
-    .role-badge {
-      background: var(--color-surface-2);
-      padding: var(--space-2) var(--space-3);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-sm);
-      font-size: var(--text-sm);
-      width: fit-content;
-    }
-
-    .role-badge {
-      background: #eff6ff;
-      color: #1d4ed8;
-      font-weight: 600;
-    }
-
-    .form-grid,
-    .stats-grid,
-    .filters-grid {
+    .checkbox-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: var(--space-4);
-    }
-
-    .field label {
-      display: block;
-      font-size: var(--text-sm);
-      margin-bottom: var(--space-2);
-      font-weight: 600;
-    }
-
-    .field input,
-    .field select {
-      width: 100%;
-      padding: var(--space-3);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-md);
-      font-size: var(--text-sm);
-      background: var(--color-surface-2);
-      color: var(--color-text);
-    }
-
-    .field input:focus,
-    .field select:focus {
-      outline: none;
-      border-color: var(--color-primary);
-      box-shadow: 0 0 0 3px rgba(1, 105, 111, 0.12);
-    }
-
-    .actions,
-    .pagination {
-      margin-top: var(--space-4);
-      display: flex;
       gap: var(--space-3);
-      flex-wrap: wrap;
-    }
-
-    button {
-      background: var(--color-primary);
-      color: white;
-      border: none;
-      border-radius: var(--radius-md);
-      padding: var(--space-3) var(--space-4);
-      font-size: var(--text-sm);
-      font-weight: 600;
-      cursor: pointer;
-    }
-
-    button:hover { background: var(--color-primary-hover); }
-
-    button:disabled {
-      background: #93c5fd;
-      cursor: not-allowed;
-    }
-
-    .btn-dark { background: var(--color-dark); }
-    .btn-dark:hover { background: var(--color-dark-hover); }
-
-    .btn-danger { background: var(--color-danger); }
-    .btn-danger:hover { background: var(--color-danger-hover); }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr));
-      gap: var(--space-4);
-    }
-
-    .addr-card,
-    .stat-card {
-      background: var(--color-surface-2);
-      border-radius: var(--radius-xl);
-      padding: var(--space-6);
-      box-shadow: var(--shadow-md);
-      border: 1px solid rgba(0,0,0,0.06);
-    }
-
-    .stat-card h3 {
-      font-size: var(--text-sm);
-      color: var(--color-text-muted);
-      margin-bottom: var(--space-2);
-      font-weight: 600;
-    }
-
-    .stat-value {
-      font-size: 2rem;
-      font-weight: 700;
-      line-height: 1.1;
-    }
-
-    .addr-card h3 {
-      font-size: var(--text-lg);
-      font-weight: 700;
-      margin-bottom: var(--space-3);
-    }
-
-    .addr-row,
-    .street-stat-row,
-    .page-info {
-      margin: var(--space-2) 0;
-      font-size: var(--text-sm);
-      color: #374151;
-      line-height: 1.5;
-    }
-
-    .addr-label {
-      font-weight: 700;
-      color: var(--color-text);
-    }
-
-    .status-badge {
-      display: inline-flex;
-      align-items: center;
-      padding: 0.35rem 0.7rem;
-      border-radius: 999px;
-      font-size: 0.85rem;
-      font-weight: 700;
-      margin-top: var(--space-2);
-    }
-
-    .status-pending { background: var(--color-warning-bg); color: var(--color-warning-text); }
-    .status-visited { background: var(--color-success-bg); color: var(--color-success-text); }
-    .status-refused { background: var(--color-refused-bg); color: var(--color-refused-text); }
-    .status-scheduled { background: var(--color-scheduled-bg); color: var(--color-scheduled-text); }
-
-    .status-editor {
-      margin-top: var(--space-4);
-      padding-top: var(--space-4);
-      border-top: 1px solid rgba(0,0,0,0.08);
-    }
-
-    .status-editor label {
-      display: block;
-      font-size: var(--text-sm);
-      font-weight: 700;
-      margin-bottom: var(--space-2);
-    }
-
-    .status-editor select {
-      width: 100%;
-      padding: var(--space-3);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-md);
-      background: white;
-      font-size: var(--text-sm);
-    }
-
-    .empty {
-      background: var(--color-surface-2);
-      padding: var(--space-6);
-      border-radius: var(--radius-xl);
-      color: var(--color-text-muted);
-      box-shadow: var(--shadow-sm);
-      text-align: center;
-    }
-
-    .note {
-      font-size: 13px;
-      color: var(--color-text-muted);
       margin-top: var(--space-3);
-      line-height: 1.5;
     }
 
-    .section-title {
-      font-size: var(--text-lg);
-      font-weight: 700;
-      margin: var(--space-8) 0 var(--space-4);
-    }
-
-    .hidden { display: none !important; }
-
-    .street-list {
-      margin: var(--space-2) 0 0 var(--space-4);
-      color: #374151;
-      line-height: 1.8;
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      background: #fafaf8;
+      border: 1px solid rgba(0,0,0,0.06);
+      border-radius: var(--radius-md);
+      padding: var(--space-3);
       font-size: var(--text-sm);
     }
 
-    .street-stats-box {
-      display: grid;
-      gap: var(--space-3);
-    }
-
-    .street-stat-item {
-      border: 1px solid rgba(0,0,0,0.06);
-      border-radius: var(--radius-lg);
-      padding: var(--space-4);
-      background: #fcfcfa;
-    }
-
-    .street-stat-name {
-      font-weight: 700;
-      margin-bottom: var(--space-2);
+    .checkbox-item input {
+      width: auto;
     }
 
     @media (max-width: 600px) {
@@ -1419,6 +399,39 @@ Zameni ceo postojeći fajl ovim sadržajem:
         <ul id="assignedStreets" class="street-list">
           <li>Učitavanje...</li>
         </ul>
+      </div>
+
+      <div id="adminPanelSection" class="card-box hidden">
+        <h2>Admin panel</h2>
+        <div class="admin-grid">
+          <div class="field">
+            <label for="adminUserSelect">Izaberi korisnika</label>
+            <select id="adminUserSelect">
+              <option value="">Izaberi korisnika...</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="adminRoleSelect">Rola korisnika</label>
+            <select id="adminRoleSelect">
+              <option value="viewer">viewer</option>
+              <option value="editor">editor</option>
+              <option value="admin">admin</option>
+            </select>
+          </div>
+        </div>
+        <div class="actions">
+          <button id="saveUserRoleBtn" type="button">Sačuvaj rolu</button>
+          <button id="refreshAdminPanelBtn" type="button" class="btn-dark">Osveži korisnike</button>
+        </div>
+
+        <div class="assignments-box">
+          <h2>Dodela ulica korisniku</h2>
+          <div id="adminAssignmentsInfo" class="note">Izaberi korisnika da vidiš i menjaš dodeljene ulice.</div>
+          <div id="adminStreetCheckboxes" class="checkbox-grid"></div>
+          <div class="actions">
+            <button id="saveAssignmentsBtn" type="button">Sačuvaj dodeljene ulice</button>
+          </div>
+        </div>
       </div>
 
       <div class="card-box">
@@ -1528,6 +541,7 @@ Zameni ceo postojeći fajl ovim sadržajem:
     const authSectionEl = document.getElementById('authSection')
     const appSectionEl = document.getElementById('appSection')
     const editorSectionEl = document.getElementById('editorSection')
+    const adminPanelSectionEl = document.getElementById('adminPanelSection')
     const userBadgeEl = document.getElementById('userBadge')
     const roleBadgeEl = document.getElementById('roleBadge')
     const infoEmailEl = document.getElementById('infoEmail')
@@ -1561,9 +575,20 @@ Zameni ceo postojeći fajl ovim sadržajem:
     const paginationEl = document.getElementById('pagination')
     const pageInfoEl = document.getElementById('pageInfo')
 
+    const adminUserSelectEl = document.getElementById('adminUserSelect')
+    const adminRoleSelectEl = document.getElementById('adminRoleSelect')
+    const saveUserRoleBtn = document.getElementById('saveUserRoleBtn')
+    const refreshAdminPanelBtn = document.getElementById('refreshAdminPanelBtn')
+    const adminAssignmentsInfoEl = document.getElementById('adminAssignmentsInfo')
+    const adminStreetCheckboxesEl = document.getElementById('adminStreetCheckboxes')
+    const saveAssignmentsBtn = document.getElementById('saveAssignmentsBtn')
+
     let currentUser = null
     let currentProfile = null
     let availableStreets = []
+    let allSystemStreets = []
+    let allProfiles = []
+    let selectedAdminUserAssignments = []
     let editingAddressId = null
     let allAddresses = []
     let currentPage = 1
@@ -1607,13 +632,8 @@ Zameni ceo postojeći fajl ovim sadržajem:
       return getRole() === 'admin' || getRole() === 'editor'
     }
 
-    function canViewOnly() {
-      return getRole() === 'viewer'
-    }
-
     function applyRolePermissions() {
       const role = getRole()
-
       roleBadgeEl.textContent = `Rola: ${role}`
       infoRoleEl.textContent = role
 
@@ -1623,6 +643,8 @@ Zameni ceo postojeći fajl ovim sadržajem:
         editorSectionEl.classList.add('hidden')
         exitEditMode(true)
       }
+
+      adminPanelSectionEl.classList.toggle('hidden', !isAdmin())
 
       document.querySelectorAll('.admin-only').forEach(el => {
         el.classList.toggle('hidden', !isAdmin())
@@ -1699,6 +721,214 @@ Zameni ceo postojeći fajl ovim sadržajem:
         <option value="">Sve ulice</option>
         ${availableStreets.map(s => `<option value="${s.id}">${cleanStreetName(s.name)}</option>`).join('')}
       `
+    }
+
+    function renderAdminUsers() {
+      if (!isAdmin()) return
+
+      adminUserSelectEl.innerHTML = `
+        <option value="">Izaberi korisnika...</option>
+        ${allProfiles.map(p => `
+          <option value="${p.id}">
+            ${(p.full_name || p.email || 'Bez naziva')} (${p.role || 'viewer'})
+          </option>
+        `).join('')}
+      `
+    }
+
+    function renderStreetCheckboxes() {
+      if (!isAdmin()) return
+
+      if (!adminUserSelectEl.value) {
+        adminStreetCheckboxesEl.innerHTML = ''
+        adminAssignmentsInfoEl.textContent = 'Izaberi korisnika da vidiš i menjaš dodeljene ulice.'
+        return
+      }
+
+      const selectedSet = new Set(selectedAdminUserAssignments.map(item => String(item.street_id)))
+
+      adminStreetCheckboxesEl.innerHTML = allSystemStreets.map(street => `
+        <label class="checkbox-item">
+          <input
+            type="checkbox"
+            value="${street.id}"
+            ${selectedSet.has(String(street.id)) ? 'checked' : ''}
+          />
+          <span>${cleanStreetName(street.name)}</span>
+        </label>
+      `).join('')
+
+      const selectedUser = allProfiles.find(p => String(p.id) === String(adminUserSelectEl.value))
+      adminAssignmentsInfoEl.textContent = selectedUser
+        ? `Menjaš dodeljene ulice za: ${selectedUser.full_name || selectedUser.email}`
+        : 'Izaberi korisnika da vidiš i menjaš dodeljene ulice.'
+    }
+
+    async function loadAdminProfiles() {
+      if (!isAdmin()) return
+
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, email, full_name, role, is_active')
+        .order('email', { ascending: true })
+
+      if (error) {
+        setStatus(`❌ Greška profiles: ${error.message}`)
+        return
+      }
+
+      allProfiles = data || []
+      renderAdminUsers()
+    }
+
+    async function loadAllSystemStreets() {
+      if (!isAdmin()) return
+
+      const { data, error } = await supabase
+        .from('streets')
+        .select('id, name, settlement_name, is_active')
+        .eq('is_active', true)
+        .order('name', { ascending: true })
+
+      if (error) {
+        setStatus(`❌ Greška streets admin: ${error.message}`)
+        return
+      }
+
+      allSystemStreets = dedupeStreets(data || [])
+      renderStreetCheckboxes()
+    }
+
+    async function loadSelectedUserAssignments() {
+      if (!isAdmin()) return
+
+      const selectedUserId = adminUserSelectEl.value
+      if (!selectedUserId) {
+        selectedAdminUserAssignments = []
+        renderStreetCheckboxes()
+        return
+      }
+
+      const { data, error } = await supabase
+        .from('user_street_assignments')
+        .select('id, user_id, street_id, is_active')
+        .eq('user_id', selectedUserId)
+        .eq('is_active', true)
+
+      if (error) {
+        setStatus(`❌ Greška assignments: ${error.message}`)
+        return
+      }
+
+      selectedAdminUserAssignments = data || []
+
+      const selectedUser = allProfiles.find(p => String(p.id) === String(selectedUserId))
+      if (selectedUser) {
+        adminRoleSelectEl.value = selectedUser.role || 'viewer'
+      }
+
+      renderStreetCheckboxes()
+    }
+
+    async function saveSelectedUserRole() {
+      if (!isAdmin()) {
+        setStatus('❌ Samo admin može menjati role.')
+        return
+      }
+
+      const selectedUserId = adminUserSelectEl.value
+      const selectedRole = adminRoleSelectEl.value
+
+      if (!selectedUserId) {
+        setStatus('❌ Izaberi korisnika.')
+        return
+      }
+
+      saveUserRoleBtn.disabled = true
+      saveUserRoleBtn.textContent = 'Čuvam rolu...'
+
+      try {
+        const { error } = await supabase
+          .from('profiles')
+          .update({ role: selectedRole })
+          .eq('id', selectedUserId)
+
+        if (error) throw error
+
+        await loadAdminProfiles()
+        setStatus(`✅ Rola korisnika je sačuvana: ${selectedRole}`)
+      } catch (err) {
+        setStatus(`❌ Greška role: ${err.message}`)
+      } finally {
+        saveUserRoleBtn.disabled = false
+        saveUserRoleBtn.textContent = 'Sačuvaj rolu'
+      }
+    }
+
+    async function saveSelectedUserAssignments() {
+      if (!isAdmin()) {
+        setStatus('❌ Samo admin može menjati dodele ulica.')
+        return
+      }
+
+      const selectedUserId = adminUserSelectEl.value
+      if (!selectedUserId) {
+        setStatus('❌ Izaberi korisnika.')
+        return
+      }
+
+      const checkedStreetIds = Array.from(
+        adminStreetCheckboxesEl.querySelectorAll('input[type="checkbox"]:checked')
+      ).map(input => input.value)
+
+      saveAssignmentsBtn.disabled = true
+      saveAssignmentsBtn.textContent = 'Čuvam dodele...'
+
+      try {
+        const { data: existing, error: existingError } = await supabase
+          .from('user_street_assignments')
+          .select('id, street_id')
+          .eq('user_id', selectedUserId)
+
+        if (existingError) throw existingError
+
+        const existingMap = new Map((existing || []).map(row => [String(row.street_id), row]))
+
+        const toKeep = new Set(checkedStreetIds.map(String))
+        const toInsert = checkedStreetIds.filter(id => !existingMap.has(String(id)))
+        const toDisable = (existing || []).filter(row => !toKeep.has(String(row.street_id)))
+
+        if (existing?.length) {
+          const { error: disableError } = await supabase
+            .from('user_street_assignments')
+            .update({ is_active: false })
+            .eq('user_id', selectedUserId)
+
+          if (disableError) throw disableError
+        }
+
+        if (checkedStreetIds.length) {
+          const rowsToInsert = checkedStreetIds.map(streetId => ({
+            user_id: selectedUserId,
+            street_id: streetId,
+            is_active: true
+          }))
+
+          const { error: insertError } = await supabase
+            .from('user_street_assignments')
+            .insert(rowsToInsert)
+
+          if (insertError) throw insertError
+        }
+
+        await loadSelectedUserAssignments()
+        setStatus(`✅ Sačuvane dodele ulica. Ukupno aktivnih: ${checkedStreetIds.length}`)
+      } catch (err) {
+        setStatus(`❌ Greška assignments save: ${err.message}`)
+      } finally {
+        saveAssignmentsBtn.disabled = false
+        saveAssignmentsBtn.textContent = 'Sačuvaj dodeljene ulice'
+      }
     }
 
     function getFilteredAddresses() {
@@ -1850,9 +1080,7 @@ Zameni ceo postojeći fajl ovim sadržajem:
         return
       }
 
-      const rows = [
-        ['Ulica', 'Naselje', 'Broj', 'Dodatak', 'Puna adresa', 'Tip', 'Status', 'Aktivna']
-      ]
+      const rows = [['Ulica', 'Naselje', 'Broj', 'Dodatak', 'Puna adresa', 'Tip', 'Status', 'Aktivna']]
 
       filtered.forEach(item => {
         rows.push([
@@ -2043,6 +1271,9 @@ Zameni ceo postojeći fajl ovim sadržajem:
       currentUser = null
       currentProfile = null
       availableStreets = []
+      allSystemStreets = []
+      allProfiles = []
+      selectedAdminUserAssignments = []
       editingAddressId = null
       allAddresses = []
       resetForm()
@@ -2159,7 +1390,7 @@ Zameni ceo postojeći fajl ovim sadržajem:
       `
 
       const { data: streetStats, error: streetError } = await supabase
-  .rpc('get_address_stats_for_user')
+        .rpc('get_address_stats_for_user')
 
       if (streetError) {
         streetStatsEl.innerHTML = `<div class="empty">Greška view: ${streetError.message}</div>`
@@ -2430,21 +1661,14 @@ Zameni ceo postojeći fajl ovim sadržajem:
           return
         }
 
-        let deleted = 0
-        const batchSize = 50
+        const { error: delErr } = await supabase
+          .from('addresses')
+          .delete()
+          .in('id', toDelete)
 
-        for (let i = 0; i < toDelete.length; i += batchSize) {
-          const batch = toDelete.slice(i, i + batchSize)
-          const { error: delErr } = await supabase
-            .from('addresses')
-            .delete()
-            .in('id', batch)
+        if (delErr) throw delErr
 
-          if (delErr) throw delErr
-          deleted += batch.length
-        }
-
-        setStatus(`🗑️ Obrišeno ${deleted} duplikata! Lista je osvežena.`)
+        setStatus(`🗑️ Obrišeno ${toDelete.length} duplikata! Lista je osvežena.`)
         await loadAddresses()
         await loadDashboardStats()
       } catch (err) {
@@ -2463,6 +1687,12 @@ Zameni ceo postojeći fajl ovim sadržajem:
         await loadAllowedStreets()
         await loadAddresses()
         await loadDashboardStats()
+
+        if (isAdmin()) {
+          await loadAdminProfiles()
+          await loadAllSystemStreets()
+        }
+
         setStatus(`✅ Spreman za rad! Aktivna rola: ${getRole()}`)
       } else {
         setStatus('Nisi prijavljen. Pošalji magic link za pristup.')
@@ -2483,9 +1713,27 @@ Zameni ceo postojeći fajl ovim sadržajem:
       }
       setStatus('Osvežavam ulice...')
       await loadAllowedStreets()
+      await loadAllSystemStreets()
       await loadDashboardStats()
+      await loadSelectedUserAssignments()
       setStatus(`✅ Ulice osvežene. Ukupno: ${availableStreets.length}`)
     })
+
+    refreshAdminPanelBtn.addEventListener('click', async () => {
+      if (!isAdmin()) return
+      setStatus('Osvežavam admin panel...')
+      await loadAdminProfiles()
+      await loadAllSystemStreets()
+      await loadSelectedUserAssignments()
+      setStatus('✅ Admin panel osvežen.')
+    })
+
+    adminUserSelectEl.addEventListener('change', async () => {
+      await loadSelectedUserAssignments()
+    })
+
+    saveUserRoleBtn.addEventListener('click', saveSelectedUserRole)
+    saveAssignmentsBtn.addEventListener('click', saveSelectedUserAssignments)
 
     applyFiltersBtn.addEventListener('click', () => {
       currentPage = 1
