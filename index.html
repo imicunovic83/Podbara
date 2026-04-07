@@ -372,9 +372,9 @@
     let editingAddressId = null
 
     function cleanStreetName(value) {
-      if (!value) return ''
-      return String(value).replace(/^name\s*=\s*/i, '').trim()
-    }
+  if (!value) return ''
+  return String(value).replace(/^name\s*=\s*/i, '').trim()
+}
 
     function normalizeStreetKey(name, settlement) {
       return `${cleanStreetName(name).trim().toLowerCase()}||${String(settlement || '').trim().toLowerCase()}`
@@ -548,16 +548,16 @@
 
       availableStreets = dedupeStreets(data || [])
 
-      streetSelectEl.innerHTML = `
-        <option value="">Izaberi ulicu</option>
-        ${availableStreets.map(s => `
-          <option value="${s.id}">${cleanStreetName(s.name)}${s.settlement_name ? ` (${s.settlement_name})` : ''}</option>
-        `).join('')}
-      `
+     streetSelectEl.innerHTML = `
+  <option value="">Izaberi ulicu</option>
+  ${availableStreets.map(s => `
+    <option value="${s.id}">${cleanStreetName(s.name)}</option>
+  `).join('')}
+`
 
-      assignedStreetsEl.innerHTML = availableStreets.length
-        ? availableStreets.map(s => `<li>${cleanStreetName(s.name)}${s.settlement_name ? ` (${s.settlement_name})` : ''}</li>`).join('')
-        : '<li>Nema dodeljenih ulica</li>'
+assignedStreetsEl.innerHTML = availableStreets.length
+  ? availableStreets.map(s => `<li>${cleanStreetName(s.name)}</li>`).join('')
+  : '<li>Nema dodeljenih ulica</li>'
     }
 
     async function loadAddresses() {
