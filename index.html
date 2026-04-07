@@ -1331,39 +1331,44 @@ const passwordLoginBtn = document.getElementById('passwordLoginBtn')
       infoRoleEl.textContent = profile?.role ?? '-'
     }
 
-  async function loadCurrentUserAndProfile() {
+ async function loadCurrentUserAndProfile() {
   try {
-    setStatus('Korak 1/4: proveravam user...')
+    setStatus('Korak 1/4: proveravam sesiju...')
 
-    const userResult = await Promise.race([
-      supabase.auth.getUser(),
+    const sessionResult = await Promise.race([
+      supabase.auth.getSession(),
       new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('Auth timeout posle 8 sekundi')), 8000)
+        setTimeout(() => reject(new Error('Session timeout posle 5 sekundi')), 5000)
       )
     ])
 
-    const { data: { user }, error } = userResult
+    const { data: { session }, error: sessionError } = sessionResult
 
-    if (error) {
-      setStatus(`❌ User greška: ${error.message}`)
+    if (sessionError) {
+      setStatus(`❌ Session greška: ${sessionError.message}`)
       renderLoggedOut()
       return false
     }
 
-    if (!user) {
-      setStatus('❌ Nema prijavljenog korisnika.')
+    if (!session?.user) {
+      setStatus('❌ Nema aktivne sesije.')
       renderLoggedOut()
       return false
     }
 
-    currentUser = user
-    setStatus(`Korak 2/4: user OK (${currentUser.email})`)
+    currentUser = session.user
+    setStatus(`Korak 2/4: sesija OK (${currentUser.email})`)
 
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .select('id, email, full_name, role, is_active')
-      .eq('id', currentUser.id)
-      .maybeSingle()
+    const { data: profile, error: profileError } = await Promise.race([
+      supabase
+        .from('profiles')
+        .select('id, email, full_name, role, is_active')
+        .eq('id', currentUser.id)
+        .maybeSingle(),
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Profiles timeout posle 5 sekundi')), 5000)
+      )
+    ])
 
     if (profileError) {
       setStatus(`❌ Profile greška: ${profileError.message}`)
@@ -1376,12 +1381,10 @@ const passwordLoginBtn = document.getElementById('passwordLoginBtn')
     }
 
     currentProfile = profile
-    setStatus(`Korak 3/4: profil OK, rola = ${profile.role || 'nema role'}`)
-
     renderLoggedIn(currentUser, profile)
     applyRolePermissions()
 
-    setStatus('Korak 4/4: korisnik uspešno učitan.')
+    setStatus(`✅ Profil učitan. Rola: ${profile.role || 'nema role'}`)
     return true
   } catch (err) {
     setStatus(`❌ loadCurrentUserAndProfile exception: ${err.message}`)
