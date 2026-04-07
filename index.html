@@ -1345,26 +1345,33 @@ const passwordLoginBtn = document.getElementById('passwordLoginBtn')
       infoRoleEl.textContent = profile?.role ?? '-'
     }
 
-   async function loadCurrentUserAndProfile() {
+  async function loadCurrentUserAndProfile() {
   try {
-    setStatus('Korak 1/4: proveravam session...')
+    setStatus('Korak 1/4: proveravam user...')
 
-    const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+    const userResult = await Promise.race([
+      supabase.auth.getUser(),
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Auth timeout posle 8 sekundi')), 8000)
+      )
+    ])
 
-    if (sessionError) {
-      setStatus(`❌ Session greška: ${sessionError.message}`)
+    const { data: { user }, error } = userResult
+
+    if (error) {
+      setStatus(`❌ User greška: ${error.message}`)
       renderLoggedOut()
       return false
     }
 
-    if (!session || !session.user) {
-      setStatus('❌ Nema aktivne sesije.')
+    if (!user) {
+      setStatus('❌ Nema prijavljenog korisnika.')
       renderLoggedOut()
       return false
     }
 
-    currentUser = session.user
-    setStatus(`Korak 2/4: session OK (${currentUser.email})`)
+    currentUser = user
+    setStatus(`Korak 2/4: user OK (${currentUser.email})`)
 
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
