@@ -324,6 +324,7 @@
           <button id="saveBtn" type="button">Sačuvaj adresu</button>
           <button id="updateBtn" type="button" class="btn-dark hidden">Sačuvaj izmene</button>
           <button id="cancelEditBtn" type="button" class="btn-dark hidden">Otkaži izmenu</button>
+          <button id="refreshStreetsBtn" type="button" class="btn-dark">🔄 Osveži ulice</button>
           <button id="deleteDuplicatesBtn" type="button" class="btn-danger">🗑️ Obriši duplikate</button>
         </div>
         <p class="note">Admin vidi sve aktivne ulice, ostali korisnici samo dodeljene.</p>
@@ -361,6 +362,7 @@
     const updateBtn = document.getElementById('updateBtn')
     const cancelEditBtn = document.getElementById('cancelEditBtn')
     const deleteDuplicatesBtn = document.getElementById('deleteDuplicatesBtn')
+    const refreshStreetsBtn = document.getElementById('refreshStreetsBtn')
     const addressesEl = document.getElementById('addresses')
     const formTitleEl = document.getElementById('formTitle')
 
@@ -827,6 +829,11 @@
     updateBtn.addEventListener('click', updateAddress)
     cancelEditBtn.addEventListener('click', exitEditMode)
     deleteDuplicatesBtn.addEventListener('click', deleteDuplicateAddresses)
+    refreshStreetsBtn.addEventListener('click', async () => {
+      setStatus('Osvežavam ulice...')
+      await loadAllowedStreets()
+      setStatus(`✅ Ulice osvežene. Ukupno: ${availableStreets.length}`)
+    })
     streetSelectEl.addEventListener('change', updateAddressLabel)
     houseNumberEl.addEventListener('input', updateAddressLabel)
     houseSuffixEl.addEventListener('input', updateAddressLabel)
