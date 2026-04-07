@@ -1275,7 +1275,7 @@ const passwordLoginBtn = document.getElementById('passwordLoginBtn')
       setStatus(`✅ Print pregled spreman. Redova: ${filtered.length}`)
     }
 
-  async function signInWithPassword() {
+ async function signInWithPassword() {
   const email = emailInputEl.value.trim()
   const password = passwordInputEl.value.trim()
 
@@ -1284,23 +1284,28 @@ const passwordLoginBtn = document.getElementById('passwordLoginBtn')
     return
   }
 
-  setStatus('Prijava lozinkom...')
   passwordLoginBtn.disabled = true
 
-  const { error } = await supabase.auth.signInWithPassword({
-    email,
-    password
-  })
+  try {
+    setStatus('Prijava lozinkom...')
 
-  passwordLoginBtn.disabled = false
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    })
 
-  if (error) {
-    setStatus(`Greška: ${error.message}`)
-    return
+    if (error) {
+      setStatus(`Greška: ${error.message}`)
+      return
+    }
+
+    setStatus('✅ Uspešna prijava lozinkom.')
+    await initApp()
+  } catch (err) {
+    setStatus(`❌ Login exception: ${err.message}`)
+  } finally {
+    passwordLoginBtn.disabled = false
   }
-
-  setStatus('✅ Uspešna prijava lozinkom.')
-  await initApp()
 }
 
     function renderLoggedOut() {
@@ -1863,7 +1868,7 @@ const passwordLoginBtn = document.getElementById('passwordLoginBtn')
     houseNumberEl.addEventListener('input', updateAddressLabel)
     houseSuffixEl.addEventListener('input', updateAddressLabel)
 
-   supabase.auth.onAuthStateChange((event) => {
+  supabase.auth.onAuthStateChange((event) => {
   if (event === 'SIGNED_IN') {
     setTimeout(() => {
       initApp()
@@ -1875,7 +1880,6 @@ const passwordLoginBtn = document.getElementById('passwordLoginBtn')
     setStatus('Uspešno si odjavljen.')
   }
 })
-
     initApp()
   </script>
 </body>
