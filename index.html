@@ -129,7 +129,8 @@
     }
 
     .form-grid,
-    .stats-grid {
+    .stats-grid,
+    .filters-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
       gap: var(--space-4);
@@ -160,7 +161,8 @@
       box-shadow: 0 0 0 3px rgba(1, 105, 111, 0.12);
     }
 
-    .actions {
+    .actions,
+    .pagination {
       margin-top: var(--space-4);
       display: flex;
       gap: var(--space-3);
@@ -226,7 +228,8 @@
     }
 
     .addr-row,
-    .street-stat-row {
+    .street-stat-row,
+    .page-info {
       margin: var(--space-2) 0;
       font-size: var(--text-sm);
       color: #374151;
@@ -425,8 +428,40 @@
         <p class="note">Admin vidi sve aktivne ulice, ostali korisnici samo dodeljene.</p>
       </div>
 
+      <div class="card-box">
+        <h2>Filteri</h2>
+        <div class="filters-grid">
+          <div class="field">
+            <label for="filterStreet">Filter po ulici</label>
+            <select id="filterStreet">
+              <option value="">Sve ulice</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="filterStatus">Filter po statusu</label>
+            <select id="filterStatus">
+              <option value="">Svi statusi</option>
+              <option value="pending">Pending</option>
+              <option value="visited">Visited</option>
+              <option value="refused">Refused</option>
+              <option value="scheduled">Scheduled</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="searchInput">Pretraga</label>
+            <input id="searchInput" type="text" placeholder="Ulica, broj ili puna adresa" />
+          </div>
+        </div>
+        <div class="actions">
+          <button id="applyFiltersBtn" type="button">Primeni filtere</button>
+          <button id="resetFiltersBtn" type="button" class="btn-dark">Reset filtera</button>
+        </div>
+      </div>
+
       <h2 class="section-title">Lista adresa</h2>
+      <div id="pageInfo" class="page-info"></div>
       <div id="addresses"></div>
+      <div id="pagination" class="pagination"></div>
     </div>
   </div>
 
@@ -462,15 +497,25 @@
     const formTitleEl = document.getElementById('formTitle')
     const statsCardsEl = document.getElementById('statsCards')
     const streetStatsEl = document.getElementById('streetStats')
+    const filterStreetEl = document.getElementById('filterStreet')
+    const filterStatusEl = document.getElementById('filterStatus')
+    const searchInputEl = document.getElementById('searchInput')
+    const applyFiltersBtn = document.getElementById('applyFiltersBtn')
+    const resetFiltersBtn = document.getElementById('resetFiltersBtn')
+    const paginationEl = document.getElementById('pagination')
+    const pageInfoEl = document.getElementById('pageInfo')
 
     let currentUser = null
     let currentProfile = null
     let availableStreets = []
     let editingAddressId = null
+    let allAddresses = []
+    let currentPage = 1
+    const pageSize = 20
 
     function cleanStreetName(value) {
       if (!value) return ''
-      return String(value).replace(/^name\s*=\s*/i, '').trim()
+      return String(value).replace(/^name\\s*=\\s*/i, '').trim()
     }
 
     function normalizeStreetKey(name, settlement) {
@@ -554,6 +599,131 @@
       }
     }
 
+    function populateStreetFilters() {
+      filterStreetEl.innerHTML = `
+        <option value="">Sve ulice</option>
+        ${availableStreets.map(s => `<option value="${s.id}">${cleanStreetName(s.name)}</option>`).join('')}
+      `
+    }
+
+    function getFilteredAddresses() {
+      const selectedStreet = filterStreetEl.value
+      const selectedStatus = filterStatusEl.value
+      const search = searchInputEl.value.trim().toLowerCase()
+
+      return allAddresses.filter(item => {
+        const streetName = cleanStreetName(item.streets?.name || '').toLowerCase()
+        const fullLabel = String(item.full_address_label || '').toLowerCase()
+        const houseNumber = String(item.house_number || '').toLowerCase()
+
+        const matchStreet = !selectedStreet || String(item.street_id) === String(selectedStreet)
+        const matchStatus = !selectedStatus || String(item.census_status) === String(selectedStatus)
+        const matchSearch = !search || streetName.includes(search) || fullLabel.includes(search) || houseNumber.includes(search)
+
+        return matchStreet && matchStatus && matchSearch
+      })
+    }
+
+    function renderPagination(totalItems) {
+      const totalPages = Math.max(1, Math.ceil(totalItems / pageSize))
+      if (currentPage > totalPages) currentPage = totalPages
+
+      paginationEl.innerHTML = `
+        <button type="button" class="btn-dark" id="prevPageBtn" ${currentPage === 1 ? 'disabled' : ''}>Prethodna</button>
+        <button type="button" class="btn-dark" id="nextPageBtn" ${currentPage === totalPages ? 'disabled' : ''}>Sledeća</button>
+      `
+
+      document.getElementById('prevPageBtn')?.addEventListener('click', () => {
+        if (currentPage > 1) {
+          currentPage--
+          renderAddresses()
+        }
+      })
+
+      document.getElementById('nextPageBtn')?.addEventListener('click', () => {
+        if (currentPage < totalPages) {
+          currentPage++
+          renderAddresses()
+        }
+      })
+    }
+
+    function renderAddresses() {
+      const filtered = getFilteredAddresses()
+
+      if (!filtered.length) {
+        pageInfoEl.textContent = 'Nema rezultata za izabrane filtere.'
+        addressesEl.innerHTML = '<div class="empty">Nema adresa za prikaz.</div>'
+        paginationEl.innerHTML = ''
+        return
+      }
+
+      const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize))
+      if (currentPage > totalPages) currentPage = totalPages
+
+      const start = (currentPage - 1) * pageSize
+      const end = start + pageSize
+      const pageItems = filtered.slice(start, end)
+
+      pageInfoEl.textContent = `Prikaz ${start + 1}-${Math.min(end, filtered.length)} od ${filtered.length} adresa | Strana ${currentPage}/${totalPages}`
+
+      addressesEl.innerHTML = `
+        <div class="grid">
+          ${pageItems.map(item => `
+            <div class="addr-card">
+              <h3>${item.full_address_label ?? 'Bez naziva'}</h3>
+              <div class="addr-row"><span class="addr-label">Ulica:</span> ${cleanStreetName(item.streets?.name) || '-'}</div>
+              <div class="addr-row"><span class="addr-label">Naselje:</span> ${item.streets?.settlement_name ?? '-'}</div>
+              <div class="addr-row"><span class="addr-label">Broj:</span> ${item.house_number ?? '-'}</div>
+              <div class="addr-row"><span class="addr-label">Dodatak:</span> ${item.house_number_suffix ?? '-'}</div>
+              <div class="addr-row"><span class="addr-label">Tip:</span> ${item.address_type ?? '-'}</div>
+              <div class="addr-row"><span class="addr-label">Aktivna:</span> ${item.is_active ? 'Da' : 'Ne'}</div>
+              <div class="addr-row">
+                <span class="addr-label">Status:</span>
+                <span class="status-badge ${getStatusClass(item.census_status)}">${getStatusLabel(item.census_status)}</span>
+              </div>
+
+              <div class="status-editor">
+                <label for="status-${item.id}">Promeni status</label>
+                <select class="status-select" id="status-${item.id}" data-status-id="${item.id}">
+                  <option value="pending" ${item.census_status === 'pending' ? 'selected' : ''}>Pending</option>
+                  <option value="visited" ${item.census_status === 'visited' ? 'selected' : ''}>Visited</option>
+                  <option value="refused" ${item.census_status === 'refused' ? 'selected' : ''}>Refused</option>
+                  <option value="scheduled" ${item.census_status === 'scheduled' ? 'selected' : ''}>Scheduled</option>
+                </select>
+              </div>
+
+              <div class="actions">
+                <button type="button" class="btn-dark" data-edit-id="${item.id}">Izmeni</button>
+                <button type="button" class="btn-danger" data-delete-id="${item.id}" data-delete-label="${(item.full_address_label ?? 'Bez naziva').replace(/"/g, '&quot;')}">Obriši</button>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `
+
+      addressesEl.querySelectorAll('[data-edit-id]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const item = allAddresses.find(row => String(row.id) === String(btn.dataset.editId))
+          if (item) enterEditMode(item)
+        })
+      })
+
+      addressesEl.querySelectorAll('[data-delete-id]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          deleteAddress(btn.dataset.deleteId, btn.dataset.deleteLabel)
+        })
+      })
+
+      addressesEl.querySelectorAll('[data-status-id]').forEach(select => {
+        select.addEventListener('change', () => {
+          updateCensusStatus(select.dataset.statusId, select.value)
+        })
+      })
+
+      renderPagination(filtered.length)
+    }
+
     async function signInWithMagicLink() {
       const email = emailInputEl.value.trim()
       if (!email) {
@@ -582,6 +752,7 @@
       currentProfile = null
       availableStreets = []
       editingAddressId = null
+      allAddresses = []
       resetForm()
     }
 
@@ -645,6 +816,7 @@
           streetSelectEl.innerHTML = '<option value="">Nema dozvoljenih ulica</option>'
           assignedStreetsEl.innerHTML = '<li>Nema dodeljenih ulica</li>'
           availableStreets = []
+          populateStreetFilters()
           return
         }
 
@@ -667,6 +839,8 @@
       assignedStreetsEl.innerHTML = availableStreets.length
         ? availableStreets.map(s => `<li>${cleanStreetName(s.name)}</li>`).join('')
         : '<li>Nema dodeljenih ulica</li>'
+
+      populateStreetFilters()
     }
 
     async function loadDashboardStats() {
@@ -765,64 +939,9 @@
         return
       }
 
-      if (!data?.length) {
-        addressesEl.innerHTML = '<div class="empty">Nema adresa.</div>'
-        return
-      }
-
-      addressesEl.innerHTML = `
-        <div class="grid">
-          ${data.map(item => `
-            <div class="addr-card">
-              <h3>${item.full_address_label ?? 'Bez naziva'}</h3>
-              <div class="addr-row"><span class="addr-label">Ulica:</span> ${cleanStreetName(item.streets?.name) || '-'}</div>
-              <div class="addr-row"><span class="addr-label">Naselje:</span> ${item.streets?.settlement_name ?? '-'}</div>
-              <div class="addr-row"><span class="addr-label">Broj:</span> ${item.house_number ?? '-'}</div>
-              <div class="addr-row"><span class="addr-label">Dodatak:</span> ${item.house_number_suffix ?? '-'}</div>
-              <div class="addr-row"><span class="addr-label">Tip:</span> ${item.address_type ?? '-'}</div>
-              <div class="addr-row"><span class="addr-label">Aktivna:</span> ${item.is_active ? 'Da' : 'Ne'}</div>
-              <div class="addr-row">
-                <span class="addr-label">Status:</span>
-                <span class="status-badge ${getStatusClass(item.census_status)}">${getStatusLabel(item.census_status)}</span>
-              </div>
-
-              <div class="status-editor">
-                <label for="status-${item.id}">Promeni status</label>
-                <select class="status-select" id="status-${item.id}" data-status-id="${item.id}">
-                  <option value="pending" ${item.census_status === 'pending' ? 'selected' : ''}>Pending</option>
-                  <option value="visited" ${item.census_status === 'visited' ? 'selected' : ''}>Visited</option>
-                  <option value="refused" ${item.census_status === 'refused' ? 'selected' : ''}>Refused</option>
-                  <option value="scheduled" ${item.census_status === 'scheduled' ? 'selected' : ''}>Scheduled</option>
-                </select>
-              </div>
-
-              <div class="actions">
-                <button type="button" class="btn-dark" data-edit-id="${item.id}">Izmeni</button>
-                <button type="button" class="btn-danger" data-delete-id="${item.id}" data-delete-label="${(item.full_address_label ?? 'Bez naziva').replace(/"/g, '&quot;')}">Obriši</button>
-              </div>
-            </div>
-          `).join('')}
-        </div>
-      `
-
-      addressesEl.querySelectorAll('[data-edit-id]').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const item = data.find(row => String(row.id) === String(btn.dataset.editId))
-          if (item) enterEditMode(item)
-        })
-      })
-
-      addressesEl.querySelectorAll('[data-delete-id]').forEach(btn => {
-        btn.addEventListener('click', () => {
-          deleteAddress(btn.dataset.deleteId, btn.dataset.deleteLabel)
-        })
-      })
-
-      addressesEl.querySelectorAll('[data-status-id]').forEach(select => {
-        select.addEventListener('change', () => {
-          updateCensusStatus(select.dataset.statusId, select.value)
-        })
-      })
+      allAddresses = data || []
+      currentPage = 1
+      renderAddresses()
     }
 
     async function saveAddress() {
@@ -1046,6 +1165,22 @@
       await loadDashboardStats()
       setStatus(`✅ Ulice osvežene. Ukupno: ${availableStreets.length}`)
     })
+
+    applyFiltersBtn.addEventListener('click', () => {
+      currentPage = 1
+      renderAddresses()
+      setStatus('✅ Filteri primenjeni.')
+    })
+
+    resetFiltersBtn.addEventListener('click', () => {
+      filterStreetEl.value = ''
+      filterStatusEl.value = ''
+      searchInputEl.value = ''
+      currentPage = 1
+      renderAddresses()
+      setStatus('✅ Filteri resetovani.')
+    })
+
     streetSelectEl.addEventListener('change', updateAddressLabel)
     houseNumberEl.addEventListener('input', updateAddressLabel)
     houseSuffixEl.addEventListener('input', updateAddressLabel)
