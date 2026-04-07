@@ -412,36 +412,57 @@
 
       <div id="adminPanelSection" class="card-box hidden">
         <h2>Admin panel</h2>
-        <div class="admin-grid">
-          <div class="field">
-            <label for="adminUserSelect">Izaberi korisnika</label>
-            <select id="adminUserSelect">
-              <option value="">Izaberi korisnika...</option>
-            </select>
-          </div>
-          <div class="field">
-            <label for="adminRoleSelect">Rola korisnika</label>
-            <select id="adminRoleSelect">
-              <option value="viewer">viewer</option>
-              <option value="editor">editor</option>
-              <option value="admin">admin</option>
-            </select>
-          </div>
-        </div>
-        <div class="actions">
-          <button id="saveUserRoleBtn" type="button">Sačuvaj rolu</button>
-          <button id="refreshAdminPanelBtn" type="button" class="btn-dark">Osveži korisnike</button>
-        </div>
+      <div class="admin-grid">
+  <div class="field">
+    <label for="adminUserSelect">Izaberi korisnika</label>
+    <select id="adminUserSelect">
+      <option value="">Izaberi korisnika...</option>
+    </select>
+  </div>
 
-        <div class="assignments-box">
-          <h2>Dodela ulica korisniku</h2>
-          <div id="adminAssignmentsInfo" class="note">Izaberi korisnika da vidi i menja dodeljene ulice.</div>
-          <div id="adminStreetCheckboxes" class="checkbox-grid"></div>
-          <div class="actions">
-            <button id="saveAssignmentsBtn" type="button">Sačuvaj dodeljene ulice</button>
-          </div>
-        </div>
-      </div>
+  <div class="field">
+    <label for="adminRoleSelect">Rola korisnika</label>
+    <select id="adminRoleSelect">
+      <option value="viewer">viewer</option>
+      <option value="editor">editor</option>
+      <option value="admin">admin</option>
+    </select>
+  </div>
+
+  <div class="field">
+    <label for="newUserEmail">Novi user email</label>
+    <input id="newUserEmail" type="email" placeholder="npr. imicunovic83@gmail.com" />
+  </div>
+
+  <div class="field">
+    <label for="newUserFullname">Ime i prezime</label>
+    <input id="newUserFullname" type="text" placeholder="Ilija Mićunović" />
+  </div>
+
+  <div class="field">
+    <label for="newUserRole">Rola</label>
+    <select id="newUserRole">
+      <option value="viewer">Viewer</option>
+      <option value="editor">Editor</option>
+      <option value="admin">Admin</option>
+    </select>
+  </div>
+</div>
+
+<div class="actions">
+  <button id="saveUserRoleBtn" type="button">Sačuvaj rolu</button>
+  <button id="refreshAdminPanelBtn" type="button" class="btn-dark">Osveži korisnike</button>
+  <button id="createNewUserBtn" type="button">➕ Dodaj novog usera</button>
+</div>
+
+<div class="assignments-box">
+  <h2>Dodela ulica korisniku</h2>
+  <div id="adminAssignmentsInfo" class="note">Izaberi korisnika da vidi i menja dodeljene ulice.</div>
+  <div id="adminStreetCheckboxes" class="checkbox-grid"></div>
+  <div class="actions">
+    <button id="saveAssignmentsBtn" type="button">Sačuvaj dodeljene ulice</button>
+  </div>
+</div>
 
       <div class="card-box">
         <h2>Dashboard</h2>
@@ -539,71 +560,76 @@
     </div>
   </div>
 
-  <script type="module">
-    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
+ <script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
 
-    const SUPABASE_URL = 'https://wdmipyooncrcdmvlloou.supabase.co'
-    const SUPABASE_KEY = 'sb_publishable_u-KtwCVzKm55-UAdFJ3FgQ_RsZSpm0u'
-    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
+  const SUPABASE_URL = 'https://wdmipyooncrcdmvlloou.supabase.co'
+  const SUPABASE_KEY = 'sb_publishable_u-KtwCVzKm55-UAdFJ3FgQ_RsZSpm0u'
+  const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
 
-    const statusEl = document.getElementById('status')
-    const authSectionEl = document.getElementById('authSection')
-    const appSectionEl = document.getElementById('appSection')
-    const editorSectionEl = document.getElementById('editorSection')
-    const adminPanelSectionEl = document.getElementById('adminPanelSection')
-    const userBadgeEl = document.getElementById('userBadge')
-    const roleBadgeEl = document.getElementById('roleBadge')
-    const infoEmailEl = document.getElementById('infoEmail')
-    const infoRoleEl = document.getElementById('infoRole')
-    const assignedStreetsEl = document.getElementById('assignedStreets')
-    const emailInputEl = document.getElementById('emailInput')
-    const loginBtn = document.getElementById('loginBtn')
-    const passwordInputEl = document.getElementById('passwordInput')
-    const passwordLoginBtn = document.getElementById('passwordLoginBtn')
-    const logoutBtn = document.getElementById('logoutBtn')
-    const streetSelectEl = document.getElementById('streetSelect')
-    const houseNumberEl = document.getElementById('houseNumber')
-    const houseSuffixEl = document.getElementById('houseSuffix')
-    const addressLabelEl = document.getElementById('addressLabel')
-    const addressTypeEl = document.getElementById('addressType')
-    const saveBtn = document.getElementById('saveBtn')
-    const updateBtn = document.getElementById('updateBtn')
-    const cancelEditBtn = document.getElementById('cancelEditBtn')
-    const deleteDuplicatesBtn = document.getElementById('deleteDuplicatesBtn')
-    const refreshStreetsBtn = document.getElementById('refreshStreetsBtn')
-    const addressesEl = document.getElementById('addresses')
-    const formTitleEl = document.getElementById('formTitle')
-    const statsCardsEl = document.getElementById('statsCards')
-    const streetStatsEl = document.getElementById('streetStats')
-    const filterStreetEl = document.getElementById('filterStreet')
-    const filterStatusEl = document.getElementById('filterStatus')
-    const searchInputEl = document.getElementById('searchInput')
-    const applyFiltersBtn = document.getElementById('applyFiltersBtn')
-    const resetFiltersBtn = document.getElementById('resetFiltersBtn')
-    const exportCsvBtn = document.getElementById('exportCsvBtn')
-    const exportExcelBtn = document.getElementById('exportExcelBtn')
-    const printBtn = document.getElementById('printBtn')
-    const paginationEl = document.getElementById('pagination')
-    const pageInfoEl = document.getElementById('pageInfo')
+  const statusEl = document.getElementById('status')
+  const authSectionEl = document.getElementById('authSection')
+  const appSectionEl = document.getElementById('appSection')
+  const editorSectionEl = document.getElementById('editorSection')
+  const adminPanelSectionEl = document.getElementById('adminPanelSection')
+  const userBadgeEl = document.getElementById('userBadge')
+  const roleBadgeEl = document.getElementById('roleBadge')
+  const infoEmailEl = document.getElementById('infoEmail')
+  const infoRoleEl = document.getElementById('infoRole')
+  const assignedStreetsEl = document.getElementById('assignedStreets')
+  const emailInputEl = document.getElementById('emailInput')
+  const loginBtn = document.getElementById('loginBtn')
+  const passwordInputEl = document.getElementById('passwordInput')
+  const passwordLoginBtn = document.getElementById('passwordLoginBtn')
+  const logoutBtn = document.getElementById('logoutBtn')
+  const streetSelectEl = document.getElementById('streetSelect')
+  const houseNumberEl = document.getElementById('houseNumber')
+  const houseSuffixEl = document.getElementById('houseSuffix')
+  const addressLabelEl = document.getElementById('addressLabel')
+  const addressTypeEl = document.getElementById('addressType')
+  const saveBtn = document.getElementById('saveBtn')
+  const updateBtn = document.getElementById('updateBtn')
+  const cancelEditBtn = document.getElementById('cancelEditBtn')
+  const deleteDuplicatesBtn = document.getElementById('deleteDuplicatesBtn')
+  const refreshStreetsBtn = document.getElementById('refreshStreetsBtn')
+  const addressesEl = document.getElementById('addresses')
+  const formTitleEl = document.getElementById('formTitle')
+  const statsCardsEl = document.getElementById('statsCards')
+  const streetStatsEl = document.getElementById('streetStats')
+  const filterStreetEl = document.getElementById('filterStreet')
+  const filterStatusEl = document.getElementById('filterStatus')
+  const searchInputEl = document.getElementById('searchInput')
+  const applyFiltersBtn = document.getElementById('applyFiltersBtn')
+  const resetFiltersBtn = document.getElementById('resetFiltersBtn')
+  const exportCsvBtn = document.getElementById('exportCsvBtn')
+  const exportExcelBtn = document.getElementById('exportExcelBtn')
+  const printBtn = document.getElementById('printBtn')
+  const paginationEl = document.getElementById('pagination')
+  const pageInfoEl = document.getElementById('pageInfo')
 
-    const adminUserSelectEl = document.getElementById('adminUserSelect')
-    const adminRoleSelectEl = document.getElementById('adminRoleSelect')
-    const saveUserRoleBtn = document.getElementById('saveUserRoleBtn')
-    const refreshAdminPanelBtn = document.getElementById('refreshAdminPanelBtn')
-    const adminAssignmentsInfoEl = document.getElementById('adminAssignmentsInfo')
-    const adminStreetCheckboxesEl = document.getElementById('adminStreetCheckboxes')
-    const saveAssignmentsBtn = document.getElementById('saveAssignmentsBtn')
+  const adminUserSelectEl = document.getElementById('adminUserSelect')
+  const adminRoleSelectEl = document.getElementById('adminRoleSelect')
+  const saveUserRoleBtn = document.getElementById('saveUserRoleBtn')
+  const refreshAdminPanelBtn = document.getElementById('refreshAdminPanelBtn')
+  const adminAssignmentsInfoEl = document.getElementById('adminAssignmentsInfo')
+  const adminStreetCheckboxesEl = document.getElementById('adminStreetCheckboxes')
+  const saveAssignmentsBtn = document.getElementById('saveAssignmentsBtn')
 
-    let currentUser = null
-    let currentProfile = null
-    let availableStreets = []
-    let allSystemStreets = []
-    let allProfiles = []
-    let selectedAdminUserAssignments = []
-    let editingAddressId = null
-    let allAddresses = []
-    let currentPage = 1
-    const pageSize = 20
+  const newUserEmailEl = document.getElementById('newUserEmail')
+  const newUserFullnameEl = document.getElementById('newUserFullname')
+  const newUserRoleEl = document.getElementById('newUserRole')
+  const createNewUserBtn = document.getElementById('createNewUserBtn')
+
+  let currentUser = null
+  let currentProfile = null
+  let availableStreets = []
+  let allSystemStreets = []
+  let allProfiles = []
+  let selectedAdminUserAssignments = []
+  let editingAddressId = null
+  let allAddresses = []
+  let currentPage = 1
+  const pageSize = 20
 
     function cleanStreetName(value) {
       if (!value) return ''
