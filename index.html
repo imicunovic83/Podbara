@@ -2159,9 +2159,7 @@ Zameni ceo postojeći fajl ovim sadržajem:
       `
 
       const { data: streetStats, error: streetError } = await supabase
-        .from('address_stats')
-        .select('*')
-        .order('ulica', { ascending: true })
+  .rpc('get_address_stats_for_user')
 
       if (streetError) {
         streetStatsEl.innerHTML = `<div class="empty">Greška view: ${streetError.message}</div>`
