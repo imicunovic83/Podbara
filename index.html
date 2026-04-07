@@ -1307,6 +1307,17 @@ const passwordLoginBtn = document.getElementById('passwordLoginBtn')
     passwordLoginBtn.disabled = false
   }
 }
+    async function hardResetAuth() {
+  try {
+    await supabase.auth.signOut({ scope: 'local' })
+  } catch (e) {}
+
+  currentUser = null
+  currentProfile = null
+  renderLoggedOut()
+  setStatus('Sesija očišćena. Probaj ponovo login.')
+}
+
 
     function renderLoggedOut() {
       authSectionEl.classList.remove('hidden')
@@ -1871,7 +1882,7 @@ const passwordLoginBtn = document.getElementById('passwordLoginBtn')
     houseNumberEl.addEventListener('input', updateAddressLabel)
     houseSuffixEl.addEventListener('input', updateAddressLabel)
 
-  supabase.auth.onAuthStateChange((event) => {
+supabase.auth.onAuthStateChange((event) => {
   if (event === 'SIGNED_IN') {
     setTimeout(() => {
       initApp()
