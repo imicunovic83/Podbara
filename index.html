@@ -20,6 +20,14 @@
       --color-dark-hover: #000000;
       --color-danger: #dc2626;
       --color-danger-hover: #b91c1c;
+      --color-warning-bg: #fef3c7;
+      --color-warning-text: #92400e;
+      --color-success-bg: #dcfce7;
+      --color-success-text: #166534;
+      --color-refused-bg: #fee2e2;
+      --color-refused-text: #991b1b;
+      --color-scheduled-bg: #dbeafe;
+      --color-scheduled-text: #1d4ed8;
       --radius-md: 0.5rem;
       --radius-lg: 0.75rem;
       --radius-xl: 1rem;
@@ -184,7 +192,7 @@
 
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr));
       gap: var(--space-4);
     }
 
@@ -212,6 +220,58 @@
     .addr-label {
       font-weight: 700;
       color: var(--color-text);
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.35rem 0.7rem;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-top: var(--space-2);
+    }
+
+    .status-pending {
+      background: var(--color-warning-bg);
+      color: var(--color-warning-text);
+    }
+
+    .status-visited {
+      background: var(--color-success-bg);
+      color: var(--color-success-text);
+    }
+
+    .status-refused {
+      background: var(--color-refused-bg);
+      color: var(--color-refused-text);
+    }
+
+    .status-scheduled {
+      background: var(--color-scheduled-bg);
+      color: var(--color-scheduled-text);
+    }
+
+    .status-editor {
+      margin-top: var(--space-4);
+      padding-top: var(--space-4);
+      border-top: 1px solid rgba(0,0,0,0.08);
+    }
+
+    .status-editor label {
+      display: block;
+      font-size: var(--text-sm);
+      font-weight: 700;
+      margin-bottom: var(--space-2);
+    }
+
+    .status-editor select {
+      width: 100%;
+      padding: var(--space-3);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      background: white;
+      font-size: var(--text-sm);
     }
 
     .empty {
@@ -372,9 +432,9 @@
     let editingAddressId = null
 
     function cleanStreetName(value) {
-  if (!value) return ''
-  return String(value).replace(/^name\s*=\s*/i, '').trim()
-}
+      if (!value) return ''
+      return String(value).replace(/^name\s*=\s*/i, '').trim()
+    }
 
     function normalizeStreetKey(name, settlement) {
       return `${cleanStreetName(name).trim().toLowerCase()}||${String(settlement || '').trim().toLowerCase()}`
@@ -382,14 +442,10 @@
 
     function dedupeStreets(streets) {
       const uniqueMap = new Map()
-
       for (const street of streets || []) {
         const key = normalizeStreetKey(street.name, street.settlement_name)
-        if (!uniqueMap.has(key)) {
-          uniqueMap.set(key, street)
-        }
+        if (!uniqueMap.has(key)) uniqueMap.set(key, street)
       }
-
       return Array.from(uniqueMap.values()).sort((a, b) => {
         const nameA = cleanStreetName(a.name).toLowerCase()
         const nameB = cleanStreetName(b.name).toLowerCase()
@@ -441,6 +497,24 @@
       updateBtn.classList.add('hidden')
       cancelEditBtn.classList.add('hidden')
       setStatus('✅ Edit mod zatvoren.')
+    }
+
+    function getStatusClass(status) {
+      switch (status) {
+        case 'visited': return 'status-visited'
+        case 'refused': return 'status-refused'
+        case 'scheduled': return 'status-scheduled'
+        default: return 'status-pending'
+      }
+    }
+
+    function getStatusLabel(status) {
+      switch (status) {
+        case 'visited': return 'Obiđeno'
+        case 'refused': return 'Odbijeno'
+        case 'scheduled': return 'Zakazano'
+        default: return 'Na čekanju'
+      }
     }
 
     async function signInWithMagicLink() {
@@ -548,16 +622,33 @@
 
       availableStreets = dedupeStreets(data || [])
 
-     streetSelectEl.innerHTML = `
-  <option value="">Izaberi ulicu</option>
-  ${availableStreets.map(s => `
-    <option value="${s.id}">${cleanStreetName(s.name)}</option>
-  `).join('')}
-`
+      streetSelectEl.innerHTML = `
+        <option value="">Izaberi ulicu</option>
+        ${availableStreets.map(s => `
+          <option value="${s.id}">${cleanStreetName(s.name)}</option>
+        `).join('')}
+      `
 
-assignedStreetsEl.innerHTML = availableStreets.length
-  ? availableStreets.map(s => `<li>${cleanStreetName(s.name)}</li>`).join('')
-  : '<li>Nema dodeljenih ulica</li>'
+      assignedStreetsEl.innerHTML = availableStreets.length
+        ? availableStreets.map(s => `<li>${cleanStreetName(s.name)}</li>`).join('')
+        : '<li>Nema dodeljenih ulica</li>'
+    }
+
+    async function updateCensusStatus(addressId, newStatus) {
+      setStatus('Čuvam status...')
+
+      const { error } = await supabase
+        .from('addresses')
+        .update({ census_status: newStatus })
+        .eq('id', addressId)
+
+      if (error) {
+        setStatus(`❌ Greška pri promeni statusa: ${error.message}`)
+        return
+      }
+
+      setStatus('✅ Status uspešno ažuriran.')
+      await loadAddresses()
     }
 
     async function loadAddresses() {
@@ -570,6 +661,7 @@ assignedStreetsEl.innerHTML = availableStreets.length
           house_number_suffix,
           full_address_label,
           address_type,
+          census_status,
           is_active,
           created_at,
           streets (id, name, settlement_name)
@@ -597,6 +689,21 @@ assignedStreetsEl.innerHTML = availableStreets.length
               <div class="addr-row"><span class="addr-label">Dodatak:</span> ${item.house_number_suffix ?? '-'}</div>
               <div class="addr-row"><span class="addr-label">Tip:</span> ${item.address_type ?? '-'}</div>
               <div class="addr-row"><span class="addr-label">Aktivna:</span> ${item.is_active ? 'Da' : 'Ne'}</div>
+              <div class="addr-row">
+                <span class="addr-label">Status:</span>
+                <span class="status-badge ${getStatusClass(item.census_status)}">${getStatusLabel(item.census_status)}</span>
+              </div>
+
+              <div class="status-editor">
+                <label for="status-${item.id}">Promeni status</label>
+                <select class="status-select" id="status-${item.id}" data-status-id="${item.id}">
+                  <option value="pending" ${item.census_status === 'pending' ? 'selected' : ''}>Pending</option>
+                  <option value="visited" ${item.census_status === 'visited' ? 'selected' : ''}>Visited</option>
+                  <option value="refused" ${item.census_status === 'refused' ? 'selected' : ''}>Refused</option>
+                  <option value="scheduled" ${item.census_status === 'scheduled' ? 'selected' : ''}>Scheduled</option>
+                </select>
+              </div>
+
               <div class="actions">
                 <button type="button" class="btn-dark" data-edit-id="${item.id}">Izmeni</button>
                 <button type="button" class="btn-danger" data-delete-id="${item.id}" data-delete-label="${(item.full_address_label ?? 'Bez naziva').replace(/"/g, '&quot;')}">Obriši</button>
@@ -616,6 +723,12 @@ assignedStreetsEl.innerHTML = availableStreets.length
       addressesEl.querySelectorAll('[data-delete-id]').forEach(btn => {
         btn.addEventListener('click', () => {
           deleteAddress(btn.dataset.deleteId, btn.dataset.deleteLabel)
+        })
+      })
+
+      addressesEl.querySelectorAll('[data-status-id]').forEach(select => {
+        select.addEventListener('change', () => {
+          updateCensusStatus(select.dataset.statusId, select.value)
         })
       })
     }
@@ -655,7 +768,8 @@ assignedStreetsEl.innerHTML = availableStreets.length
             house_number,
             house_number_suffix: house_number_suffix || null,
             full_address_label,
-            address_type
+            address_type,
+            census_status: 'pending'
           }])
 
         if (error) throw error
