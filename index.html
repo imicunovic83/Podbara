@@ -1275,27 +1275,7 @@ const passwordLoginBtn = document.getElementById('passwordLoginBtn')
       setStatus(`✅ Print pregled spreman. Redova: ${filtered.length}`)
     }
 
-    async function signInWithMagicLink() {
-      const email = emailInputEl.value.trim()
-      if (!email) {
-        setStatus('Unesi validnu email adresu.')
-        return
-      }
-
-      setStatus('Šaljem magic link...')
-      loginBtn.disabled = true
-
-      const { error } = await supabase.auth.signInWithOtp({
-        email,
-        options: {
-          emailRedirectTo: window.location.origin + window.location.pathname
-        }
-      })
-
-      loginBtn.disabled = false
-      setStatus(error ? `Greška: ${error.message}` : '✅ Magic link poslat! Proveri email.')
-    }
-    async function signInWithPassword() {
+  async function signInWithPassword() {
   const email = emailInputEl.value.trim()
   const password = passwordInputEl.value.trim()
 
@@ -1320,6 +1300,7 @@ const passwordLoginBtn = document.getElementById('passwordLoginBtn')
   }
 
   setStatus('✅ Uspešna prijava lozinkom.')
+  await initApp()
 }
 
     function renderLoggedOut() {
@@ -1882,13 +1863,18 @@ const passwordLoginBtn = document.getElementById('passwordLoginBtn')
     houseNumberEl.addEventListener('input', updateAddressLabel)
     houseSuffixEl.addEventListener('input', updateAddressLabel)
 
-    supabase.auth.onAuthStateChange(async (event) => {
-      if (event === 'SIGNED_IN') await initApp()
-      if (event === 'SIGNED_OUT') {
-        renderLoggedOut()
-        setStatus('Uspešno si odjavljen.')
-      }
-    })
+   supabase.auth.onAuthStateChange((event) => {
+  if (event === 'SIGNED_IN') {
+    setTimeout(() => {
+      initApp()
+    }, 0)
+  }
+
+  if (event === 'SIGNED_OUT') {
+    renderLoggedOut()
+    setStatus('Uspešno si odjavljen.')
+  }
+})
 
     initApp()
   </script>
