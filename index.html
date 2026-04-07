@@ -377,8 +377,16 @@
         </div>
       </div>
       <div class="actions">
-        <button id="loginBtn" type="button">Pošalji magic link</button>
-      </div>
+  <button id="loginBtn" type="button">Pošalji magic link</button>
+  <button id="passwordLoginBtn" type="button" class="btn-dark">Login lozinkom</button>
+</div>
+
+<div class="form-grid" style="margin-top: 1rem;">
+  <div class="field">
+    <label for="passwordInput">Lozinka</label>
+    <input id="passwordInput" type="password" placeholder="Unesi lozinku za test login" />
+  </div>
+</div>
       <p class="note">Na email će stići link za prijavu. Klikni ga i vratiće te nazad na ovu stranicu.</p>
     </div>
 
@@ -549,7 +557,8 @@
     const assignedStreetsEl = document.getElementById('assignedStreets')
     const emailInputEl = document.getElementById('emailInput')
     const loginBtn = document.getElementById('loginBtn')
-    const logoutBtn = document.getElementById('logoutBtn')
+const passwordInputEl = document.getElementById('passwordInput')
+const passwordLoginBtn = document.getElementById('passwordLoginBtn')
     const streetSelectEl = document.getElementById('streetSelect')
     const houseNumberEl = document.getElementById('houseNumber')
     const houseSuffixEl = document.getElementById('houseSuffix')
@@ -865,71 +874,92 @@
       }
     }
 
-    async function saveSelectedUserAssignments() {
-      if (!isAdmin()) {
-        setStatus('❌ Samo admin može menjati dodele ulica.')
-        return
-      }
+   async function saveSelectedUserAssignments() {
+  if (!isAdmin()) {
+    setStatus('❌ Samo admin može menjati dodele ulica.')
+    return
+  }
 
-      const selectedUserId = adminUserSelectEl.value
-      if (!selectedUserId) {
-        setStatus('❌ Izaberi korisnika.')
-        return
-      }
+  const selectedUserId = adminUserSelectEl.value
+  if (!selectedUserId) {
+    setStatus('❌ Izaberi korisnika.')
+    return
+  }
 
-      const checkedStreetIds = Array.from(
-        adminStreetCheckboxesEl.querySelectorAll('input[type="checkbox"]:checked')
-      ).map(input => input.value)
+  const checkedStreetIds = Array.from(
+    adminStreetCheckboxesEl.querySelectorAll('input[type="checkbox"]:checked')
+  ).map(input => input.value)
 
-      saveAssignmentsBtn.disabled = true
-      saveAssignmentsBtn.textContent = 'Čuvam dodele...'
+  saveAssignmentsBtn.disabled = true
+  saveAssignmentsBtn.textContent = 'Čuvam dodele...'
 
-      try {
-        const { data: existing, error: existingError } = await supabase
-          .from('user_street_assignments')
-          .select('id, street_id')
-          .eq('user_id', selectedUserId)
+  try {
+    const { data: existing, error: existingError } = await supabase
+      .from('user_street_assignments')
+      .select('id, street_id, is_active')
+      .eq('user_id', selectedUserId)
 
-        if (existingError) throw existingError
+    if (existingError) throw existingError
 
-        const existingMap = new Map((existing || []).map(row => [String(row.street_id), row]))
+    const existingByStreet = new Map(
+      (existing || []).map(row => [String(row.street_id), row])
+    )
 
-        const toKeep = new Set(checkedStreetIds.map(String))
-        const toInsert = checkedStreetIds.filter(id => !existingMap.has(String(id)))
-        const toDisable = (existing || []).filter(row => !toKeep.has(String(row.street_id)))
+    const checkedSet = new Set(checkedStreetIds.map(String))
 
-        if (existing?.length) {
-          const { error: disableError } = await supabase
-            .from('user_street_assignments')
-            .update({ is_active: false })
-            .eq('user_id', selectedUserId)
+    const idsToDeactivate = (existing || [])
+      .filter(row => row.is_active && !checkedSet.has(String(row.street_id)))
+      .map(row => row.id)
 
-          if (disableError) throw disableError
-        }
+    const idsToReactivate = (existing || [])
+      .filter(row => !row.is_active && checkedSet.has(String(row.street_id)))
+      .map(row => row.id)
 
-        if (checkedStreetIds.length) {
-          const rowsToInsert = checkedStreetIds.map(streetId => ({
-            user_id: selectedUserId,
-            street_id: streetId,
-            is_active: true
-          }))
+    const rowsToInsert = checkedStreetIds
+      .filter(streetId => !existingByStreet.has(String(streetId)))
+      .map(streetId => ({
+        user_id: selectedUserId,
+        street_id: streetId,
+        is_active: true
+      }))
 
-          const { error: insertError } = await supabase
-            .from('user_street_assignments')
-            .insert(rowsToInsert)
+    if (idsToDeactivate.length) {
+      const { error } = await supabase
+        .from('user_street_assignments')
+        .update({ is_active: false })
+        .in('id', idsToDeactivate)
 
-          if (insertError) throw insertError
-        }
-
-        await loadSelectedUserAssignments()
-        setStatus(`✅ Sačuvane dodele ulica. Ukupno aktivnih: ${checkedStreetIds.length}`)
-      } catch (err) {
-        setStatus(`❌ Greška assignments save: ${err.message}`)
-      } finally {
-        saveAssignmentsBtn.disabled = false
-        saveAssignmentsBtn.textContent = 'Sačuvaj dodeljene ulice'
-      }
+      if (error) throw error
     }
+
+    if (idsToReactivate.length) {
+      const { error } = await supabase
+        .from('user_street_assignments')
+        .update({ is_active: true })
+        .in('id', idsToReactivate)
+
+      if (error) throw error
+    }
+
+    if (rowsToInsert.length) {
+      const { error } = await supabase
+        .from('user_street_assignments')
+        .insert(rowsToInsert)
+
+      if (error) throw error
+    }
+
+    await loadSelectedUserAssignments()
+    await loadAllowedStreets()
+
+    setStatus(`✅ Sačuvane dodele ulica. Ukupno aktivnih: ${checkedStreetIds.length}`)
+  } catch (err) {
+    setStatus(`❌ Greška assignments save: ${err.message}`)
+  } finally {
+    saveAssignmentsBtn.disabled = false
+    saveAssignmentsBtn.textContent = 'Sačuvaj dodeljene ulice'
+  }
+}
 
     function getFilteredAddresses() {
       const selectedStreet = filterStreetEl.value
@@ -1264,6 +1294,32 @@
       loginBtn.disabled = false
       setStatus(error ? `Greška: ${error.message}` : '✅ Magic link poslat! Proveri email.')
     }
+    async function signInWithPassword() {
+  const email = emailInputEl.value.trim()
+  const password = passwordInputEl.value.trim()
+
+  if (!email || !password) {
+    setStatus('Unesi email i lozinku.')
+    return
+  }
+
+  setStatus('Prijava lozinkom...')
+  passwordLoginBtn.disabled = true
+
+  const { error } = await supabase.auth.signInWithPassword({
+    email,
+    password
+  })
+
+  passwordLoginBtn.disabled = false
+
+  if (error) {
+    setStatus(`Greška: ${error.message}`)
+    return
+  }
+
+  setStatus('✅ Uspešna prijava lozinkom.')
+}
 
     function renderLoggedOut() {
       authSectionEl.classList.remove('hidden')
@@ -1700,6 +1756,7 @@
     }
 
     loginBtn.addEventListener('click', signInWithMagicLink)
+    passwordLoginBtn.addEventListener('click', signInWithPassword)
     logoutBtn.addEventListener('click', () => supabase.auth.signOut())
     saveBtn.addEventListener('click', saveAddress)
     updateBtn.addEventListener('click', updateAddress)
