@@ -331,6 +331,7 @@
       .topbar { flex-direction: column; }
     }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 <body>
   <div class="container">
@@ -456,6 +457,7 @@
           <button id="applyFiltersBtn" type="button">Primeni filtere</button>
           <button id="resetFiltersBtn" type="button" class="btn-dark">Reset filtera</button>
           <button id="exportCsvBtn" type="button" class="btn-dark">Export CSV</button>
+          <button id="exportExcelBtn" type="button" class="btn-dark">Export Excel</button>
           <button id="printBtn" type="button" class="btn-dark">Print pregled</button>
         </div>
       </div>
@@ -505,6 +507,7 @@
     const applyFiltersBtn = document.getElementById('applyFiltersBtn')
     const resetFiltersBtn = document.getElementById('resetFiltersBtn')
     const exportCsvBtn = document.getElementById('exportCsvBtn')
+    const exportExcelBtn = document.getElementById('exportExcelBtn')
     const printBtn = document.getElementById('printBtn')
     const paginationEl = document.getElementById('pagination')
     const pageInfoEl = document.getElementById('pageInfo')
@@ -776,6 +779,75 @@
       const stamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
       downloadCsv(`adrese-export-${stamp}.csv`, rows)
       setStatus(`✅ CSV export uspešan. Izvezeno: ${filtered.length} redova.`)
+    }
+
+    function exportFilteredExcel() {
+      const filtered = getFilteredAddresses()
+
+      if (!filtered.length) {
+        setStatus('❌ Nema podataka za Excel export.')
+        return
+      }
+
+      const detailRows = filtered.map(item => ({
+        Ulica: cleanStreetName(item.streets?.name || ''),
+        Naselje: item.streets?.settlement_name || '',
+        Broj: item.house_number || '',
+        Dodatak: item.house_number_suffix || '',
+        'Puna adresa': item.full_address_label || '',
+        Tip: item.address_type || '',
+        Status: getStatusLabel(item.census_status),
+        Aktivna: item.is_active ? 'Da' : 'Ne'
+      }))
+
+      const summaryMap = new Map()
+
+      filtered.forEach(item => {
+        const street = cleanStreetName(item.streets?.name || '')
+        if (!summaryMap.has(street)) {
+          summaryMap.set(street, {
+            Ulica: street,
+            Pending: 0,
+            Visited: 0,
+            Refused: 0,
+            Scheduled: 0,
+            Ukupno: 0
+          })
+        }
+
+        const row = summaryMap.get(street)
+        if (item.census_status === 'pending') row.Pending++
+        if (item.census_status === 'visited') row.Visited++
+        if (item.census_status === 'refused') row.Refused++
+        if (item.census_status === 'scheduled') row.Scheduled++
+        row.Ukupno++
+      })
+
+      const summaryRows = Array.from(summaryMap.values()).sort((a, b) =>
+        String(a.Ulica).localeCompare(String(b.Ulica), 'sr')
+      )
+
+      const wb = XLSX.utils.book_new()
+      const wsDetails = XLSX.utils.json_to_sheet(detailRows)
+      const wsSummary = XLSX.utils.json_to_sheet(summaryRows)
+
+      XLSX.utils.book_append_sheet(wb, wsDetails, 'Adrese')
+      XLSX.utils.book_append_sheet(wb, wsSummary, 'Sumarni pregled')
+
+      wsDetails['!cols'] = [
+        { wch: 24 }, { wch: 18 }, { wch: 10 }, { wch: 10 },
+        { wch: 30 }, { wch: 12 }, { wch: 14 }, { wch: 10 }
+      ]
+
+      wsSummary['!cols'] = [
+        { wch: 24 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 10 }
+      ]
+
+      const now = new Date()
+      const stamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+      XLSX.writeFile(wb, `adrese-export-${stamp}.xlsx`)
+
+      setStatus(`✅ Excel export uspešan. Izvezeno: ${filtered.length} redova.`)
     }
 
     function printFilteredView() {
@@ -1310,6 +1382,7 @@
     })
 
     exportCsvBtn.addEventListener('click', exportFilteredCsv)
+    exportExcelBtn.addEventListener('click', exportFilteredExcel)
     printBtn.addEventListener('click', printFilteredView)
 
     streetSelectEl.addEventListener('change', updateAddressLabel)
