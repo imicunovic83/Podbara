@@ -55,7 +55,7 @@
     }
 
     .container {
-      max-width: 1150px;
+      max-width: 1200px;
       margin: 0 auto;
       padding: var(--space-8) var(--space-4);
     }
@@ -128,7 +128,8 @@
       font-weight: 600;
     }
 
-    .form-grid {
+    .form-grid,
+    .stats-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
       gap: var(--space-4);
@@ -196,12 +197,26 @@
       gap: var(--space-4);
     }
 
-    .addr-card {
+    .addr-card,
+    .stat-card {
       background: var(--color-surface-2);
       border-radius: var(--radius-xl);
       padding: var(--space-6);
       box-shadow: var(--shadow-md);
       border: 1px solid rgba(0,0,0,0.06);
+    }
+
+    .stat-card h3 {
+      font-size: var(--text-sm);
+      color: var(--color-text-muted);
+      margin-bottom: var(--space-2);
+      font-weight: 600;
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      line-height: 1.1;
     }
 
     .addr-card h3 {
@@ -210,7 +225,8 @@
       margin-bottom: var(--space-3);
     }
 
-    .addr-row {
+    .addr-row,
+    .street-stat-row {
       margin: var(--space-2) 0;
       font-size: var(--text-sm);
       color: #374151;
@@ -232,25 +248,10 @@
       margin-top: var(--space-2);
     }
 
-    .status-pending {
-      background: var(--color-warning-bg);
-      color: var(--color-warning-text);
-    }
-
-    .status-visited {
-      background: var(--color-success-bg);
-      color: var(--color-success-text);
-    }
-
-    .status-refused {
-      background: var(--color-refused-bg);
-      color: var(--color-refused-text);
-    }
-
-    .status-scheduled {
-      background: var(--color-scheduled-bg);
-      color: var(--color-scheduled-text);
-    }
+    .status-pending { background: var(--color-warning-bg); color: var(--color-warning-text); }
+    .status-visited { background: var(--color-success-bg); color: var(--color-success-text); }
+    .status-refused { background: var(--color-refused-bg); color: var(--color-refused-text); }
+    .status-scheduled { background: var(--color-scheduled-bg); color: var(--color-scheduled-text); }
 
     .status-editor {
       margin-top: var(--space-4);
@@ -305,6 +306,23 @@
       font-size: var(--text-sm);
     }
 
+    .street-stats-box {
+      display: grid;
+      gap: var(--space-3);
+    }
+
+    .street-stat-item {
+      border: 1px solid rgba(0,0,0,0.06);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4);
+      background: #fcfcfa;
+    }
+
+    .street-stat-name {
+      font-weight: 700;
+      margin-bottom: var(--space-2);
+    }
+
     @media (max-width: 600px) {
       h1 { font-size: 2rem; }
       .topbar { flex-direction: column; }
@@ -349,6 +367,23 @@
         <ul id="assignedStreets" class="street-list">
           <li>Učitavanje...</li>
         </ul>
+      </div>
+
+      <div class="card-box">
+        <h2>Dashboard</h2>
+        <div id="statsCards" class="stats-grid">
+          <div class="stat-card"><h3>Ukupno adresa</h3><div class="stat-value">0</div></div>
+          <div class="stat-card"><h3>Pending</h3><div class="stat-value">0</div></div>
+          <div class="stat-card"><h3>Visited</h3><div class="stat-value">0</div></div>
+          <div class="stat-card"><h3>Refused + Scheduled</h3><div class="stat-value">0</div></div>
+        </div>
+      </div>
+
+      <div class="card-box">
+        <h2>Statistika po ulicama</h2>
+        <div id="streetStats" class="street-stats-box">
+          <div class="empty">Učitavanje statistike...</div>
+        </div>
       </div>
 
       <div class="card-box">
@@ -425,6 +460,8 @@
     const refreshStreetsBtn = document.getElementById('refreshStreetsBtn')
     const addressesEl = document.getElementById('addresses')
     const formTitleEl = document.getElementById('formTitle')
+    const statsCardsEl = document.getElementById('statsCards')
+    const streetStatsEl = document.getElementById('streetStats')
 
     let currentUser = null
     let currentProfile = null
@@ -624,14 +661,68 @@
 
       streetSelectEl.innerHTML = `
         <option value="">Izaberi ulicu</option>
-        ${availableStreets.map(s => `
-          <option value="${s.id}">${cleanStreetName(s.name)}</option>
-        `).join('')}
+        ${availableStreets.map(s => `<option value="${s.id}">${cleanStreetName(s.name)}</option>`).join('')}
       `
 
       assignedStreetsEl.innerHTML = availableStreets.length
         ? availableStreets.map(s => `<li>${cleanStreetName(s.name)}</li>`).join('')
         : '<li>Nema dodeljenih ulica</li>'
+    }
+
+    async function loadDashboardStats() {
+      const { data: addresses, error: addrError } = await supabase
+        .from('addresses')
+        .select('id, census_status')
+
+      if (addrError) {
+        statsCardsEl.innerHTML = `<div class="empty">Greška statistika: ${addrError.message}</div>`
+        return
+      }
+
+      const total = addresses.length
+      const pending = addresses.filter(a => a.census_status === 'pending').length
+      const visited = addresses.filter(a => a.census_status === 'visited').length
+      const other = addresses.filter(a => a.census_status === 'refused' || a.census_status === 'scheduled').length
+
+      statsCardsEl.innerHTML = `
+        <div class="stat-card"><h3>Ukupno adresa</h3><div class="stat-value">${total}</div></div>
+        <div class="stat-card"><h3>Pending</h3><div class="stat-value">${pending}</div></div>
+        <div class="stat-card"><h3>Visited</h3><div class="stat-value">${visited}</div></div>
+        <div class="stat-card"><h3>Refused + Scheduled</h3><div class="stat-value">${other}</div></div>
+      `
+
+      const { data: streetStats, error: streetError } = await supabase
+        .from('address_stats')
+        .select('*')
+        .order('ulica', { ascending: true })
+
+      if (streetError) {
+        streetStatsEl.innerHTML = `<div class="empty">Greška view: ${streetError.message}</div>`
+        return
+      }
+
+      if (!streetStats?.length) {
+        streetStatsEl.innerHTML = '<div class="empty">Nema statistike po ulicama.</div>'
+        return
+      }
+
+      const grouped = {}
+      for (const row of streetStats) {
+        if (!grouped[row.ulica]) {
+          grouped[row.ulica] = { pending: 0, visited: 0, refused: 0, scheduled: 0 }
+        }
+        grouped[row.ulica][row.census_status] = row.broj_adresa
+      }
+
+      streetStatsEl.innerHTML = Object.entries(grouped).map(([street, values]) => `
+        <div class="street-stat-item">
+          <div class="street-stat-name">${street}</div>
+          <div class="street-stat-row">Pending: ${values.pending || 0}</div>
+          <div class="street-stat-row">Visited: ${values.visited || 0}</div>
+          <div class="street-stat-row">Refused: ${values.refused || 0}</div>
+          <div class="street-stat-row">Scheduled: ${values.scheduled || 0}</div>
+        </div>
+      `).join('')
     }
 
     async function updateCensusStatus(addressId, newStatus) {
@@ -649,6 +740,7 @@
 
       setStatus('✅ Status uspešno ažuriran.')
       await loadAddresses()
+      await loadDashboardStats()
     }
 
     async function loadAddresses() {
@@ -777,6 +869,7 @@
         resetForm()
         setStatus('✅ Adresa sačuvana!')
         await loadAddresses()
+        await loadDashboardStats()
       } catch (err) {
         setStatus(`❌ Greška: ${err.message}`)
       } finally {
@@ -837,6 +930,7 @@
         setStatus('✅ Adresa uspešno izmenjena.')
         exitEditMode()
         await loadAddresses()
+        await loadDashboardStats()
       } catch (err) {
         setStatus(`❌ Greška pri izmeni: ${err.message}`)
       } finally {
@@ -863,6 +957,7 @@
 
         setStatus(`🗑️ Adresa "${label}" je obrisana.`)
         await loadAddresses()
+        await loadDashboardStats()
       } catch (err) {
         setStatus(`❌ Greška pri brisanju: ${err.message}`)
       }
@@ -916,6 +1011,7 @@
 
         setStatus(`🗑️ Obrišeno ${deleted} duplikata! Lista je osvežena.`)
         await loadAddresses()
+        await loadDashboardStats()
       } catch (err) {
         setStatus(`❌ Greška pri brisanju: ${err.message}`)
       } finally {
@@ -931,6 +1027,7 @@
       if (ok) {
         await loadAllowedStreets()
         await loadAddresses()
+        await loadDashboardStats()
         setStatus('✅ Spreman za rad!')
       } else {
         setStatus('Nisi prijavljen. Pošalji magic link za pristup.')
@@ -946,6 +1043,7 @@
     refreshStreetsBtn.addEventListener('click', async () => {
       setStatus('Osvežavam ulice...')
       await loadAllowedStreets()
+      await loadDashboardStats()
       setStatus(`✅ Ulice osvežene. Ukupno: ${availableStreets.length}`)
     })
     streetSelectEl.addEventListener('change', updateAddressLabel)
