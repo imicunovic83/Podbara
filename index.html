@@ -1346,31 +1346,54 @@ const passwordLoginBtn = document.getElementById('passwordLoginBtn')
     }
 
     async function loadCurrentUserAndProfile() {
-      const { data: { user }, error } = await supabase.auth.getUser()
-      if (error || !user) {
-        renderLoggedOut()
-        return false
-      }
+  try {
+    setStatus('Korak 1/4: proveravam session...')
 
-      currentUser = user
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession()
 
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('id, email, full_name, role, is_active')
-        .eq('id', user.id)
-        .single()
-
-      if (profileError || !profile) {
-        setStatus('Profil nije pronađen.')
-        return false
-      }
-
-      currentProfile = profile
-      renderLoggedIn(user, profile)
-      applyRolePermissions()
-      return true
+    if (sessionError) {
+      setStatus(`❌ Session greška: ${sessionError.message}`)
+      renderLoggedOut()
+      return false
     }
 
+    if (!session || !session.user) {
+      setStatus('❌ Nema aktivne sesije.')
+      renderLoggedOut()
+      return false
+    }
+
+    setStatus('Korak 2/4: session postoji, učitavam user...')
+    currentUser = session.user
+
+    setStatus(`Korak 3/4: user OK (${currentUser.email}), učitavam profil...`)
+
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('id, email, full_name, role, is_active')
+      .eq('id', currentUser.id)
+      .maybeSingle()
+
+    if (profileError) {
+      setStatus(`❌ Profile greška: ${profileError.message}`)
+      return false
+    }
+
+    if (!profile) {
+      setStatus(`❌ Profil ne postoji za user ID: ${currentUser.id}`)
+      return false
+    }
+
+    setStatus('Korak 4/4: profil učitan.')
+    currentProfile = profile
+    renderLoggedIn(currentUser, profile)
+    applyRolePermissions()
+    return true
+  } catch (err) {
+    setStatus(`❌ loadCurrentUserAndProfile exception: ${err.message}`)
+    return false
+  }
+}
     async function loadAllowedStreets() {
       if (!currentProfile) return
 
