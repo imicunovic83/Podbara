@@ -1425,7 +1425,7 @@
       }
     }
 
-  async function createNewUserProfile() {
+ async function createNewUserProfile() {
   if (!isAdmin()) {
     setStatus('Samo admin može dodavati novog korisnika.');
     return;
@@ -1443,39 +1443,67 @@
 
   createNewUserBtn.disabled = true;
   createNewUserBtn.textContent = 'Kreiram korisnika...';
+  setStatus('Kreiram korisnika...');
 
   try {
-    const { data: sessionData } = await supabase.auth.getSession()
-const accessToken = sessionData?.session?.access_token
+    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
 
-if (!accessToken) {
-  throw new Error('Nema aktivne sesije. Prijavi se ponovo.')
-}
+    if (sessionError) {
+      throw sessionError;
+    }
 
-const response = await fetch(`${SUPABASE_URL}/functions/v1/create-user`, {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-    "Authorization": `Bearer ${accessToken}`,
-  },
-  body: JSON.stringify({ email, password, fullname, role }),
-});
+    const accessToken = sessionData?.session?.access_token;
 
-const raw = await response.text();
-let result = {};
-try {
-  result = raw ? JSON.parse(raw) : {};
-} catch {
-  throw new Error(`Backend nije vratio JSON. Odgovor: ${raw || "prazan odgovor"}`);
-}
+    if (!accessToken) {
+      throw new Error('Nema aktivne sesije. Prijavi se ponovo.');
+    }
 
-if (!response.ok) {
-  throw new Error(result.error || `Greška pri kreiranju korisnika (${response.status})`);
-}
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+    let response;
+
+    try {
+      response = await fetch(`${SUPABASEURL}/functions/v1/create-user`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          email,
+          password,
+          fullname,
+          role,
+        }),
+        signal: controller.signal,
+      });
+    } finally {
+      clearTimeout(timeoutId);
+    }
+
+    let result = null;
+    const rawText = await response.text();
+
+    try {
+      result = rawText ? JSON.parse(rawText) : null;
+    } catch {
+      result = { raw: rawText };
+    }
+
+    if (!response.ok) {
+      throw new Error(
+        (result && (result.error || result.message)) ||
+        `create-user failed (HTTP ${response.status})`
+      );
+    }
 
     await loadAdminProfiles();
-    adminUserSelectEl.value = result.userId;
-    await loadSelectedUserAssignments();
+
+    if (result?.userId) {
+      adminUserSelectEl.value = result.userId;
+      await loadSelectedUserAssignments();
+    }
 
     newUserEmailEl.value = '';
     newUserFullnameEl.value = '';
@@ -1484,7 +1512,12 @@ if (!response.ok) {
 
     setStatus(`Korisnik uspešno kreiran: ${email}`);
   } catch (err) {
-    setStatus(`Greška: ${err.message}`);
+    if (err.name === 'AbortError') {
+      setStatus('Greška: create-user funkcija nije odgovorila na vreme (timeout 15s).');
+    } else {
+      setStatus(`Greška: ${err.message}`);
+    }
+    console.error('createNewUserProfile error:', err);
   } finally {
     createNewUserBtn.disabled = false;
     createNewUserBtn.textContent = 'Dodaj / poveži usera';
