@@ -568,9 +568,9 @@
  <script type="module">
   import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
 
-  const SUPABASE_URL = 'https://wdmipyooncrcdmvlloou.supabase.co'
-  const SUPABASE_KEY = 'sb_publishable_u-KtwCVzKm55-UAdFJ3FgQ_RsZSpm0u'
-  const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
+  const supabase_url = 'https://wdmipyooncrcdmvlloou.supabase.co'
+  const supabase_key = 'sb_publishable_u-KtwCVzKm55-UAdFJ3FgQ_RsZSpm0u'
+  const supabase = createClient(https://wdmipyooncrcdmvlloou.supabase.co, sb_publishable_u-KtwCVzKm55-UAdFJ3FgQ_RsZSpm0u)
    window.sb = supabase;
 
   const statusEl = document.getElementById('status')
@@ -1454,6 +1454,10 @@
 
     const accessToken = sessionData?.session?.access_token;
 
+    console.log('accessToken exists:', !!accessToken);
+console.log('accessToken preview:', accessToken?.slice(0, 20));
+console.log('is JWT format:', accessToken?.split('.').length === 3);
+
     if (!accessToken) {
       throw new Error('Nema aktivne sesije. Prijavi se ponovo.');
     }
@@ -1464,20 +1468,21 @@
     let response;
 
     try {
-      response = await fetch(`${'https://wdmipyooncrcdmvlloou.supabase.co'}/functions/v1/create-user`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify({
-          email,
-          password,
-          fullname,
-          role,
-        }),
-        signal: controller.signal,
-      });
+     response = await fetch('https://wdmipyooncrcdmvlloou.supabase.co/functions/v1/create-user', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'apikey': SUPABASE_ANON_KEY,
+    'Authorization': `Bearer ${accessToken}`,
+  },
+  body: JSON.stringify({
+    email,
+    password,
+    fullname,
+    role,
+  }),
+  signal: controller.signal,
+});
     } finally {
       clearTimeout(timeoutId);
     }
