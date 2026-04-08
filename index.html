@@ -1453,24 +1453,25 @@ if (!accessToken) {
 }
 
 const response = await fetch(`${SUPABASE_URL}/functions/v1/create-user`, {
-  method: 'POST',
+  method: "POST",
   headers: {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${accessToken}`,
+    "Content-Type": "application/json",
+    "Authorization": `Bearer ${accessToken}`,
   },
-  body: JSON.stringify({
-    email,
-    password,
-    fullname,
-    role,
-  }),
-})
+  body: JSON.stringify({ email, password, fullname, role }),
+});
 
-    const result = await response.json();
+const raw = await response.text();
+let result = {};
+try {
+  result = raw ? JSON.parse(raw) : {};
+} catch {
+  throw new Error(`Backend nije vratio JSON. Odgovor: ${raw || "prazan odgovor"}`);
+}
 
-    if (!response.ok) {
-      throw new Error(result.error || 'Greška pri kreiranju korisnika.');
-    }
+if (!response.ok) {
+  throw new Error(result.error || `Greška pri kreiranju korisnika (${response.status})`);
+}
 
     await loadAdminProfiles();
     adminUserSelectEl.value = result.userId;
