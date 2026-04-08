@@ -439,6 +439,11 @@
     <input id="newUserFullname" type="text" placeholder="Ilija Mićunović" />
   </div>
 
+        <div class="field">
+  <label for="newUserPassword">Privremena lozinka</label>
+  <input id="newUserPassword" type="password" placeholder="Unesi privremenu lozinku">
+</div>
+
   <div class="field">
     <label for="newUserRole">Rola</label>
     <select id="newUserRole">
@@ -619,6 +624,7 @@
   const newUserFullnameEl = document.getElementById('newUserFullname')
   const newUserRoleEl = document.getElementById('newUserRole')
   const createNewUserBtn = document.getElementById('createNewUserBtn')
+   const newUserPasswordEl = document.getElementById('newUserPassword');
 
   let currentUser = null
   let currentProfile = null
@@ -1148,7 +1154,7 @@
       }
 
       setStatus('Šaljem magic link...')
-      loginBtn.disabled = true
+      loginBtn.disabled = truefunction
 
       const { error } = await supabase.auth.signInWithOtp({
         email,
@@ -1420,67 +1426,66 @@
 
   async function createNewUserProfile() {
   if (!isAdmin()) {
-    setStatus('❌ Samo admin može dodavati novog korisnika.')
-    return
+    setStatus('Samo admin može dodavati novog korisnika.');
+    return;
   }
 
-  const email = newUserEmailEl.value.trim().toLowerCase()
+  const email = newUserEmailEl.value.trim().toLowerCase();
+  const fullname = newUserFullnameEl.value.trim();
+  const role = newUserRoleEl.value;
+  const password = newUserPasswordEl.value.trim();
 
-  if (!email) {
-    setStatus('❌ Unesi email adresu korisnika.')
-    return
+  if (!email || !fullname || !role || !password) {
+    setStatus('Unesi email, ime i prezime, rolu i privremenu lozinku.');
+    return;
   }
 
-  createNewUserBtn.disabled = true
-  createNewUserBtn.textContent = 'Proveravam korisnika...'
+  createNewUserBtn.disabled = true;
+  createNewUserBtn.textContent = 'Kreiram korisnika...';
 
   try {
-    const { data: existingProfile, error } = await supabase
-      .from('profiles')
-      .select('id, email, fullname, role')
-      .eq('email', email)
-      .maybeSingle()
+    const { data: sessionData } = await supabase.auth.getSession();
+    const accessToken = sessionData?.session?.access_token;
 
-    if (error) throw error
-
-    if (!existingProfile) {
-      setStatus('⚠️ Korisnik još ne postoji u Supabase Authentication. Prvo ga kreiraj u Authentication > Users, pa klikni Osveži korisnike.')
-      return
+    if (!accessToken) {
+      throw new Error('Nema aktivne sesije. Prijavi se ponovo.');
     }
 
-    if (newUserFullnameEl.value.trim()) {
-      const { error: updateNameError } = await supabase
-        .from('profiles')
-        .update({ fullname: newUserFullnameEl.value.trim() })
-        .eq('id', existingProfile.id)
+    const response = await fetch(`${SUPABASE_URL}/functions/v1/create-user`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({
+        email,
+        password,
+        fullname,
+        role,
+      }),
+    });
 
-      if (updateNameError) throw updateNameError
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.error || 'Greška pri kreiranju korisnika.');
     }
 
-    if (newUserRoleEl.value) {
-      const { error: updateRoleError } = await supabase
-        .from('profiles')
-        .update({ role: newUserRoleEl.value })
-        .eq('id', existingProfile.id)
+    await loadAdminProfiles();
+    adminUserSelectEl.value = result.userId;
+    await loadSelectedUserAssignments();
 
-      if (updateRoleError) throw updateRoleError
-    }
+    newUserEmailEl.value = '';
+    newUserFullnameEl.value = '';
+    newUserRoleEl.value = 'viewer';
+    newUserPasswordEl.value = '';
 
-    await loadAdminProfiles()
-
-    adminUserSelectEl.value = existingProfile.id
-    await loadSelectedUserAssignments()
-
-    newUserEmailEl.value = ''
-    newUserFullnameEl.value = ''
-    newUserRoleEl.value = 'viewer'
-
-    setStatus(`✅ Korisnik je pronađen i podešen: ${email}`)
+    setStatus(`Korisnik uspešno kreiran: ${email}`);
   } catch (err) {
-    setStatus(`❌ Greška: ${err.message}`)
+    setStatus(`Greška: ${err.message}`);
   } finally {
-    createNewUserBtn.disabled = false
-    createNewUserBtn.textContent = '➕ Dodaj / poveži usera'
+    createNewUserBtn.disabled = false;
+    createNewUserBtn.textContent = 'Dodaj / poveži usera';
   }
 }
 
