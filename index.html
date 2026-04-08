@@ -452,7 +452,7 @@
 <div class="actions">
   <button id="saveUserRoleBtn" type="button">Sačuvaj rolu</button>
   <button id="refreshAdminPanelBtn" type="button" class="btn-dark">Osveži korisnike</button>
-  <button id="createNewUserBtn" type="button">➕ Dodaj novog usera</button>
+  <button id="createNewUserBtn" type="button">➕ Dodaj / poveži usera</button>
 </div>
 
 <div class="assignments-box">
@@ -1418,67 +1418,69 @@
       }
     }
 
-   async function createNewUserProfile() {
+  async function createNewUserProfile() {
   if (!isAdmin()) {
     setStatus('❌ Samo admin može dodavati novog korisnika.')
     return
   }
 
   const email = newUserEmailEl.value.trim().toLowerCase()
-  const fullname = newUserFullnameEl.value.trim()
-  const role = newUserRoleEl.value
 
-  if (!email || !fullname || !role) {
-    setStatus('❌ Popuni email, ime i rolu za novog korisnika.')
+  if (!email) {
+    setStatus('❌ Unesi email adresu korisnika.')
     return
   }
 
   createNewUserBtn.disabled = true
-  createNewUserBtn.textContent = 'Dodajem korisnika...'
+  createNewUserBtn.textContent = 'Proveravam korisnika...'
 
   try {
-    const { data: existingProfile, error: existingError } = await supabase
+    const { data: existingProfile, error } = await supabase
       .from('profiles')
-      .select('id, email')
+      .select('id, email, fullname, role')
       .eq('email', email)
       .maybeSingle()
 
-    if (existingError) throw existingError
+    if (error) throw error
 
-    if (existingProfile) {
-      setStatus('⚠️ Korisnik sa tim emailom već postoji u profiles tabeli.')
+    if (!existingProfile) {
+      setStatus('⚠️ Korisnik još ne postoji u Supabase Authentication. Prvo ga kreiraj u Authentication > Users, pa klikni Osveži korisnike.')
       return
     }
 
-    const tempId =
-      (window.crypto && crypto.randomUUID)
-        ? crypto.randomUUID()
-        : `temp-${Date.now()}-${Math.random().toString(16).slice(2)}`
+    if (newUserFullnameEl.value.trim()) {
+      const { error: updateNameError } = await supabase
+        .from('profiles')
+        .update({ fullname: newUserFullnameEl.value.trim() })
+        .eq('id', existingProfile.id)
 
-    const { error: insertError } = await supabase
-      .from('profiles')
-      .insert([{
-        id: tempId,
-        email,
-        fullname,
-        role,
-        is_active: true
-      }])
+      if (updateNameError) throw updateNameError
+    }
 
-    if (insertError) throw insertError
+    if (newUserRoleEl.value) {
+      const { error: updateRoleError } = await supabase
+        .from('profiles')
+        .update({ role: newUserRoleEl.value })
+        .eq('id', existingProfile.id)
+
+      if (updateRoleError) throw updateRoleError
+    }
+
+    await loadAdminProfiles()
+
+    adminUserSelectEl.value = existingProfile.id
+    await loadSelectedUserAssignments()
 
     newUserEmailEl.value = ''
     newUserFullnameEl.value = ''
     newUserRoleEl.value = 'viewer'
 
-    await loadAdminProfiles()
-
-    setStatus(`✅ Novi profil je dodat: ${email} (${role})`)
+    setStatus(`✅ Korisnik je pronađen i podešen: ${email}`)
   } catch (err) {
-    setStatus(`❌ Greška pri dodavanju korisnika: ${err.message}`)
+    setStatus(`❌ Greška: ${err.message}`)
   } finally {
     createNewUserBtn.disabled = false
-    createNewUserBtn.textContent = '➕ Dodaj novog usera'
+    createNewUserBtn.textContent = '➕ Dodaj / poveži usera'
   }
 }
 
@@ -1931,9 +1933,24 @@
       setStatus('✅ Admin panel osvežen.')
     })
 
-    adminUserSelectEl.addEventListener('change', async () => {
-      await loadSelectedUserAssignments()
-    })
+   adminUserSelectEl.addEventListener('change', async () => {
+  const selectedUserId = adminUserSelectEl.value
+  const selectedUser = allProfiles.find(p => String(p.id) === String(selectedUserId))
+
+  if (selectedUser) {
+    newUserEmailEl.value = selectedUser.email || ''
+    newUserFullnameEl.value = selectedUser.fullname || ''
+    newUserRoleEl.value = selectedUser.role || 'viewer'
+    adminRoleSelectEl.value = selectedUser.role || 'viewer'
+  } else {
+    newUserEmailEl.value = ''
+    newUserFullnameEl.value = ''
+    newUserRoleEl.value = 'viewer'
+    adminRoleSelectEl.value = 'viewer'
+  }
+
+  await loadSelectedUserAssignments()
+})
 
     saveUserRoleBtn.addEventListener('click', saveSelectedUserRole)
     saveAssignmentsBtn.addEventListener('click', saveSelectedUserAssignments)
