@@ -1418,6 +1418,70 @@
       }
     }
 
+   async function createNewUserProfile() {
+  if (!isAdmin()) {
+    setStatus('❌ Samo admin može dodavati novog korisnika.')
+    return
+  }
+
+  const email = newUserEmailEl.value.trim().toLowerCase()
+  const fullname = newUserFullnameEl.value.trim()
+  const role = newUserRoleEl.value
+
+  if (!email || !fullname || !role) {
+    setStatus('❌ Popuni email, ime i rolu za novog korisnika.')
+    return
+  }
+
+  createNewUserBtn.disabled = true
+  createNewUserBtn.textContent = 'Dodajem korisnika...'
+
+  try {
+    const { data: existingProfile, error: existingError } = await supabase
+      .from('profiles')
+      .select('id, email')
+      .eq('email', email)
+      .maybeSingle()
+
+    if (existingError) throw existingError
+
+    if (existingProfile) {
+      setStatus('⚠️ Korisnik sa tim emailom već postoji u profiles tabeli.')
+      return
+    }
+
+    const tempId =
+      (window.crypto && crypto.randomUUID)
+        ? crypto.randomUUID()
+        : `temp-${Date.now()}-${Math.random().toString(16).slice(2)}`
+
+    const { error: insertError } = await supabase
+      .from('profiles')
+      .insert([{
+        id: tempId,
+        email,
+        fullname,
+        role,
+        is_active: true
+      }])
+
+    if (insertError) throw insertError
+
+    newUserEmailEl.value = ''
+    newUserFullnameEl.value = ''
+    newUserRoleEl.value = 'viewer'
+
+    await loadAdminProfiles()
+
+    setStatus(`✅ Novi profil je dodat: ${email} (${role})`)
+  } catch (err) {
+    setStatus(`❌ Greška pri dodavanju korisnika: ${err.message}`)
+  } finally {
+    createNewUserBtn.disabled = false
+    createNewUserBtn.textContent = '➕ Dodaj novog usera'
+  }
+}
+
     async function loadAllowedStreets() {
       if (!currentProfile) return
 
@@ -1873,6 +1937,7 @@
 
     saveUserRoleBtn.addEventListener('click', saveSelectedUserRole)
     saveAssignmentsBtn.addEventListener('click', saveSelectedUserAssignments)
+   createNewUserBtn.addEventListener('click', createNewUserProfile)
 
     applyFiltersBtn.addEventListener('click', () => {
       currentPage = 1
