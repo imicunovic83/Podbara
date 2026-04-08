@@ -571,6 +571,7 @@
   const SUPABASE_URL = 'https://wdmipyooncrcdmvlloou.supabase.co'
   const SUPABASE_KEY = 'sb_publishable_u-KtwCVzKm55-UAdFJ3FgQ_RsZSpm0u'
   const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
+   window.sb = supabase;
 
   const statusEl = document.getElementById('status')
   const authSectionEl = document.getElementById('authSection')
