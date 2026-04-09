@@ -571,8 +571,14 @@
  const supabase_url = 'https://wdmipyooncrcdmvlloou.supabase.co'
 const supabase_key = 'sb_publishable_u-KtwCVzKm55-UAdFJ3FgQ_RsZSpm0u'
 
-const supabase = createClient(supabase_url, supabase_key)
-window.sb = supabase
+const supabase = createClient('https://wdmipyooncrcdmvlloou.supabase.co', 'TVOJ_ANON_KEY', {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true
+  }
+})
+
 
   const statusEl = document.getElementById('status')
   const authSectionEl = document.getElementById('authSection')
@@ -1181,35 +1187,57 @@ window.sb = supabase
 }
 
     async function signInWithPassword() {
-      const email = emailInputEl.value.trim()
-      const password = passwordInputEl.value.trim()
+  const email = emailInputEl.value.trim()
+  const password = passwordInputEl.value.trim()
 
-      if (!email || !password) {
-        setStatus('Unesi email i lozinku.')
-        return
-      }
+  if (!email || !password) {
+    setStatus('Unesi email i lozinku.')
+    return
+  }
 
-      setStatus('Prijava lozinkom...')
-      passwordLoginBtn.disabled = true
+  setStatus('Prijava lozinkom...')
+  passwordLoginBtn.disabled = true
 
-      try {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password
-        })
+  try {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    })
 
-        if (error) {
-          setStatus(`Greška: ${error.message}`)
-          return
-        }
-
-        setStatus('✅ Uspešna prijava lozinkom.')
-      } catch (err) {
-        setStatus(`Greška: ${err.message}`)
-      } finally {
-        passwordLoginBtn.disabled = false
-      }
+    if (error) {
+      setStatus(`Greška: ${error.message}`)
+      return
     }
+
+    if (!data?.user) {
+      setStatus('Greška: korisnik nije vraćen posle prijave.')
+      return
+    }
+
+    const ok = await loadCurrentUserAndProfile()
+
+    if (!ok) {
+      setStatus('Prijava je prošla, ali profil nije učitan.')
+      return
+    }
+
+    await loadAllowedStreets()
+    await loadAddresses()
+    await loadDashboardStats()
+
+    if (isAdmin()) {
+      await loadAdminProfiles()
+      await loadAllSystemStreets()
+    }
+
+    setStatus('✅ Uspešna prijava lozinkom.')
+  } catch (err) {
+    setStatus(`Greška: ${err.message}`)
+  } finally {
+    passwordLoginBtn.disabled = false
+  }
+}
+
 
     function renderLoggedOut() {
       authSectionEl.classList.remove('hidden')
@@ -1442,65 +1470,61 @@ window.sb = supabase
     }
 
  async function createNewUserProfile() {
-      if (!isAdmin()) {
-        setStatus('Samo admin može dodavati novog korisnika.')
-        return
-      }
-
-      const email = newUserEmailEl.value.trim().toLowerCase()
-      const fullname = newUserFullnameEl.value.trim()
-      const role = newUserRoleEl.value
-      const password = newUserPasswordEl.value.trim()
-
-      if (!email || !fullname || !role || !password) {
-        setStatus('Unesi email, ime i prezime, rolu i privremenu lozinku.')
-        return
-      }
-
-      createNewUserBtn.disabled = true
-      createNewUserBtn.textContent = 'Kreiram korisnika...'
-      setStatus('Kreiram korisnika...')
-
-      try {
-        const { data: sessionData, error: sessionError } = await supabase.auth.getSession()
-        if (sessionError) throw sessionError
-
-        const accessToken = sessionData?.session?.access_token
-        if (!accessToken) {
-          throw new Error('Nema aktivne sesije. Prijavi se ponovo.')
-        }
-
-        const { error } = await supabase.functions.invoke('create-user', {
-          body: { email, password, fullname, role },
-          headers: { Authorization: `Bearer ${accessToken}` }
-        })
-
-        if (error) throw error
-
-        setStatus('✅ Korisnik je uspešno kreiran.')
-        newUserEmailEl.value = ''
-        newUserFullnameEl.value = ''
-        newUserPasswordEl.value = ''
-        newUserRoleEl.value = 'viewer'
-        await loadAdminProfiles()
-} catch (err) {
-  console.error('FULL ERROR:', err)
-  console.error('ERROR NAME:', err.name)
-  console.error('ERROR MESSAGE:', err.message)
-  if (err.status) {
-    console.error('HTTP STATUS:', err.status)
-    console.error('ERROR RESPONSE:', err.response)
+  if (!isAdmin()) {
+    setStatus('Samo admin može dodavati novog korisnika.')
+    return
   }
-  setStatus(`❌ Greška: ${err.message} (status: ${err.status || 'unknown'})`)
-} finally {
-  clearTimeout(timeoutId)
-  createNewUserBtn.disabled = false
-  createNewUserBtn.textContent = '➕ Dodaj / poveži usera'
-}
-        createNewUserBtn.disabled = false
-        createNewUserBtn.textContent = '➕ Dodaj / poveži usera'
-      }
+
+  const email = newUserEmailEl.value.trim().toLowerCase()
+  const fullname = newUserFullnameEl.value.trim()
+  const role = newUserRoleEl.value
+  const password = newUserPasswordEl.value.trim()
+
+  if (!email || !fullname || !role || !password) {
+    setStatus('Unesi email, ime i prezime, rolu i privremenu lozinku.')
+    return
+  }
+
+  createNewUserBtn.disabled = true
+  createNewUserBtn.textContent = 'Kreiram korisnika...'
+  setStatus('Kreiram korisnika...')
+
+  try {
+    const { data: sessionData, error: sessionError } = await supabase.auth.getSession()
+    if (sessionError) throw sessionError
+
+    const accessToken = sessionData?.session?.access_token
+    if (!accessToken) {
+      throw new Error('Nema aktivne sesije. Prijavi se ponovo.')
     }
+
+    const { data, error } = await supabase.functions.invoke('create-user', {
+      body: { email, password, fullname, role },
+      headers: {
+        Authorization: `Bearer ${accessToken}`
+      }
+    })
+
+    if (error) {
+      throw error
+    }
+
+    setStatus(`Korisnik uspešno dodat: ${data?.email ?? email}`)
+
+    newUserEmailEl.value = ''
+    newUserFullnameEl.value = ''
+    newUserPasswordEl.value = ''
+    newUserRoleEl.value = 'viewer'
+
+    await loadAdminProfiles()
+  } catch (err) {
+    setStatus(`Greška: ${err.message}`)
+  } finally {
+    createNewUserBtn.disabled = false
+    createNewUserBtn.textContent = 'Dodaj / poveži usera'
+  }
+}
+
 
     async function loadAllowedStreets() {
       if (!currentProfile) return
@@ -1922,7 +1946,12 @@ window.sb = supabase
 
     loginBtn.addEventListener('click', signInWithMagicLink)
     passwordLoginBtn.addEventListener('click', signInWithPassword)
-    logoutBtn.addEventListener('click', () => supabase.auth.signOut())
+   logoutBtn.addEventListener('click', async () => {
+  await supabase.auth.signOut()
+  renderLoggedOut()
+  setStatus('Uspešno si odjavljen.')
+})
+
 
     saveBtn.addEventListener('click', saveAddress)
     updateBtn.addEventListener('click', updateAddress)
