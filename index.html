@@ -1483,14 +1483,20 @@ window.sb = supabase
         newUserPasswordEl.value = ''
         newUserRoleEl.value = 'viewer'
         await loadAdminProfiles()
-      } catch (err) {
-        if (err.name === 'AbortError') {
-          setStatus('Greška: create-user funkcija nije odgovorila na vreme (timeout 15s).')
-        } else {
-          setStatus(`Greška: ${err.message}`)
-        }
-        console.error('createNewUserProfile error:', err)
-      } finally {
+} catch (err) {
+  console.error('FULL ERROR:', err)
+  console.error('ERROR NAME:', err.name)
+  console.error('ERROR MESSAGE:', err.message)
+  if (err.status) {
+    console.error('HTTP STATUS:', err.status)
+    console.error('ERROR RESPONSE:', err.response)
+  }
+  setStatus(`❌ Greška: ${err.message} (status: ${err.status || 'unknown'})`)
+} finally {
+  clearTimeout(timeoutId)
+  createNewUserBtn.disabled = false
+  createNewUserBtn.textContent = '➕ Dodaj / poveži usera'
+}
         createNewUserBtn.disabled = false
         createNewUserBtn.textContent = '➕ Dodaj / poveži usera'
       }
