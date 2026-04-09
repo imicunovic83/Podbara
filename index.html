@@ -1147,26 +1147,37 @@ window.sb = supabase
       setStatus(`✅ Print pregled spreman. Redova: ${filtered.length}`)
     }
 
-    async function signInWithMagicLink() {
-      const email = emailInputEl.value.trim()
-      if (!email) {
-        setStatus('Unesi validnu email adresu.')
-        return
+   async function signInWithMagicLink() {
+  const email = emailInputEl.value.trim()
+
+  if (!email) {
+    setStatus('Unesi validnu email adresu.')
+    return
+  }
+
+  setStatus('Šaljem magic link...')
+  loginBtn.disabled = true
+
+  try {
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        emailRedirectTo: window.location.origin + window.location.pathname
       }
+    })
 
-      setStatus('Šaljem magic link...')
-      loginBtn.disabled = truefunction
-
-      const { error } = await supabase.auth.signInWithOtp({
-        email,
-        options: {
-          emailRedirectTo: window.location.origin + window.location.pathname
-        }
-      })
-
-      loginBtn.disabled = false
-      setStatus(error ? `Greška: ${error.message}` : '✅ Magic link poslat! Proveri email.')
+    if (error) {
+      setStatus(`Greška: ${error.message}`)
+      return
     }
+
+    setStatus('✅ Magic link poslat! Proveri email.')
+  } catch (err) {
+    setStatus(`Greška: ${err.message}`)
+  } finally {
+    loginBtn.disabled = false
+  }
+}
 
     async function signInWithPassword() {
       const email = emailInputEl.value.trim()
