@@ -568,9 +568,10 @@
  <script type="module">
   import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
 
-  const supabase_url = 'https://wdmipyooncrcdmvlloou.supabase.co'
-  const supabase_key = 'sb_publishable_u-KtwCVzKm55-UAdFJ3FgQ_RsZSpm0u'
- const supabase = createClient('https://wdmipyooncrcdmvlloou.supabase.co', 'sb_publishable_u-KtwCVzKm55-UAdFJ3FgQ_RsZSpm0u')
+ const supabase_url = 'https://wdmipyooncrcdmvlloou.supabase.co'
+const supabase_key = 'sb_publishable_u-KtwCVzKm55-UAdFJ3FgQ_RsZSpm0u'
+
+const supabase = createClient(supabase_url, supabase_key)
 window.sb = supabase
 
   const statusEl = document.getElementById('status')
