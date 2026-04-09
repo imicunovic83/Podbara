@@ -1465,27 +1465,36 @@ console.log('is JWT format:', accessToken?.split('.').length === 3);
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 15000);
 
-    let response;
+   let response;
 
-    try {
-     response = await fetch('https://wdmipyooncrcdmvlloou.supabase.co/functions/v1/create-user', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-    'apikey': SUPABASE_ANON_KEY,
-    'Authorization': `Bearer ${accessToken}`,
-  },
-  body: JSON.stringify({
-    email,
-    password,
-    fullname,
-    role,
-  }),
-  signal: controller.signal,
-});
-    } finally {
-      clearTimeout(timeoutId);
-    }
+try {
+  console.log('create-user start');
+  console.log('email:', email);
+  console.log('role:', role);
+  console.log('using apikey:', !!supabase_key);
+  console.log('calling edge function...');
+
+  response = await fetch('https://wdmipyooncrcdmvlloou.supabase.co/functions/v1/create-user', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': supabase_key,
+      'Authorization': `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify({
+      email,
+      password,
+      fullname,
+      role,
+    }),
+    signal: controller.signal,
+  });
+
+  console.log('response status:', response.status);
+  console.log('response ok:', response.ok);
+} finally {
+  clearTimeout(timeoutId);
+}
 
     let result = null;
     const rawText = await response.text();
