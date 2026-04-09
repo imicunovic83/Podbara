@@ -412,62 +412,64 @@
 
       <div id="adminPanelSection" class="card-box hidden">
         <h2>Admin panel</h2>
-      <div class="admin-grid">
-  <div class="field">
-    <label for="adminUserSelect">Izaberi korisnika</label>
-    <select id="adminUserSelect">
-      <option value="">Izaberi korisnika...</option>
-    </select>
-  </div>
 
-  <div class="field">
-    <label for="adminRoleSelect">Rola korisnika</label>
-    <select id="adminRoleSelect">
-      <option value="viewer">viewer</option>
-      <option value="editor">editor</option>
-      <option value="admin">admin</option>
-    </select>
-  </div>
+        <div class="admin-grid">
+          <div class="field">
+            <label for="adminUserSelect">Izaberi korisnika</label>
+            <select id="adminUserSelect">
+              <option value="">Izaberi korisnika...</option>
+            </select>
+          </div>
 
-  <div class="field">
-    <label for="newUserEmail">Novi user email</label>
-    <input id="newUserEmail" type="email" placeholder="npr. imicunovic83@gmail.com" />
-  </div>
+          <div class="field">
+            <label for="adminRoleSelect">Rola korisnika</label>
+            <select id="adminRoleSelect">
+              <option value="viewer">viewer</option>
+              <option value="editor">editor</option>
+              <option value="admin">admin</option>
+            </select>
+          </div>
 
-  <div class="field">
-    <label for="newUserFullname">Ime i prezime</label>
-    <input id="newUserFullname" type="text" placeholder="Ilija Mićunović" />
-  </div>
+          <div class="field">
+            <label for="newUserEmail">Novi user email</label>
+            <input id="newUserEmail" type="email" placeholder="npr. imicunovic83@gmail.com" />
+          </div>
 
-        <div class="field">
-  <label for="newUserPassword">Privremena lozinka</label>
-  <input id="newUserPassword" type="password" placeholder="Unesi privremenu lozinku">
-</div>
+          <div class="field">
+            <label for="newUserFullname">Ime i prezime</label>
+            <input id="newUserFullname" type="text" placeholder="Ilija Mićunović" />
+          </div>
 
-  <div class="field">
-    <label for="newUserRole">Rola</label>
-    <select id="newUserRole">
-      <option value="viewer">Viewer</option>
-      <option value="editor">Editor</option>
-      <option value="admin">Admin</option>
-    </select>
-  </div>
-</div>
+          <div class="field">
+            <label for="newUserPassword">Privremena lozinka</label>
+            <input id="newUserPassword" type="password" placeholder="Unesi privremenu lozinku" />
+          </div>
 
-<div class="actions">
-  <button id="saveUserRoleBtn" type="button">Sačuvaj rolu</button>
-  <button id="refreshAdminPanelBtn" type="button" class="btn-dark">Osveži korisnike</button>
-  <button id="createNewUserBtn" type="button">➕ Dodaj / poveži usera</button>
-</div>
+          <div class="field">
+            <label for="newUserRole">Rola</label>
+            <select id="newUserRole">
+              <option value="viewer">Viewer</option>
+              <option value="editor">Editor</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+        </div>
 
-<div class="assignments-box">
-  <h2>Dodela ulica korisniku</h2>
-  <div id="adminAssignmentsInfo" class="note">Izaberi korisnika da vidi i menja dodeljene ulice.</div>
-  <div id="adminStreetCheckboxes" class="checkbox-grid"></div>
-  <div class="actions">
-    <button id="saveAssignmentsBtn" type="button">Sačuvaj dodeljene ulice</button>
-  </div>
-</div>
+        <div class="actions">
+          <button id="saveUserRoleBtn" type="button">Sačuvaj rolu</button>
+          <button id="refreshAdminPanelBtn" type="button" class="btn-dark">Osveži korisnike</button>
+          <button id="createNewUserBtn" type="button">➕ Dodaj / poveži usera</button>
+        </div>
+
+        <div class="assignments-box">
+          <h2>Dodela ulica korisniku</h2>
+          <div id="adminAssignmentsInfo" class="note">Izaberi korisnika da vidi i menja dodeljene ulice.</div>
+          <div id="adminStreetCheckboxes" class="checkbox-grid"></div>
+          <div class="actions">
+            <button id="saveAssignmentsBtn" type="button">Sačuvaj dodeljene ulice</button>
+          </div>
+        </div>
+      </div>
 
       <div class="card-box">
         <h2>Dashboard</h2>
@@ -498,7 +500,8 @@
           <div class="field">
             <label for="houseNumber">Broj kuće</label>
             <input id="houseNumber" type="text" placeholder="npr. 15" />
-          </div>
+
+    </div>
           <div class="field">
             <label for="houseSuffix">Dodatak broju</label>
             <input id="houseSuffix" type="text" placeholder="npr. A" />
@@ -565,20 +568,21 @@
     </div>
   </div>
 
- <script type="module">
+<script type="module">
   import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
 
- const supabase_url = 'https://wdmipyooncrcdmvlloou.supabase.co'
-const supabase_key = 'sb_publishable_u-KtwCVzKm55-UAdFJ3FgQ_RsZSpm0u'
+  const supabase_url = 'https://wdmipyooncrcdmvlloou.supabase.co'
+  const supabase_key = 'sb_publishable_u-KtwCVzKm55-UAdFJ3FgQ_RsZSpm0u'
 
-const supabase = createClient('https://wdmipyooncrcdmvlloou.supabase.co', 'TVOJ_ANON_KEY', {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true,
-    detectSessionInUrl: true
-  }
-})
+  const supabase = createClient(supabase_url, supabase_key, {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true
+    }
+  })
 
+  window.sb = supabase
 
   const statusEl = document.getElementById('status')
   const authSectionEl = document.getElementById('authSection')
@@ -632,7 +636,7 @@ const supabase = createClient('https://wdmipyooncrcdmvlloou.supabase.co', 'TVOJ_
   const newUserFullnameEl = document.getElementById('newUserFullname')
   const newUserRoleEl = document.getElementById('newUserRole')
   const createNewUserBtn = document.getElementById('createNewUserBtn')
-   const newUserPasswordEl = document.getElementById('newUserPassword');
+  const newUserPasswordEl = document.getElementById('newUserPassword')
 
   let currentUser = null
   let currentProfile = null
@@ -645,1396 +649,1392 @@ const supabase = createClient('https://wdmipyooncrcdmvlloou.supabase.co', 'TVOJ_
   let currentPage = 1
   const pageSize = 20
 
-    function cleanStreetName(value) {
-      if (!value) return ''
-      return String(value).replace(/^name\s*=\s*/i, '').trim()
+  function cleanStreetName(value) {
+    if (!value) return ''
+    return String(value).replace(/^name\s*=\s*/i, '').trim()
+  }
+
+  function normalizeStreetKey(name, settlement) {
+    return `${cleanStreetName(name).trim().toLowerCase()}||${String(settlement || '').trim().toLowerCase()}`
+  }
+
+  function dedupeStreets(streets) {
+    const uniqueMap = new Map()
+    for (const street of streets || []) {
+      const key = normalizeStreetKey(street.name, street.settlement_name)
+      if (!uniqueMap.has(key)) uniqueMap.set(key, street)
+    }
+    return Array.from(uniqueMap.values()).sort((a, b) => {
+      const nameA = cleanStreetName(a.name).toLowerCase()
+      const nameB = cleanStreetName(b.name).toLowerCase()
+      return nameA.localeCompare(nameB, 'sr')
+    })
+  }
+
+  function setStatus(msg) {
+    statusEl.textContent = msg
+  }
+
+  function getRole() {
+    return currentProfile?.role || 'viewer'
+  }
+
+  function isAdmin() {
+    return getRole() === 'admin'
+  }
+
+  function canEdit() {
+    return getRole() === 'admin' || getRole() === 'editor'
+  }
+
+  function applyRolePermissions() {
+    const role = getRole()
+    roleBadgeEl.textContent = `Rola: ${role}`
+    infoRoleEl.textContent = role
+
+    if (canEdit()) {
+      editorSectionEl.classList.remove('hidden')
+    } else {
+      editorSectionEl.classList.add('hidden')
+      exitEditMode(true)
     }
 
-    function normalizeStreetKey(name, settlement) {
-      return `${cleanStreetName(name).trim().toLowerCase()}||${String(settlement || '').trim().toLowerCase()}`
+    adminPanelSectionEl.classList.toggle('hidden', !isAdmin())
+
+    document.querySelectorAll('.admin-only').forEach(el => {
+      el.classList.toggle('hidden', !isAdmin())
+    })
+  }
+
+  function resetForm() {
+    streetSelectEl.value = ''
+    houseNumberEl.value = ''
+    houseSuffixEl.value = ''
+    addressLabelEl.value = ''
+    addressTypeEl.value = 'house'
+  }
+
+  function updateAddressLabel() {
+    const sid = streetSelectEl.value
+    const num = houseNumberEl.value.trim()
+    const suffix = houseSuffixEl.value.trim()
+    const street = availableStreets.find(s => String(s.id) === String(sid))
+    const name = cleanStreetName(street?.name || '')
+    addressLabelEl.value = [name, num ? `${num}${suffix}` : ''].filter(Boolean).join(' ').trim()
+  }
+
+  function enterEditMode(item) {
+    if (!canEdit()) {
+      setStatus('❌ Nemaš dozvolu za izmenu.')
+      return
     }
 
-    function dedupeStreets(streets) {
-      const uniqueMap = new Map()
-      for (const street of streets || []) {
-        const key = normalizeStreetKey(street.name, street.settlement_name)
-        if (!uniqueMap.has(key)) uniqueMap.set(key, street)
+    editingAddressId = item.id
+    streetSelectEl.value = item.street_id ?? ''
+    houseNumberEl.value = item.house_number ?? ''
+    houseSuffixEl.value = item.house_number_suffix ?? ''
+    addressLabelEl.value = item.full_address_label ?? ''
+    addressTypeEl.value = item.address_type ?? 'house'
+    formTitleEl.textContent = 'Izmena adrese'
+    saveBtn.classList.add('hidden')
+    updateBtn.classList.remove('hidden')
+    cancelEditBtn.classList.remove('hidden')
+    setStatus(`✏️ Menjaš adresu: ${item.full_address_label}`)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  function exitEditMode(silent = false) {
+    editingAddressId = null
+    resetForm()
+    formTitleEl.textContent = 'Unos nove adrese'
+    saveBtn.classList.remove('hidden')
+    updateBtn.classList.add('hidden')
+    cancelEditBtn.classList.add('hidden')
+    if (!silent) setStatus('✅ Edit mod zatvoren.')
+  }
+
+  function getStatusClass(status) {
+    switch (status) {
+      case 'visited': return 'status-visited'
+      case 'refused': return 'status-refused'
+      case 'scheduled': return 'status-scheduled'
+      default: return 'status-pending'
+    }
+  }
+
+  function getStatusLabel(status) {
+    switch (status) {
+      case 'visited': return 'Obiđeno'
+      case 'refused': return 'Odbijeno'
+      case 'scheduled': return 'Zakazano'
+      default: return 'Na čekanju'
+    }
+  }
+
+  function populateStreetFilters() {
+    filterStreetEl.innerHTML = `
+      <option value="">Sve ulice</option>
+      ${availableStreets.map(s => `<option value="${s.id}">${cleanStreetName(s.name)}</option>`).join('')}
+    `
+  }
+
+  function renderAdminUsers() {
+    if (!isAdmin()) return
+    adminUserSelectEl.innerHTML = `
+      <option value="">Izaberi korisnika...</option>
+      ${allProfiles.map(p => `<option value="${p.id}">${p.fullname || p.email || 'Bez naziva'} (${p.role || 'viewer'})</option>`).join('')}
+    `
+  }
+
+  function renderStreetCheckboxes() {
+    if (!isAdmin()) return
+
+    if (!adminUserSelectEl.value) {
+      adminStreetCheckboxesEl.innerHTML = ''
+      adminAssignmentsInfoEl.textContent = 'Izaberi korisnika da vidi i menja dodeljene ulice.'
+      return
+    }
+
+    const selectedSet = new Set(selectedAdminUserAssignments.map(item => String(item.street_id)))
+
+    adminStreetCheckboxesEl.innerHTML = allSystemStreets.map(street => `
+      <label class="checkbox-item">
+        <input type="checkbox" value="${street.id}" ${selectedSet.has(String(street.id)) ? 'checked' : ''}>
+        <span>${cleanStreetName(street.name)}</span>
+      </label>
+    `).join('')
+
+    const selectedUser = allProfiles.find(p => String(p.id) === String(adminUserSelectEl.value))
+    adminAssignmentsInfoEl.textContent = selectedUser
+      ? `Menjaš dodeljene ulice za: ${selectedUser.fullname || selectedUser.email}`
+      : 'Izaberi korisnika da vidi i menja dodeljene ulice.'
+  }
+
+  function getFilteredAddresses() {
+    const selectedStreet = filterStreetEl.value
+    const selectedStatus = filterStatusEl.value
+    const search = searchInputEl.value.trim().toLowerCase()
+
+    return allAddresses.filter(item => {
+      const streetName = cleanStreetName(item.streets?.name || '').toLowerCase()
+      const fullLabel = String(item.full_address_label || '').toLowerCase()
+      const houseNumber = String(item.house_number || '').toLowerCase()
+
+      const matchStreet = !selectedStreet || String(item.street_id) === String(selectedStreet)
+      const matchStatus = !selectedStatus || String(item.census_status) === String(selectedStatus)
+      const matchSearch = !search || streetName.includes(search) || fullLabel.includes(search) || houseNumber.includes(search)
+
+      return matchStreet && matchStatus && matchSearch
+    })
+  }
+
+  function renderPagination(totalItems) {
+    const totalPages = Math.max(1, Math.ceil(totalItems / pageSize))
+    if (currentPage > totalPages) currentPage = totalPages
+
+    paginationEl.innerHTML = `
+      <button type="button" class="btn-dark" id="prevPageBtn" ${currentPage === 1 ? 'disabled' : ''}>Prethodna</button>
+      <button type="button" class="btn-dark" id="nextPageBtn" ${currentPage === totalPages ? 'disabled' : ''}>Sledeća</button>
+    `
+
+    document.getElementById('prevPageBtn')?.addEventListener('click', () => {
+      if (currentPage > 1) {
+        currentPage--
+        renderAddresses()
       }
-      return Array.from(uniqueMap.values()).sort((a, b) => {
-        const nameA = cleanStreetName(a.name).toLowerCase()
-        const nameB = cleanStreetName(b.name).toLowerCase()
-        return nameA.localeCompare(nameB, 'sr')
-      })
-    }
+    })
 
-    function setStatus(msg) {
-      statusEl.textContent = msg
-    }
-
-    function getRole() {
-      return currentProfile?.role || 'viewer'
-    }
-
-    function isAdmin() {
-      return getRole() === 'admin'
-    }
-
-    function canEdit() {
-      return getRole() === 'admin' || getRole() === 'editor'
-    }
-
-    function applyRolePermissions() {
-      const role = getRole()
-      roleBadgeEl.textContent = `Rola: ${role}`
-      infoRoleEl.textContent = role
-
-      if (canEdit()) {
-        editorSectionEl.classList.remove('hidden')
-      } else {
-        editorSectionEl.classList.add('hidden')
-        exitEditMode(true)
+    document.getElementById('nextPageBtn')?.addEventListener('click', () => {
+      if (currentPage < totalPages) {
+        currentPage++
+        renderAddresses()
       }
+    })
+  }
 
-      adminPanelSectionEl.classList.toggle('hidden', !isAdmin())
+  function renderAddresses() {
+    const filtered = getFilteredAddresses()
 
-      document.querySelectorAll('.admin-only').forEach(el => {
-        el.classList.toggle('hidden', !isAdmin())
-      })
+    if (!filtered.length) {
+      pageInfoEl.textContent = 'Nema rezultata za izabrane filtere.'
+      addressesEl.innerHTML = '<div class="empty">Nema adresa za prikaz.</div>'
+      paginationEl.innerHTML = ''
+      return
     }
 
-    function resetForm() {
-      streetSelectEl.value = ''
-      houseNumberEl.value = ''
-      houseSuffixEl.value = ''
-      addressLabelEl.value = ''
-      addressTypeEl.value = 'house'
-    }
+    const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize))
+    if (currentPage > totalPages) currentPage = totalPages
 
-    function updateAddressLabel() {
-      const sid = streetSelectEl.value
-      const num = houseNumberEl.value.trim()
-      const suffix = houseSuffixEl.value.trim()
-      const street = availableStreets.find(s => String(s.id) === String(sid))
-      const name = cleanStreetName(street?.name || '')
-      addressLabelEl.value = [name, num ? `${num}${suffix}` : ''].filter(Boolean).join(' ').trim()
-    }
+    const start = (currentPage - 1) * pageSize
+    const end = start + pageSize
+    const pageItems = filtered.slice(start, end)
 
-    function enterEditMode(item) {
-      if (!canEdit()) {
-        setStatus('❌ Nemaš dozvolu za izmenu.')
-        return
-      }
+    pageInfoEl.textContent = `Prikaz ${start + 1}-${Math.min(end, filtered.length)} od ${filtered.length} adresa | Strana ${currentPage}/${totalPages}`
 
-      editingAddressId = item.id
-      streetSelectEl.value = item.street_id ?? ''
-      houseNumberEl.value = item.house_number ?? ''
-      houseSuffixEl.value = item.house_number_suffix ?? ''
-      addressLabelEl.value = item.full_address_label ?? ''
-      addressTypeEl.value = item.address_type ?? 'house'
-      formTitleEl.textContent = 'Izmena adrese'
-      saveBtn.classList.add('hidden')
-      updateBtn.classList.remove('hidden')
-      cancelEditBtn.classList.remove('hidden')
-      setStatus(`✏️ Menjaš adresu: ${item.full_address_label}`)
-      window.scrollTo({ top: 0, behavior: 'smooth' })
-    }
+    addressesEl.innerHTML = `
+      <div class="grid">
+        ${pageItems.map(item => `
+          <div class="addr-card">
+            <h3>${item.full_address_label ?? 'Bez naziva'}</h3>
+            <div class="addr-row"><span class="addr-label">Ulica:</span> ${cleanStreetName(item.streets?.name) || '-'}</div>
+            <div class="addr-row"><span class="addr-label">Naselje:</span> ${item.streets?.settlement_name ?? '-'}</div>
+            <div class="addr-row"><span class="addr-label">Broj:</span> ${item.house_number ?? '-'}</div>
+            <div class="addr-row"><span class="addr-label">Dodatak:</span> ${item.house_number_suffix ?? '-'}</div>
+            <div class="addr-row"><span class="addr-label">Tip:</span> ${item.address_type ?? '-'}</div>
+            <div class="addr-row"><span class="addr-label">Aktivna:</span> ${item.is_active ? 'Da' : 'Ne'}</div>
+            <div class="addr-row">
+              <span class="addr-label">Status:</span>
+              <span class="status-badge ${getStatusClass(item.census_status)}">${getStatusLabel(item.census_status)}</span>
+            </div>
 
-    function exitEditMode(silent = false) {
-      editingAddressId = null
-      resetForm()
-      formTitleEl.textContent = 'Unos nove adrese'
-      saveBtn.classList.remove('hidden')
-      updateBtn.classList.add('hidden')
-      cancelEditBtn.classList.add('hidden')
-      if (!silent) setStatus('✅ Edit mod zatvoren.')
-    }
-
-    function getStatusClass(status) {
-      switch (status) {
-        case 'visited': return 'status-visited'
-        case 'refused': return 'status-refused'
-        case 'scheduled': return 'status-scheduled'
-        default: return 'status-pending'
-      }
-    }
-
-    function getStatusLabel(status) {
-      switch (status) {
-        case 'visited': return 'Obiđeno'
-        case 'refused': return 'Odbijeno'
-        case 'scheduled': return 'Zakazano'
-        default: return 'Na čekanju'
-      }
-    }
-
-    function populateStreetFilters() {
-      filterStreetEl.innerHTML = `
-        <option value="">Sve ulice</option>
-        ${availableStreets.map(s => `<option value="${s.id}">${cleanStreetName(s.name)}</option>`).join('')}
-      `
-    }
-
-    function renderAdminUsers() {
-      if (!isAdmin()) return
-      adminUserSelectEl.innerHTML = `
-        <option value="">Izaberi korisnika...</option>
-        ${allProfiles.map(p => `<option value="${p.id}">${p.fullname || p.email || 'Bez naziva'} (${p.role || 'viewer'})</option>`).join('')}
-      `
-    }
-
-    function renderStreetCheckboxes() {
-      if (!isAdmin()) return
-
-      if (!adminUserSelectEl.value) {
-        adminStreetCheckboxesEl.innerHTML = ''
-        adminAssignmentsInfoEl.textContent = 'Izaberi korisnika da vidi i menja dodeljene ulice.'
-        return
-      }
-
-      const selectedSet = new Set(selectedAdminUserAssignments.map(item => String(item.street_id)))
-
-      adminStreetCheckboxesEl.innerHTML = allSystemStreets.map(street => `
-        <label class="checkbox-item">
-          <input type="checkbox" value="${street.id}" ${selectedSet.has(String(street.id)) ? 'checked' : ''}>
-          <span>${cleanStreetName(street.name)}</span>
-        </label>
-      `).join('')
-
-      const selectedUser = allProfiles.find(p => String(p.id) === String(adminUserSelectEl.value))
-      adminAssignmentsInfoEl.textContent = selectedUser
-        ? `Menjaš dodeljene ulice za: ${selectedUser.fullname || selectedUser.email}`
-        : 'Izaberi korisnika da vidi i menja dodeljene ulice.'
-    }
-
-    function getFilteredAddresses() {
-      const selectedStreet = filterStreetEl.value
-      const selectedStatus = filterStatusEl.value
-      const search = searchInputEl.value.trim().toLowerCase()
-
-      return allAddresses.filter(item => {
-        const streetName = cleanStreetName(item.streets?.name || '').toLowerCase()
-        const fullLabel = String(item.full_address_label || '').toLowerCase()
-        const houseNumber = String(item.house_number || '').toLowerCase()
-
-        const matchStreet = !selectedStreet || String(item.street_id) === String(selectedStreet)
-        const matchStatus = !selectedStatus || String(item.census_status) === String(selectedStatus)
-        const matchSearch = !search || streetName.includes(search) || fullLabel.includes(search) || houseNumber.includes(search)
-
-        return matchStreet && matchStatus && matchSearch
-      })
-    }
-
-    function renderPagination(totalItems) {
-      const totalPages = Math.max(1, Math.ceil(totalItems / pageSize))
-      if (currentPage > totalPages) currentPage = totalPages
-
-      paginationEl.innerHTML = `
-        <button type="button" class="btn-dark" id="prevPageBtn" ${currentPage === 1 ? 'disabled' : ''}>Prethodna</button>
-        <button type="button" class="btn-dark" id="nextPageBtn" ${currentPage === totalPages ? 'disabled' : ''}>Sledeća</button>
-      `
-
-      document.getElementById('prevPageBtn')?.addEventListener('click', () => {
-        if (currentPage > 1) {
-          currentPage--
-          renderAddresses()
-        }
-      })
-
-      document.getElementById('nextPageBtn')?.addEventListener('click', () => {
-        if (currentPage < totalPages) {
-          currentPage++
-          renderAddresses()
-        }
-      })
-    }
-
-    function renderAddresses() {
-      const filtered = getFilteredAddresses()
-
-      if (!filtered.length) {
-        pageInfoEl.textContent = 'Nema rezultata za izabrane filtere.'
-        addressesEl.innerHTML = '<div class="empty">Nema adresa za prikaz.</div>'
-        paginationEl.innerHTML = ''
-        return
-      }
-
-      const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize))
-      if (currentPage > totalPages) currentPage = totalPages
-
-      const start = (currentPage - 1) * pageSize
-      const end = start + pageSize
-      const pageItems = filtered.slice(start, end)
-
-      pageInfoEl.textContent = `Prikaz ${start + 1}-${Math.min(end, filtered.length)} od ${filtered.length} adresa | Strana ${currentPage}/${totalPages}`
-
-      addressesEl.innerHTML = `
-        <div class="grid">
-          ${pageItems.map(item => `
-            <div class="addr-card">
-              <h3>${item.full_address_label ?? 'Bez naziva'}</h3>
-              <div class="addr-row"><span class="addr-label">Ulica:</span> ${cleanStreetName(item.streets?.name) || '-'}</div>
-              <div class="addr-row"><span class="addr-label">Naselje:</span> ${item.streets?.settlement_name ?? '-'}</div>
-              <div class="addr-row"><span class="addr-label">Broj:</span> ${item.house_number ?? '-'}</div>
-              <div class="addr-row"><span class="addr-label">Dodatak:</span> ${item.house_number_suffix ?? '-'}</div>
-              <div class="addr-row"><span class="addr-label">Tip:</span> ${item.address_type ?? '-'}</div>
-              <div class="addr-row"><span class="addr-label">Aktivna:</span> ${item.is_active ? 'Da' : 'Ne'}</div>
-              <div class="addr-row">
-                <span class="addr-label">Status:</span>
-                <span class="status-badge ${getStatusClass(item.census_status)}">${getStatusLabel(item.census_status)}</span>
+            ${canEdit() ? `
+              <div class="status-editor">
+                <label for="status-${item.id}">Promeni status</label>
+                <select class="status-select" id="status-${item.id}" data-status-id="${item.id}">
+                  <option value="pending" ${item.census_status === 'pending' ? 'selected' : ''}>Pending</option>
+                  <option value="visited" ${item.census_status === 'visited' ? 'selected' : ''}>Visited</option>
+                  <option value="refused" ${item.census_status === 'refused' ? 'selected' : ''}>Refused</option>
+                  <option value="scheduled" ${item.census_status === 'scheduled' ? 'selected' : ''}>Scheduled</option>
+                </select>
               </div>
 
-              ${canEdit() ? `
-                <div class="status-editor">
-                  <label for="status-${item.id}">Promeni status</label>
-                  <select class="status-select" id="status-${item.id}" data-status-id="${item.id}">
-                    <option value="pending" ${item.census_status === 'pending' ? 'selected' : ''}>Pending</option>
-                    <option value="visited" ${item.census_status === 'visited' ? 'selected' : ''}>Visited</option>
-                    <option value="refused" ${item.census_status === 'refused' ? 'selected' : ''}>Refused</option>
-                    <option value="scheduled" ${item.census_status === 'scheduled' ? 'selected' : ''}>Scheduled</option>
-                  </select>
-                </div>
+              <div class="actions">
+                <button type="button" class="btn-dark" data-edit-id="${item.id}">Izmeni</button>
+                <button type="button" class="btn-danger" data-delete-id="${item.id}" data-delete-label="${(item.full_address_label ?? 'Bez naziva').replace(/"/g, '&quot;')}">Obriši</button>
+              </div>
+            ` : ''}
+          </div>
+        `).join('')}
+      </div>
+    `
 
-                <div class="actions">
-                  <button type="button" class="btn-dark" data-edit-id="${item.id}">Izmeni</button>
-                  <button type="button" class="btn-danger" data-delete-id="${item.id}" data-delete-label="${(item.full_address_label ?? 'Bez naziva').replace(/"/g, '&quot;')}">Obriši</button>
-                </div>
-              ` : ''}
-            </div>
-          `).join('')}
-        </div>
-      `
-
-      if (canEdit()) {
-        addressesEl.querySelectorAll('[data-edit-id]').forEach(btn => {
-          btn.addEventListener('click', () => {
-            const item = allAddresses.find(row => String(row.id) === String(btn.dataset.editId))
-            if (item) enterEditMode(item)
-          })
+    if (canEdit()) {
+      addressesEl.querySelectorAll('[data-edit-id]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const item = allAddresses.find(row => String(row.id) === String(btn.dataset.editId))
+          if (item) enterEditMode(item)
         })
+      })
 
-        addressesEl.querySelectorAll('[data-delete-id]').forEach(btn => {
-          btn.addEventListener('click', () => {
-            deleteAddress(btn.dataset.deleteId, btn.dataset.deleteLabel)
-          })
+      addressesEl.querySelectorAll('[data-delete-id]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          deleteAddress(btn.dataset.deleteId, btn.dataset.deleteLabel)
         })
+      })
 
-        addressesEl.querySelectorAll('[data-status-id]').forEach(select => {
-          select.addEventListener('change', () => {
-            updateCensusStatus(select.dataset.statusId, select.value)
-          })
+      addressesEl.querySelectorAll('[data-status-id]').forEach(select => {
+        select.addEventListener('change', () => {
+          updateCensusStatus(select.dataset.statusId, select.value)
+        })
+      })
+    }
+
+    renderPagination(filtered.length)
+  }
+
+  function renderStreetStatsFromAddresses(addressRows) {
+    if (!addressRows?.length) {
+      streetStatsEl.innerHTML = '<div class="empty">Nema statistike po ulicama.</div>'
+      return
+    }
+
+    const grouped = {}
+
+    for (const row of addressRows) {
+      const street = cleanStreetName(row.streets?.name || 'Nepoznata ulica')
+      const status = row.census_status || 'pending'
+
+      if (!grouped[street]) {
+        grouped[street] = { pending: 0, visited: 0, refused: 0, scheduled: 0, total: 0 }
+      }
+
+      grouped[street][status] = (grouped[street][status] || 0) + 1
+      grouped[street].total += 1
+    }
+
+    const sortedEntries = Object.entries(grouped).sort((a, b) => a[0].localeCompare(b[0], 'sr'))
+
+    streetStatsEl.innerHTML = sortedEntries.map(([street, values]) => `
+      <div class="street-stat-item">
+        <div class="street-stat-name">${street}</div>
+        <div class="street-stat-row">Ukupno: ${values.total || 0}</div>
+        <div class="street-stat-row">Pending: ${values.pending || 0}</div>
+        <div class="street-stat-row">Visited: ${values.visited || 0}</div>
+        <div class="street-stat-row">Refused: ${values.refused || 0}</div>
+        <div class="street-stat-row">Scheduled: ${values.scheduled || 0}</div>
+      </div>
+    `).join('')
+  }
+
+  function downloadCsv(filename, rows) {
+    const csvContent = rows.map(row =>
+      row.map(value => {
+        const safe = String(value ?? '').replace(/"/g, '""')
+        return `"${safe}"`
+      }).join(',')
+    ).join('\n')
+
+    const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = filename
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+  }
+
+  function exportFilteredCsv() {
+    const filtered = getFilteredAddresses()
+
+    if (!filtered.length) {
+      setStatus('❌ Nema podataka za CSV export.')
+      return
+    }
+
+    const rows = [
+      ['Ulica', 'Naselje', 'Broj', 'Dodatak', 'Puna adresa', 'Tip', 'Status', 'Aktivna']
+    ]
+
+    filtered.forEach(item => {
+      rows.push([
+        cleanStreetName(item.streets?.name || ''),
+        item.streets?.settlement_name || '',
+        item.house_number || '',
+        item.house_number_suffix || '',
+        item.full_address_label || '',
+        item.address_type || '',
+        getStatusLabel(item.census_status),
+        item.is_active ? 'Da' : 'Ne'
+      ])
+    })
+
+    const now = new Date()
+    const stamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+    downloadCsv(`adrese-export-${stamp}.csv`, rows)
+    setStatus(`✅ CSV export uspešan. Izvezeno: ${filtered.length} redova.`)
+  }
+
+  function exportFilteredExcel() {
+    const filtered = getFilteredAddresses()
+
+    if (!filtered.length) {
+      setStatus('❌ Nema podataka za Excel export.')
+      return
+    }
+
+    const detailRows = filtered.map(item => ({
+      Ulica: cleanStreetName(item.streets?.name || ''),
+      Naselje: item.streets?.settlement_name || '',
+      Broj: item.house_number || '',
+      Dodatak: item.house_number_suffix || '',
+      'Puna adresa': item.full_address_label || '',
+      Tip: item.address_type || '',
+      Status: getStatusLabel(item.census_status),
+      Aktivna: item.is_active ? 'Da' : 'Ne'
+    }))
+
+    const summaryMap = new Map()
+
+    filtered.forEach(item => {
+      const street = cleanStreetName(item.streets?.name || '')
+      if (!summaryMap.has(street)) {
+        summaryMap.set(street, {
+          Ulica: street,
+          Pending: 0,
+          Visited: 0,
+          Refused: 0,
+          Scheduled: 0,
+          Ukupno: 0
         })
       }
 
-      renderPagination(filtered.length)
+      const row = summaryMap.get(street)
+      if (item.census_status === 'pending') row.Pending++
+      if (item.census_status === 'visited') row.Visited++
+      if (item.census_status === 'refused') row.Refused++
+      if (item.census_status === 'scheduled') row.Scheduled++
+      row.Ukupno++
+    })
+
+    const summaryRows = Array.from(summaryMap.values()).sort((a, b) =>
+      String(a.Ulica).localeCompare(String(b.Ulica), 'sr')
+    )
+
+    const wb = XLSX.utils.book_new()
+    const wsDetails = XLSX.utils.json_to_sheet(detailRows)
+    const wsSummary = XLSX.utils.json_to_sheet(summaryRows)
+
+    XLSX.utils.book_append_sheet(wb, wsDetails, 'Adrese')
+    XLSX.utils.book_append_sheet(wb, wsSummary, 'Sumarni pregled')
+
+    wsDetails['!cols'] = [
+      { wch: 24 }, { wch: 18 }, { wch: 10 }, { wch: 10 },
+      { wch: 30 }, { wch: 12 }, { wch: 14 }, { wch: 10 }
+    ]
+
+    wsSummary['!cols'] = [
+      { wch: 24 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 10 }
+    ]
+
+    const now = new Date()
+    const stamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+    XLSX.writeFile(wb, `adrese-export-${stamp}.xlsx`)
+    setStatus(`✅ Excel export uspešan. Izvezeno: ${filtered.length} redova.`)
+  }
+
+  function printFilteredView() {
+    const filtered = getFilteredAddresses()
+
+    if (!filtered.length) {
+      setStatus('❌ Nema podataka za štampu.')
+      return
     }
 
-    function renderStreetStatsFromAddresses(addressRows) {
-      if (!addressRows?.length) {
+    const printWindow = window.open('', '_blank', 'width=1200,height=800')
+    if (!printWindow) {
+      setStatus('❌ Browser je blokirao print prozor.')
+      return
+    }
+
+    const rowsHtml = filtered.map(item => `
+      <tr>
+        <td>${cleanStreetName(item.streets?.name || '')}</td>
+        <td>${item.streets?.settlement_name || ''}</td>
+        <td>${item.house_number || ''}</td>
+        <td>${item.house_number_suffix || ''}</td>
+        <td>${item.full_address_label || ''}</td>
+        <td>${item.address_type || ''}</td>
+        <td>${getStatusLabel(item.census_status)}</td>
+        <td>${item.is_active ? 'Da' : 'Ne'}</td>
+      </tr>
+    `).join('')
+
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html lang="sr">
+      <head>
+        <meta charset="UTF-8">
+        <title>Print pregled adresa</title>
+        <style>
+          body { font-family: Arial, sans-serif; padding: 24px; color: #111; }
+          h1 { margin-bottom: 8px; }
+          p { margin-bottom: 18px; color: #444; }
+          table { width: 100%; border-collapse: collapse; font-size: 12px; }
+          th, td { border: 1px solid #ccc; padding: 8px; text-align: left; vertical-align: top; }
+          th { background: #f3f4f6; }
+        </style>
+      </head>
+      <body>
+        <h1>Pregled adresa</h1>
+        <p>Ukupno redova: ${filtered.length}</p>
+        <table>
+          <thead>
+            <tr>
+              <th>Ulica</th>
+              <th>Naselje</th>
+              <th>Broj</th>
+              <th>Dodatak</th>
+              <th>Puna adresa</th>
+              <th>Tip</th>
+              <th>Status</th>
+              <th>Aktivna</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rowsHtml}
+          </tbody>
+        </table>
+      </body>
+      </html>
+    `)
+
+    printWindow.document.close()
+    printWindow.focus()
+    setTimeout(() => {
+      printWindow.print()
+    }, 300)
+    setStatus(`✅ Print pregled spreman. Redova: ${filtered.length}`)
+  }
+
+  async function signInWithMagicLink() {
+    const email = emailInputEl.value.trim()
+
+    if (!email) {
+      setStatus('Unesi validnu email adresu.')
+      return
+    }
+
+    setStatus('Šaljem magic link...')
+    loginBtn.disabled = true
+
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          emailRedirectTo: window.location.origin + window.location.pathname
+        }
+      })
+
+      if (error) {
+        setStatus(`Greška: ${error.message}`)
+        return
+      }
+
+      setStatus('✅ Magic link poslat! Proveri email.')
+    } catch (err) {
+      setStatus(`Greška: ${err.message}`)
+    } finally {
+      loginBtn.disabled = false
+    }
+  }
+
+  async function signInWithPassword() {
+    const email = emailInputEl.value.trim()
+    const password = passwordInputEl.value.trim()
+
+    if (!email || !password) {
+      setStatus('Unesi email i lozinku.')
+      return
+    }
+
+    setStatus('Prijava lozinkom...')
+    passwordLoginBtn.disabled = true
+
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      })
+
+      if (error) {
+        setStatus(`Greška: ${error.message}`)
+        return
+      }
+
+      if (!data?.user) {
+        setStatus('Greška: korisnik nije vraćen posle prijave.')
+        return
+      }
+
+      const ok = await loadCurrentUserAndProfile()
+
+      if (!ok) {
+        setStatus('Prijava je prošla, ali profil nije učitan.')
+        return
+      }
+
+      await loadAllowedStreets()
+      await loadAddresses()
+      await loadDashboardStats()
+
+      if (isAdmin()) {
+        await loadAdminProfiles()
+        await loadAllSystemStreets()
+      }
+
+      setStatus('✅ Uspešna prijava lozinkom.')
+    } catch (err) {
+      setStatus(`Greška: ${err.message}`)
+    } finally {
+      passwordLoginBtn.disabled = false
+    }
+  }
+
+  function renderLoggedOut() {
+    authSectionEl.classList.remove('hidden')
+    appSectionEl.classList.add('hidden')
+    currentUser = null
+    currentProfile = null
+    availableStreets = []
+    allSystemStreets = []
+    allProfiles = []
+    selectedAdminUserAssignments = []
+    editingAddressId = null
+    allAddresses = []
+    resetForm()
+  }
+
+  function renderLoggedIn(user, profile) {
+    authSectionEl.classList.add('hidden')
+    appSectionEl.classList.remove('hidden')
+    userBadgeEl.textContent = `Prijavljen: ${user.email}`
+    roleBadgeEl.textContent = `Rola: ${profile?.role ?? 'nepoznata'}`
+    infoEmailEl.textContent = user.email
+    infoRoleEl.textContent = profile?.role ?? '-'
+  }
+
+  async function loadCurrentUserAndProfile() {
+    const { data: { user }, error } = await supabase.auth.getUser()
+    if (error || !user) {
+      renderLoggedOut()
+      return false
+    }
+
+    currentUser = user
+
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('id, email, fullname, role, is_active')
+      .eq('id', user.id)
+      .single()
+
+    if (profileError || !profile) {
+      setStatus('Profil nije pronađen.')
+      return false
+    }
+
+    currentProfile = profile
+    renderLoggedIn(user, profile)
+    applyRolePermissions()
+    return true
+  }
+
+  async function loadAdminProfiles() {
+    if (!isAdmin()) return
+
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('id, email, fullname, role, is_active')
+      .order('email', { ascending: true })
+
+    if (error) {
+      setStatus(`Greška profiles: ${error.message}`)
+      return
+    }
+
+    allProfiles = data || []
+    renderAdminUsers()
+  }
+
+  async function loadAllSystemStreets() {
+    if (!isAdmin()) return
+
+    const { data, error } = await supabase
+      .from('streets')
+      .select('id, name, settlement_name, is_active')
+      .eq('is_active', true)
+      .order('name', { ascending: true })
+
+    if (error) {
+      setStatus(`Greška streets admin: ${error.message}`)
+      return
+    }
+
+    allSystemStreets = dedupeStreets(data || [])
+    renderStreetCheckboxes()
+  }
+
+  async function loadSelectedUserAssignments() {
+    if (!isAdmin()) return
+
+    const selectedUserId = adminUserSelectEl.value
+
+    if (!selectedUserId) {
+      selectedAdminUserAssignments = []
+      renderStreetCheckboxes()
+      return
+    }
+
+    const { data, error } = await supabase
+      .from('user_street_assignments')
+      .select('id, user_id, street_id, is_active')
+      .eq('user_id', selectedUserId)
+      .eq('is_active', true)
+
+    if (error) {
+      setStatus(`Greška assignments: ${error.message}`)
+      return
+    }
+
+    selectedAdminUserAssignments = data || []
+
+    const selectedUser = allProfiles.find(p => String(p.id) === String(selectedUserId))
+    if (selectedUser) adminRoleSelectEl.value = selectedUser.role || 'viewer'
+
+    renderStreetCheckboxes()
+  }
+
+  async function saveSelectedUserRole() {
+    if (!isAdmin()) {
+      setStatus('Samo admin može menjati role.')
+      return
+    }
+
+    const selectedUserId = adminUserSelectEl.value
+    const selectedRole = adminRoleSelectEl.value
+
+    if (!selectedUserId) {
+      setStatus('Izaberi korisnika.')
+      return
+    }
+
+    saveUserRoleBtn.disabled = true
+    saveUserRoleBtn.textContent = 'Čuvam rolu...'
+
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ role: selectedRole })
+        .eq('id', selectedUserId)
+
+      if (error) throw error
+
+      await loadAdminProfiles()
+      setStatus(`✅ Rola korisnika je sačuvana: ${selectedRole}`)
+    } catch (err) {
+      setStatus(`❌ Greška role: ${err.message}`)
+    } finally {
+      saveUserRoleBtn.disabled = false
+      saveUserRoleBtn.textContent = 'Sačuvaj rolu'
+    }
+  }
+
+  async function saveSelectedUserAssignments() {
+    if (!isAdmin()) {
+      setStatus('Samo admin može menjati dodele ulica.')
+      return
+    }
+
+    const selectedUserId = adminUserSelectEl.value
+    if (!selectedUserId) {
+      setStatus('Izaberi korisnika.')
+      return
+    }
+
+    const checkedStreetIds = Array.from(
+      adminStreetCheckboxesEl.querySelectorAll('input[type="checkbox"]:checked')
+    ).map(input => input.value)
+
+    saveAssignmentsBtn.disabled = true
+    saveAssignmentsBtn.textContent = 'Čuvam dodele...'
+
+    try {
+      const { data: existing, error: existingError } = await supabase
+        .from('user_street_assignments')
+        .select('id, street_id, is_active')
+        .eq('user_id', selectedUserId)
+
+      if (existingError) throw existingError
+
+      const existingRows = existing || []
+      const existingByStreet = new Map(existingRows.map(row => [String(row.street_id), row]))
+      const checkedSet = new Set(checkedStreetIds.map(String))
+
+      const idsToDeactivate = existingRows
+        .filter(row => row.is_active && !checkedSet.has(String(row.street_id)))
+        .map(row => row.id)
+
+      const idsToReactivate = existingRows
+        .filter(row => !row.is_active && checkedSet.has(String(row.street_id)))
+        .map(row => row.id)
+
+      const rowsToInsert = checkedStreetIds
+        .filter(streetId => !existingByStreet.has(String(streetId)))
+        .map(streetId => ({
+          user_id: selectedUserId,
+          street_id: streetId,
+          is_active: true
+        }))
+
+      if (idsToDeactivate.length) {
+        const { error } = await supabase
+          .from('user_street_assignments')
+          .update({ is_active: false })
+          .in('id', idsToDeactivate)
+        if (error) throw error
+      }
+
+      if (idsToReactivate.length) {
+        const { error } = await supabase
+          .from('user_street_assignments')
+          .update({ is_active: true })
+          .in('id', idsToReactivate)
+        if (error) throw error
+      }
+
+      if (rowsToInsert.length) {
+        const { error } = await supabase
+          .from('user_street_assignments')
+          .insert(rowsToInsert)
+        if (error) throw error
+      }
+
+      await loadSelectedUserAssignments()
+      await loadAllowedStreets()
+      setStatus(`✅ Sačuvane dodele ulica. Ukupno aktivnih: ${checkedStreetIds.length}`)
+    } catch (err) {
+      setStatus(`❌ Greška assignments save: ${err.message}`)
+    } finally {
+      saveAssignmentsBtn.disabled = false
+      saveAssignmentsBtn.textContent = 'Sačuvaj dodeljene ulice'
+    }
+  }
+
+  async function createNewUserProfile() {
+    if (!isAdmin()) {
+      setStatus('Samo admin može dodavati novog korisnika.')
+      return
+    }
+
+    const email = newUserEmailEl.value.trim().toLowerCase()
+    const fullname = newUserFullnameEl.value.trim()
+    const role = newUserRoleEl.value
+    const password = newUserPasswordEl.value.trim()
+
+    if (!email || !fullname || !role || !password) {
+      setStatus('Unesi email, ime i prezime, rolu i privremenu lozinku.')
+      return
+    }
+
+    createNewUserBtn.disabled = true
+    createNewUserBtn.textContent = 'Kreiram korisnika...'
+    setStatus('Kreiram korisnika...')
+
+    try {
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession()
+      if (sessionError) throw sessionError
+
+      const accessToken = sessionData?.session?.access_token
+      if (!accessToken) {
+        throw new Error('Nema aktivne sesije. Prijavi se ponovo.')
+      }
+
+      const { data, error } = await supabase.functions.invoke('create-user', {
+        body: { email, password, fullname, role },
+        headers: {
+          Authorization: `Bearer ${accessToken}`
+        }
+      })
+
+      if (error) throw error
+
+      setStatus(`✅ Korisnik uspešno dodat: ${data?.email ?? email}`)
+
+      newUserEmailEl.value = ''
+      newUserFullnameEl.value = ''
+      newUserPasswordEl.value = ''
+      newUserRoleEl.value = 'viewer'
+
+      await loadAdminProfiles()
+    } catch (err) {
+      setStatus(`❌ Greška: ${err.message}`)
+    } finally {
+      createNewUserBtn.disabled = false
+      createNewUserBtn.textContent = 'Dodaj / poveži usera'
+    }
+  }
+
+  async function loadAllowedStreets() {
+    if (!currentProfile) return
+
+    let query = supabase
+      .from('streets')
+      .select('id, name, settlement_name, is_active')
+      .eq('is_active', true)
+
+    if (currentProfile.role !== 'admin') {
+      const { data: assignments, error: assignmentError } = await supabase
+        .from('user_street_assignments')
+        .select('street_id')
+        .eq('user_id', currentUser.id)
+        .eq('is_active', true)
+
+      if (assignmentError) {
+        setStatus(`Greška assignments: ${assignmentError.message}`)
+        return
+      }
+
+      const uniqueIds = [...new Set((assignments || []).map(a => a.street_id).filter(Boolean))]
+
+      if (uniqueIds.length === 0) {
+        streetSelectEl.innerHTML = '<option value="">Nema dozvoljenih ulica</option>'
+        assignedStreetsEl.innerHTML = '<li>Nema dodeljenih ulica</li>'
+        availableStreets = []
+        populateStreetFilters()
+        return
+      }
+
+      query = query.in('id', uniqueIds)
+    }
+
+    const { data, error } = await query.order('name', { ascending: true })
+
+    if (error) {
+      setStatus(`Greška ulice: ${error.message}`)
+      return
+    }
+
+    availableStreets = dedupeStreets(data || [])
+
+    streetSelectEl.innerHTML = `
+      <option value="">Izaberi ulicu</option>
+      ${availableStreets.map(s => `<option value="${s.id}">${cleanStreetName(s.name)}</option>`).join('')}
+    `
+
+    assignedStreetsEl.innerHTML = availableStreets.length
+      ? availableStreets.map(s => `<li>${cleanStreetName(s.name)}</li>`).join('')
+      : '<li>Nema dodeljenih ulica</li>'
+
+    populateStreetFilters()
+  }
+
+  async function loadDashboardStats() {
+    let addressQuery = supabase
+      .from('addresses')
+      .select(`
+        id,
+        street_id,
+        census_status,
+        streets (
+          id,
+          name,
+          settlement_name
+        )
+      `)
+
+    if (!isAdmin()) {
+      const allowedStreetIds = availableStreets.map(s => s.id).filter(Boolean)
+      if (!allowedStreetIds.length) {
+        statsCardsEl.innerHTML = `
+          <div class="stat-card"><h3>Ukupno adresa</h3><div class="stat-value">0</div></div>
+          <div class="stat-card"><h3>Pending</h3><div class="stat-value">0</div></div>
+          <div class="stat-card"><h3>Visited</h3><div class="stat-value">0</div></div>
+          <div class="stat-card"><h3>Refused + Scheduled</h3><div class="stat-value">0</div></div>
+        `
         streetStatsEl.innerHTML = '<div class="empty">Nema statistike po ulicama.</div>'
         return
       }
-
-      const grouped = {}
-
-      for (const row of addressRows) {
-        const street = cleanStreetName(row.streets?.name || 'Nepoznata ulica')
-        const status = row.census_status || 'pending'
-
-        if (!grouped[street]) {
-          grouped[street] = { pending: 0, visited: 0, refused: 0, scheduled: 0, total: 0 }
-        }
-
-        grouped[street][status] = (grouped[street][status] || 0) + 1
-        grouped[street].total += 1
-      }
-
-      const sortedEntries = Object.entries(grouped).sort((a, b) => a[0].localeCompare(b[0], 'sr'))
-
-      streetStatsEl.innerHTML = sortedEntries.map(([street, values]) => `
-        <div class="street-stat-item">
-          <div class="street-stat-name">${street}</div>
-          <div class="street-stat-row">Ukupno: ${values.total || 0}</div>
-          <div class="street-stat-row">Pending: ${values.pending || 0}</div>
-          <div class="street-stat-row">Visited: ${values.visited || 0}</div>
-          <div class="street-stat-row">Refused: ${values.refused || 0}</div>
-          <div class="street-stat-row">Scheduled: ${values.scheduled || 0}</div>
-        </div>
-      `).join('')
+      addressQuery = addressQuery.in('street_id', allowedStreetIds)
     }
 
-    function downloadCsv(filename, rows) {
-      const csvContent = rows.map(row =>
-        row.map(value => {
-          const safe = String(value ?? '').replace(/"/g, '""')
-          return `"${safe}"`
-        }).join(',')
-      ).join('\n')
+    const { data: addresses, error: addrError } = await addressQuery
 
-      const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' })
-      const url = URL.createObjectURL(blob)
-      const link = document.createElement('a')
-      link.href = url
-      link.download = filename
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-      URL.revokeObjectURL(url)
+    if (addrError) {
+      statsCardsEl.innerHTML = `<div class="empty">Greška statistika: ${addrError.message}</div>`
+      return
     }
 
-    function exportFilteredCsv() {
-      const filtered = getFilteredAddresses()
+    const rows = addresses || []
+    const total = rows.length
+    const pending = rows.filter(a => a.census_status === 'pending').length
+    const visited = rows.filter(a => a.census_status === 'visited').length
+    const other = rows.filter(a => a.census_status === 'refused' || a.census_status === 'scheduled').length
 
-      if (!filtered.length) {
-        setStatus('❌ Nema podataka za CSV export.')
-        return
-      }
+    statsCardsEl.innerHTML = `
+      <div class="stat-card"><h3>Ukupno adresa</h3><div class="stat-value">${total}</div></div>
+      <div class="stat-card"><h3>Pending</h3><div class="stat-value">${pending}</div></div>
+      <div class="stat-card"><h3>Visited</h3><div class="stat-value">${visited}</div></div>
+      <div class="stat-card"><h3>Refused + Scheduled</h3><div class="stat-value">${other}</div></div>
+    `
 
-      const rows = [
-        ['Ulica', 'Naselje', 'Broj', 'Dodatak', 'Puna adresa', 'Tip', 'Status', 'Aktivna']
-      ]
-
-      filtered.forEach(item => {
-        rows.push([
-          cleanStreetName(item.streets?.name || ''),
-          item.streets?.settlement_name || '',
-          item.house_number || '',
-          item.house_number_suffix || '',
-          item.full_address_label || '',
-          item.address_type || '',
-          getStatusLabel(item.census_status),
-          item.is_active ? 'Da' : 'Ne'
-        ])
-      })
-
-      const now = new Date()
-      const stamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
-      downloadCsv(`adrese-export-${stamp}.csv`, rows)
-      setStatus(`✅ CSV export uspešan. Izvezeno: ${filtered.length} redova.`)
-    }
-
-    function exportFilteredExcel() {
-      const filtered = getFilteredAddresses()
-
-      if (!filtered.length) {
-        setStatus('❌ Nema podataka za Excel export.')
-        return
-      }
-
-      const detailRows = filtered.map(item => ({
-        Ulica: cleanStreetName(item.streets?.name || ''),
-        Naselje: item.streets?.settlement_name || '',
-        Broj: item.house_number || '',
-        Dodatak: item.house_number_suffix || '',
-        'Puna adresa': item.full_address_label || '',
-        Tip: item.address_type || '',
-        Status: getStatusLabel(item.census_status),
-        Aktivna: item.is_active ? 'Da' : 'Ne'
-      }))
-
-      const summaryMap = new Map()
-
-      filtered.forEach(item => {
-        const street = cleanStreetName(item.streets?.name || '')
-        if (!summaryMap.has(street)) {
-          summaryMap.set(street, {
-            Ulica: street,
-            Pending: 0,
-            Visited: 0,
-            Refused: 0,
-            Scheduled: 0,
-            Ukupno: 0
-          })
-        }
-
-        const row = summaryMap.get(street)
-        if (item.census_status === 'pending') row.Pending++
-        if (item.census_status === 'visited') row.Visited++
-        if (item.census_status === 'refused') row.Refused++
-        if (item.census_status === 'scheduled') row.Scheduled++
-        row.Ukupno++
-      })
-
-      const summaryRows = Array.from(summaryMap.values()).sort((a, b) =>
-        String(a.Ulica).localeCompare(String(b.Ulica), 'sr')
-      )
-
-      const wb = XLSX.utils.book_new()
-      const wsDetails = XLSX.utils.json_to_sheet(detailRows)
-      const wsSummary = XLSX.utils.json_to_sheet(summaryRows)
-
-      XLSX.utils.book_append_sheet(wb, wsDetails, 'Adrese')
-      XLSX.utils.book_append_sheet(wb, wsSummary, 'Sumarni pregled')
-
-      wsDetails['!cols'] = [
-        { wch: 24 }, { wch: 18 }, { wch: 10 }, { wch: 10 },
-        { wch: 30 }, { wch: 12 }, { wch: 14 }, { wch: 10 }
-      ]
-
-      wsSummary['!cols'] = [
-        { wch: 24 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 10 }
-      ]
-
-      const now = new Date()
-      const stamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
-      XLSX.writeFile(wb, `adrese-export-${stamp}.xlsx`)
-      setStatus(`✅ Excel export uspešan. Izvezeno: ${filtered.length} redova.`)
-    }
-
-    function printFilteredView() {
-      const filtered = getFilteredAddresses()
-
-      if (!filtered.length) {
-        setStatus('❌ Nema podataka za štampu.')
-        return
-      }
-
-      const printWindow = window.open('', '_blank', 'width=1200,height=800')
-      if (!printWindow) {
-        setStatus('❌ Browser je blokirao print prozor.')
-        return
-      }
-
-      const rowsHtml = filtered.map(item => `
-        <tr>
-          <td>${cleanStreetName(item.streets?.name || '')}</td>
-          <td>${item.streets?.settlement_name || ''}</td>
-          <td>${item.house_number || ''}</td>
-          <td>${item.house_number_suffix || ''}</td>
-          <td>${item.full_address_label || ''}</td>
-          <td>${item.address_type || ''}</td>
-          <td>${getStatusLabel(item.census_status)}</td>
-          <td>${item.is_active ? 'Da' : 'Ne'}</td>
-        </tr>
-      `).join('')
-
-      printWindow.document.write(`
-        <!DOCTYPE html>
-        <html lang="sr">
-        <head>
-          <meta charset="UTF-8">
-          <title>Print pregled adresa</title>
-          <style>
-            body { font-family: Arial, sans-serif; padding: 24px; color: #111; }
-            h1 { margin-bottom: 8px; }
-            p { margin-bottom: 18px; color: #444; }
-            table { width: 100%; border-collapse: collapse; font-size: 12px; }
-            th, td { border: 1px solid #ccc; padding: 8px; text-align: left; vertical-align: top; }
-            th { background: #f3f4f6; }
-          </style>
-        </head>
-        <body>
-          <h1>Pregled adresa</h1>
-          <p>Ukupno redova: ${filtered.length}</p>
-          <table>
-            <thead>
-              <tr>
-                <th>Ulica</th>
-                <th>Naselje</th>
-                <th>Broj</th>
-                <th>Dodatak</th>
-                <th>Puna adresa</th>
-                <th>Tip</th>
-                <th>Status</th>
-                <th>Aktivna</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${rowsHtml}
-            </tbody>
-          </table>
-        </body>
-        </html>
-      `)
-
-      printWindow.document.close()
-      printWindow.focus()
-      setTimeout(() => {
-        printWindow.print()
-      }, 300)
-      setStatus(`✅ Print pregled spreman. Redova: ${filtered.length}`)
-    }
-
-   async function signInWithMagicLink() {
-  const email = emailInputEl.value.trim()
-
-  if (!email) {
-    setStatus('Unesi validnu email adresu.')
-    return
+    renderStreetStatsFromAddresses(rows)
   }
 
-  setStatus('Šaljem magic link...')
-  loginBtn.disabled = true
+  async function updateCensusStatus(addressId, newStatus) {
+    if (!canEdit()) {
+      setStatus('❌ Nemaš dozvolu za promenu statusa.')
+      return
+    }
 
-  try {
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: {
-        emailRedirectTo: window.location.origin + window.location.pathname
-      }
-    })
+    setStatus('Čuvam status...')
+
+    const { error } = await supabase
+      .from('addresses')
+      .update({
+        census_status: newStatus,
+        updated_by: currentUser.id
+      })
+      .eq('id', addressId)
 
     if (error) {
-      setStatus(`Greška: ${error.message}`)
+      setStatus(`❌ Greška pri promeni statusa: ${error.message}`)
       return
     }
 
-    setStatus('✅ Magic link poslat! Proveri email.')
-  } catch (err) {
-    setStatus(`Greška: ${err.message}`)
-  } finally {
-    loginBtn.disabled = false
-  }
-}
-
-    async function signInWithPassword() {
-  const email = emailInputEl.value.trim()
-  const password = passwordInputEl.value.trim()
-
-  if (!email || !password) {
-    setStatus('Unesi email i lozinku.')
-    return
-  }
-
-  setStatus('Prijava lozinkom...')
-  passwordLoginBtn.disabled = true
-
-  try {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    })
-
-    if (error) {
-      setStatus(`Greška: ${error.message}`)
-      return
-    }
-
-    if (!data?.user) {
-      setStatus('Greška: korisnik nije vraćen posle prijave.')
-      return
-    }
-
-    const ok = await loadCurrentUserAndProfile()
-
-    if (!ok) {
-      setStatus('Prijava je prošla, ali profil nije učitan.')
-      return
-    }
-
-    await loadAllowedStreets()
+    setStatus('✅ Status uspešno ažuriran.')
     await loadAddresses()
     await loadDashboardStats()
-
-    if (isAdmin()) {
-      await loadAdminProfiles()
-      await loadAllSystemStreets()
-    }
-
-    setStatus('✅ Uspešna prijava lozinkom.')
-  } catch (err) {
-    setStatus(`Greška: ${err.message}`)
-  } finally {
-    passwordLoginBtn.disabled = false
-  }
-}
-
-
-    function renderLoggedOut() {
-      authSectionEl.classList.remove('hidden')
-      appSectionEl.classList.add('hidden')
-      currentUser = null
-      currentProfile = null
-      availableStreets = []
-      allSystemStreets = []
-      allProfiles = []
-      selectedAdminUserAssignments = []
-      editingAddressId = null
-      allAddresses = []
-      resetForm()
-    }
-
-    function renderLoggedIn(user, profile) {
-      authSectionEl.classList.add('hidden')
-      appSectionEl.classList.remove('hidden')
-      userBadgeEl.textContent = `Prijavljen: ${user.email}`
-      roleBadgeEl.textContent = `Rola: ${profile?.role ?? 'nepoznata'}`
-      infoEmailEl.textContent = user.email
-      infoRoleEl.textContent = profile?.role ?? '-'
-    }
-
-    async function loadCurrentUserAndProfile() {
-      const { data: { user }, error } = await supabase.auth.getUser()
-      if (error || !user) {
-        renderLoggedOut()
-        return false
-      }
-
-      currentUser = user
-
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('id, email, fullname, role, is_active')
-        .eq('id', user.id)
-        .single()
-
-      if (profileError || !profile) {
-        setStatus('Profil nije pronađen.')
-        return false
-      }
-
-      currentProfile = profile
-      renderLoggedIn(user, profile)
-      applyRolePermissions()
-      return true
-    }
-
-    async function loadAdminProfiles() {
-      if (!isAdmin()) return
-
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('id, email, fullname, role, is_active')
-        .order('email', { ascending: true })
-
-      if (error) {
-        setStatus(`Greška profiles: ${error.message}`)
-        return
-      }
-
-      allProfiles = data || []
-      renderAdminUsers()
-    }
-
-    async function loadAllSystemStreets() {
-      if (!isAdmin()) return
-
-      const { data, error } = await supabase
-        .from('streets')
-        .select('id, name, settlement_name, is_active')
-        .eq('is_active', true)
-        .order('name', { ascending: true })
-
-      if (error) {
-        setStatus(`Greška streets admin: ${error.message}`)
-        return
-      }
-
-      allSystemStreets = dedupeStreets(data || [])
-      renderStreetCheckboxes()
-    }
-
-    async function loadSelectedUserAssignments() {
-      if (!isAdmin()) return
-
-      const selectedUserId = adminUserSelectEl.value
-
-      if (!selectedUserId) {
-        selectedAdminUserAssignments = []
-        renderStreetCheckboxes()
-        return
-      }
-
-      const { data, error } = await supabase
-        .from('user_street_assignments')
-        .select('id, user_id, street_id, is_active')
-        .eq('user_id', selectedUserId)
-        .eq('is_active', true)
-
-      if (error) {
-        setStatus(`Greška assignments: ${error.message}`)
-        return
-      }
-
-      selectedAdminUserAssignments = data || []
-
-      const selectedUser = allProfiles.find(p => String(p.id) === String(selectedUserId))
-      if (selectedUser) adminRoleSelectEl.value = selectedUser.role || 'viewer'
-
-      renderStreetCheckboxes()
-    }
-
-    async function saveSelectedUserRole() {
-      if (!isAdmin()) {
-        setStatus('Samo admin može menjati role.')
-        return
-      }
-
-      const selectedUserId = adminUserSelectEl.value
-      const selectedRole = adminRoleSelectEl.value
-
-      if (!selectedUserId) {
-        setStatus('Izaberi korisnika.')
-        return
-      }
-
-      saveUserRoleBtn.disabled = true
-      saveUserRoleBtn.textContent = 'Čuvam rolu...'
-
-      try {
-        const { error } = await supabase
-          .from('profiles')
-          .update({ role: selectedRole })
-          .eq('id', selectedUserId)
-
-        if (error) throw error
-
-        await loadAdminProfiles()
-        setStatus(`✅ Rola korisnika je sačuvana: ${selectedRole}`)
-      } catch (err) {
-        setStatus(`❌ Greška role: ${err.message}`)
-      } finally {
-        saveUserRoleBtn.disabled = false
-        saveUserRoleBtn.textContent = 'Sačuvaj rolu'
-      }
-    }
-
-    async function saveSelectedUserAssignments() {
-      if (!isAdmin()) {
-        setStatus('Samo admin može menjati dodele ulica.')
-        return
-      }
-
-      const selectedUserId = adminUserSelectEl.value
-      if (!selectedUserId) {
-        setStatus('Izaberi korisnika.')
-        return
-      }
-
-      const checkedStreetIds = Array.from(
-        adminStreetCheckboxesEl.querySelectorAll('input[type="checkbox"]:checked')
-      ).map(input => input.value)
-
-      saveAssignmentsBtn.disabled = true
-      saveAssignmentsBtn.textContent = 'Čuvam dodele...'
-
-      try {
-        const { data: existing, error: existingError } = await supabase
-          .from('user_street_assignments')
-          .select('id, street_id, is_active')
-          .eq('user_id', selectedUserId)
-
-        if (existingError) throw existingError
-
-        const existingRows = existing || []
-        const existingByStreet = new Map(existingRows.map(row => [String(row.street_id), row]))
-        const checkedSet = new Set(checkedStreetIds.map(String))
-
-        const idsToDeactivate = existingRows
-          .filter(row => row.is_active && !checkedSet.has(String(row.street_id)))
-          .map(row => row.id)
-
-        const idsToReactivate = existingRows
-          .filter(row => !row.is_active && checkedSet.has(String(row.street_id)))
-          .map(row => row.id)
-
-        const rowsToInsert = checkedStreetIds
-          .filter(streetId => !existingByStreet.has(String(streetId)))
-          .map(streetId => ({
-            user_id: selectedUserId,
-            street_id: streetId,
-            is_active: true
-          }))
-
-        if (idsToDeactivate.length) {
-          const { error } = await supabase
-            .from('user_street_assignments')
-            .update({ is_active: false })
-            .in('id', idsToDeactivate)
-          if (error) throw error
-        }
-
-        if (idsToReactivate.length) {
-          const { error } = await supabase
-            .from('user_street_assignments')
-            .update({ is_active: true })
-            .in('id', idsToReactivate)
-          if (error) throw error
-        }
-
-        if (rowsToInsert.length) {
-          const { error } = await supabase
-            .from('user_street_assignments')
-            .insert(rowsToInsert)
-          if (error) throw error
-        }
-
-        await loadSelectedUserAssignments()
-        await loadAllowedStreets()
-        setStatus(`✅ Sačuvane dodele ulica. Ukupno aktivnih: ${checkedStreetIds.length}`)
-      } catch (err) {
-        setStatus(`❌ Greška assignments save: ${err.message}`)
-      } finally {
-        saveAssignmentsBtn.disabled = false
-        saveAssignmentsBtn.textContent = 'Sačuvaj dodeljene ulice'
-      }
-    }
-
- async function createNewUserProfile() {
-  if (!isAdmin()) {
-    setStatus('Samo admin može dodavati novog korisnika.')
-    return
   }
 
-  const email = newUserEmailEl.value.trim().toLowerCase()
-  const fullname = newUserFullnameEl.value.trim()
-  const role = newUserRoleEl.value
-  const password = newUserPasswordEl.value.trim()
+  async function loadAddresses() {
+    let query = supabase
+      .from('addresses')
+      .select(`
+        id,
+        street_id,
+        house_number,
+        house_number_suffix,
+        full_address_label,
+        address_type,
+        census_status,
+        is_active,
+        created_by,
+        updated_by,
+        streets (
+          id,
+          name,
+          settlement_name
+        )
+      `)
+      .order('id', { ascending: false })
 
-  if (!email || !fullname || !role || !password) {
-    setStatus('Unesi email, ime i prezime, rolu i privremenu lozinku.')
-    return
-  }
+    if (!isAdmin()) {
+      const allowedStreetIds = availableStreets.map(s => s.id).filter(Boolean)
 
-  createNewUserBtn.disabled = true
-  createNewUserBtn.textContent = 'Kreiram korisnika...'
-  setStatus('Kreiram korisnika...')
+      if (!allowedStreetIds.length) {
+        allAddresses = []
+        currentPage = 1
+        renderAddresses()
+        return
+      }
 
-  try {
-    const { data: sessionData, error: sessionError } = await supabase.auth.getSession()
-    if (sessionError) throw sessionError
-
-    const accessToken = sessionData?.session?.access_token
-    if (!accessToken) {
-      throw new Error('Nema aktivne sesije. Prijavi se ponovo.')
+      query = query.in('street_id', allowedStreetIds)
     }
 
-    const { data, error } = await supabase.functions.invoke('create-user', {
-      body: { email, password, fullname, role },
-      headers: {
-        Authorization: `Bearer ${accessToken}`
-      }
-    })
+    const { data, error } = await query
 
     if (error) {
-      throw error
+      addressesEl.innerHTML = `<div class="empty">Greška: ${error.message}</div>`
+      return
     }
 
-    setStatus(`Korisnik uspešno dodat: ${data?.email ?? email}`)
-
-    newUserEmailEl.value = ''
-    newUserFullnameEl.value = ''
-    newUserPasswordEl.value = ''
-    newUserRoleEl.value = 'viewer'
-
-    await loadAdminProfiles()
-  } catch (err) {
-    setStatus(`Greška: ${err.message}`)
-  } finally {
-    createNewUserBtn.disabled = false
-    createNewUserBtn.textContent = 'Dodaj / poveži usera'
+    allAddresses = data || []
+    currentPage = 1
+    renderAddresses()
   }
-}
 
-
-    async function loadAllowedStreets() {
-      if (!currentProfile) return
-
-      let query = supabase
-        .from('streets')
-        .select('id, name, settlement_name, is_active')
-        .eq('is_active', true)
-
-      if (currentProfile.role !== 'admin') {
-        const { data: assignments, error: assignmentError } = await supabase
-          .from('user_street_assignments')
-          .select('street_id')
-          .eq('user_id', currentUser.id)
-          .eq('is_active', true)
-
-        if (assignmentError) {
-          setStatus(`Greška assignments: ${assignmentError.message}`)
-          return
-        }
-
-        const uniqueIds = [...new Set((assignments || []).map(a => a.street_id).filter(Boolean))]
-
-        if (uniqueIds.length === 0) {
-          streetSelectEl.innerHTML = '<option value="">Nema dozvoljenih ulica</option>'
-          assignedStreetsEl.innerHTML = '<li>Nema dodeljenih ulica</li>'
-          availableStreets = []
-          populateStreetFilters()
-          return
-        }
-
-        query = query.in('id', uniqueIds)
-      }
-
-      const { data, error } = await query.order('name', { ascending: true })
-
-      if (error) {
-        setStatus(`Greška ulice: ${error.message}`)
-        return
-      }
-
-      availableStreets = dedupeStreets(data || [])
-
-      streetSelectEl.innerHTML = `
-        <option value="">Izaberi ulicu</option>
-        ${availableStreets.map(s => `<option value="${s.id}">${cleanStreetName(s.name)}</option>`).join('')}
-      `
-
-      assignedStreetsEl.innerHTML = availableStreets.length
-        ? availableStreets.map(s => `<li>${cleanStreetName(s.name)}</li>`).join('')
-        : '<li>Nema dodeljenih ulica</li>'
-
-      populateStreetFilters()
+  async function saveAddress() {
+    if (!canEdit()) {
+      setStatus('❌ Nemaš dozvolu za unos adrese.')
+      return
     }
 
-    async function loadDashboardStats() {
-      let addressQuery = supabase
+    const street_id = streetSelectEl.value
+    const house_number = houseNumberEl.value.trim()
+    const house_number_suffix = houseSuffixEl.value.trim()
+    const full_address_label = addressLabelEl.value.trim()
+    const address_type = addressTypeEl.value
+
+    if (!street_id || !house_number || !full_address_label || !address_type) {
+      setStatus('❌ Popuni sva obavezna polja!')
+      return
+    }
+
+    saveBtn.disabled = true
+    saveBtn.textContent = 'Čuvam...'
+
+    try {
+      const { data: existing, error: existingError } = await supabase
         .from('addresses')
-        .select(`
-          id,
-          street_id,
-          census_status,
-          streets (
-            id,
-            name,
-            settlement_name
-          )
-        `)
+        .select('id')
+        .eq('street_id', street_id)
+        .eq('full_address_label', full_address_label)
+        .maybeSingle()
 
-      if (!isAdmin()) {
-        const allowedStreetIds = availableStreets.map(s => s.id).filter(Boolean)
-        if (!allowedStreetIds.length) {
-          statsCardsEl.innerHTML = `
-            <div class="stat-card"><h3>Ukupno adresa</h3><div class="stat-value">0</div></div>
-            <div class="stat-card"><h3>Pending</h3><div class="stat-value">0</div></div>
-            <div class="stat-card"><h3>Visited</h3><div class="stat-value">0</div></div>
-            <div class="stat-card"><h3>Refused + Scheduled</h3><div class="stat-value">0</div></div>
-          `
-          streetStatsEl.innerHTML = '<div class="empty">Nema statistike po ulicama.</div>'
-          return
-        }
-        addressQuery = addressQuery.in('street_id', allowedStreetIds)
-      }
+      if (existingError) throw existingError
 
-      const { data: addresses, error: addrError } = await addressQuery
-
-      if (addrError) {
-        statsCardsEl.innerHTML = `<div class="empty">Greška statistika: ${addrError.message}</div>`
+      if (existing) {
+        setStatus('⚠️ Adresa već postoji!')
         return
       }
 
-      const rows = addresses || []
-      const total = rows.length
-      const pending = rows.filter(a => a.census_status === 'pending').length
-      const visited = rows.filter(a => a.census_status === 'visited').length
-      const other = rows.filter(a => a.census_status === 'refused' || a.census_status === 'scheduled').length
+      const { error } = await supabase
+        .from('addresses')
+        .insert([{
+          street_id,
+          house_number,
+          house_number_suffix: house_number_suffix || null,
+          full_address_label,
+          address_type,
+          census_status: 'pending',
+          is_active: true,
+          created_by: currentUser.id,
+          updated_by: currentUser.id
+        }])
 
-      statsCardsEl.innerHTML = `
-        <div class="stat-card"><h3>Ukupno adresa</h3><div class="stat-value">${total}</div></div>
-        <div class="stat-card"><h3>Pending</h3><div class="stat-value">${pending}</div></div>
-        <div class="stat-card"><h3>Visited</h3><div class="stat-value">${visited}</div></div>
-        <div class="stat-card"><h3>Refused + Scheduled</h3><div class="stat-value">${other}</div></div>
-      `
+      if (error) throw error
 
-      renderStreetStatsFromAddresses(rows)
+      resetForm()
+      setStatus('✅ Adresa sačuvana!')
+      await loadAddresses()
+      await loadDashboardStats()
+    } catch (err) {
+      setStatus(`❌ Greška: ${err.message}`)
+    } finally {
+      saveBtn.disabled = false
+      saveBtn.textContent = 'Sačuvaj adresu'
+    }
+  }
+
+  async function updateAddress() {
+    if (!canEdit()) {
+      setStatus('❌ Nemaš dozvolu za izmenu adrese.')
+      return
     }
 
-    async function updateCensusStatus(addressId, newStatus) {
-      if (!canEdit()) {
-        setStatus('❌ Nemaš dozvolu za promenu statusa.')
+    if (!editingAddressId) {
+      setStatus('❌ Nije izabrana adresa za izmenu.')
+      return
+    }
+
+    const street_id = streetSelectEl.value
+    const house_number = houseNumberEl.value.trim()
+    const house_number_suffix = houseSuffixEl.value.trim()
+    const full_address_label = addressLabelEl.value.trim()
+    const address_type = addressTypeEl.value
+
+    if (!street_id || !house_number || !full_address_label || !address_type) {
+      setStatus('❌ Popuni sva obavezna polja!')
+      return
+    }
+
+    updateBtn.disabled = true
+    updateBtn.textContent = 'Čuvam izmene...'
+
+    try {
+      const { data: existing, error: checkError } = await supabase
+        .from('addresses')
+        .select('id')
+        .eq('street_id', street_id)
+        .eq('full_address_label', full_address_label)
+        .neq('id', editingAddressId)
+        .maybeSingle()
+
+      if (checkError) throw checkError
+
+      if (existing) {
+        setStatus('⚠️ Već postoji druga adresa sa istim nazivom na toj ulici.')
         return
       }
-
-      setStatus('Čuvam status...')
 
       const { error } = await supabase
         .from('addresses')
         .update({
-          census_status: newStatus,
-          updated_by: currentUser.id
-        })
-        .eq('id', addressId)
-
-      if (error) {
-        setStatus(`❌ Greška pri promeni statusa: ${error.message}`)
-        return
-      }
-
-      setStatus('✅ Status uspešno ažuriran.')
-      await loadAddresses()
-      await loadDashboardStats()
-    }
-
-    async function loadAddresses() {
-      let query = supabase
-        .from('addresses')
-        .select(`
-          id,
           street_id,
           house_number,
-          house_number_suffix,
+          house_number_suffix: house_number_suffix || null,
           full_address_label,
           address_type,
-          census_status,
-          is_active,
-          created_by,
-          updated_by,
-          streets (
-            id,
-            name,
-            settlement_name
-          )
-        `)
-        .order('id', { ascending: false })
+          updated_by: currentUser.id
+        })
+        .eq('id', editingAddressId)
 
-      if (!isAdmin()) {
-        const allowedStreetIds = availableStreets.map(s => s.id).filter(Boolean)
+      if (error) throw error
 
-        if (!allowedStreetIds.length) {
-          allAddresses = []
-          currentPage = 1
-          renderAddresses()
-          return
-        }
-
-        query = query.in('street_id', allowedStreetIds)
-      }
-
-      const { data, error } = await query
-
-      if (error) {
-        addressesEl.innerHTML = `<div class="empty">Greška: ${error.message}</div>`
-        return
-      }
-
-      allAddresses = data || []
-      currentPage = 1
-      renderAddresses()
-    }
-
-    async function saveAddress() {
-      if (!canEdit()) {
-        setStatus('❌ Nemaš dozvolu za unos adrese.')
-        return
-      }
-
-      const street_id = streetSelectEl.value
-      const house_number = houseNumberEl.value.trim()
-      const house_number_suffix = houseSuffixEl.value.trim()
-      const full_address_label = addressLabelEl.value.trim()
-      const address_type = addressTypeEl.value
-
-      if (!street_id || !house_number || !full_address_label || !address_type) {
-        setStatus('❌ Popuni sva obavezna polja!')
-        return
-      }
-
-      saveBtn.disabled = true
-      saveBtn.textContent = 'Čuvam...'
-
-      try {
-        const { data: existing, error: existingError } = await supabase
-          .from('addresses')
-          .select('id')
-          .eq('street_id', street_id)
-          .eq('full_address_label', full_address_label)
-          .maybeSingle()
-
-        if (existingError) throw existingError
-
-        if (existing) {
-          setStatus('⚠️ Adresa već postoji!')
-          return
-        }
-
-        const { error } = await supabase
-          .from('addresses')
-          .insert([{
-            street_id,
-            house_number,
-            house_number_suffix: house_number_suffix || null,
-            full_address_label,
-            address_type,
-            census_status: 'pending',
-            is_active: true,
-            created_by: currentUser.id,
-            updated_by: currentUser.id
-          }])
-
-        if (error) throw error
-
-        resetForm()
-        setStatus('✅ Adresa sačuvana!')
-        await loadAddresses()
-        await loadDashboardStats()
-      } catch (err) {
-        setStatus(`❌ Greška: ${err.message}`)
-      } finally {
-        saveBtn.disabled = false
-        saveBtn.textContent = 'Sačuvaj adresu'
-      }
-    }
-
-    async function updateAddress() {
-      if (!canEdit()) {
-        setStatus('❌ Nemaš dozvolu za izmenu adrese.')
-        return
-      }
-
-      if (!editingAddressId) {
-        setStatus('❌ Nije izabrana adresa za izmenu.')
-        return
-      }
-
-      const street_id = streetSelectEl.value
-      const house_number = houseNumberEl.value.trim()
-      const house_number_suffix = houseSuffixEl.value.trim()
-      const full_address_label = addressLabelEl.value.trim()
-      const address_type = addressTypeEl.value
-
-      if (!street_id || !house_number || !full_address_label || !address_type) {
-        setStatus('❌ Popuni sva obavezna polja!')
-        return
-      }
-
-      updateBtn.disabled = true
-      updateBtn.textContent = 'Čuvam izmene...'
-
-      try {
-        const { data: existing, error: checkError } = await supabase
-          .from('addresses')
-          .select('id')
-          .eq('street_id', street_id)
-          .eq('full_address_label', full_address_label)
-          .neq('id', editingAddressId)
-          .maybeSingle()
-
-        if (checkError) throw checkError
-
-        if (existing) {
-          setStatus('⚠️ Već postoji druga adresa sa istim nazivom na toj ulici.')
-          return
-        }
-
-        const { error } = await supabase
-          .from('addresses')
-          .update({
-            street_id,
-            house_number,
-            house_number_suffix: house_number_suffix || null,
-            full_address_label,
-            address_type,
-            updated_by: currentUser.id
-          })
-          .eq('id', editingAddressId)
-
-        if (error) throw error
-
-        setStatus('✅ Adresa uspešno izmenjena.')
-        exitEditMode()
-        await loadAddresses()
-        await loadDashboardStats()
-      } catch (err) {
-        setStatus(`❌ Greška pri izmeni: ${err.message}`)
-      } finally {
-        updateBtn.disabled = false
-        updateBtn.textContent = 'Sačuvaj izmene'
-      }
-    }
-
-    async function deleteAddress(id, label) {
-      if (!canEdit()) {
-        setStatus('❌ Nemaš dozvolu za brisanje adrese.')
-        return
-      }
-
-      const confirmed = confirm(`Da li sigurno želiš da obrišeš adresu "${label}"?`)
-      if (!confirmed) return
-
-      try {
-        const { error } = await supabase
-          .from('addresses')
-          .delete()
-          .eq('id', id)
-
-        if (error) throw error
-
-        if (String(editingAddressId) === String(id)) {
-          exitEditMode()
-        }
-
-        setStatus(`🗑️ Adresa "${label}" je obrisana.`)
-        await loadAddresses()
-        await loadDashboardStats()
-      } catch (err) {
-        setStatus(`❌ Greška pri brisanju: ${err.message}`)
-      }
-    }
-
-    async function deleteDuplicateAddresses() {
-      if (!isAdmin()) {
-        setStatus('❌ Samo admin može brisati duplikate.')
-        return
-      }
-
-      if (!confirm('Da li si siguran? Ovo će obrisati sve duplikate i ostaviti samo prvu adresu za isti street_id + full_address_label.')) return
-
-      deleteDuplicatesBtn.disabled = true
-      deleteDuplicatesBtn.textContent = '⏳ Brišem...'
-      setStatus('Tražim duplikate...')
-
-      try {
-        const { data: all, error } = await supabase
-          .from('addresses')
-          .select('id, street_id, full_address_label')
-          .order('id', { ascending: true })
-
-        if (error) throw error
-
-        const seen = new Map()
-        const toDelete = []
-
-        for (const row of all || []) {
-          const key = `${row.street_id}||${(row.full_address_label || '').toLowerCase().trim()}`
-          if (seen.has(key)) {
-            toDelete.push(row.id)
-          } else {
-            seen.set(key, row.id)
-          }
-        }
-
-        if (toDelete.length === 0) {
-          setStatus('✅ Nema duplikata za brisanje!')
-          return
-        }
-
-        const batchSize = 50
-
-        for (let i = 0; i < toDelete.length; i += batchSize) {
-          const batch = toDelete.slice(i, i + batchSize)
-          const { error: delErr } = await supabase
-            .from('addresses')
-            .delete()
-            .in('id', batch)
-
-          if (delErr) throw delErr
-        }
-
-        setStatus(`🗑️ Obrišeno ${toDelete.length} duplikata! Lista je osvežena.`)
-        await loadAddresses()
-        await loadDashboardStats()
-      } catch (err) {
-        setStatus(`❌ Greška pri brisanju: ${err.message}`)
-      } finally {
-        deleteDuplicatesBtn.disabled = false
-        deleteDuplicatesBtn.textContent = '🗑️ Obriši duplikate'
-      }
-    }
-
-    async function initApp() {
-      setStatus('Pokretanje...')
-      const ok = await loadCurrentUserAndProfile()
-
-      if (ok) {
-        await loadAllowedStreets()
-        await loadAddresses()
-        await loadDashboardStats()
-
-        if (isAdmin()) {
-          await loadAdminProfiles()
-          await loadAllSystemStreets()
-        }
-
-        setStatus(`✅ Spreman za rad! Aktivna rola: ${getRole()}`)
-      } else {
-        setStatus('Nisi prijavljen. Pošalji magic link za pristup.')
-      }
-    }
-
-    loginBtn.addEventListener('click', signInWithMagicLink)
-    passwordLoginBtn.addEventListener('click', signInWithPassword)
-   logoutBtn.addEventListener('click', async () => {
-  await supabase.auth.signOut()
-  renderLoggedOut()
-  setStatus('Uspešno si odjavljen.')
-})
-
-
-    saveBtn.addEventListener('click', saveAddress)
-    updateBtn.addEventListener('click', updateAddress)
-    cancelEditBtn.addEventListener('click', () => exitEditMode())
-    deleteDuplicatesBtn.addEventListener('click', deleteDuplicateAddresses)
-
-    refreshStreetsBtn.addEventListener('click', async () => {
-      if (!isAdmin()) {
-        setStatus('❌ Samo admin može osvežavati ulice ručno.')
-        return
-      }
-      setStatus('Osvežavam ulice...')
-      await loadAllowedStreets()
-      await loadAllSystemStreets()
+      setStatus('✅ Adresa uspešno izmenjena.')
+      exitEditMode()
+      await loadAddresses()
       await loadDashboardStats()
-      await loadSelectedUserAssignments()
-      setStatus(`✅ Ulice osvežene. Ukupno: ${availableStreets.length}`)
-    })
-
-    refreshAdminPanelBtn.addEventListener('click', async () => {
-      if (!isAdmin()) return
-      setStatus('Osvežavam admin panel...')
-      await loadAdminProfiles()
-      await loadAllSystemStreets()
-      await loadSelectedUserAssignments()
-      setStatus('✅ Admin panel osvežen.')
-    })
-
-   adminUserSelectEl.addEventListener('change', async () => {
-  const selectedUserId = adminUserSelectEl.value
-  const selectedUser = allProfiles.find(p => String(p.id) === String(selectedUserId))
-
-  if (selectedUser) {
-    newUserEmailEl.value = selectedUser.email || ''
-    newUserFullnameEl.value = selectedUser.fullname || ''
-    newUserRoleEl.value = selectedUser.role || 'viewer'
-    adminRoleSelectEl.value = selectedUser.role || 'viewer'
-  } else {
-    newUserEmailEl.value = ''
-    newUserFullnameEl.value = ''
-    newUserRoleEl.value = 'viewer'
-    adminRoleSelectEl.value = 'viewer'
+    } catch (err) {
+      setStatus(`❌ Greška pri izmeni: ${err.message}`)
+    } finally {
+      updateBtn.disabled = false
+      updateBtn.textContent = 'Sačuvaj izmene'
+    }
   }
 
-  await loadSelectedUserAssignments()
-})
+  async function deleteAddress(id, label) {
+    if (!canEdit()) {
+      setStatus('❌ Nemaš dozvolu za brisanje adrese.')
+      return
+    }
 
-    saveUserRoleBtn.addEventListener('click', saveSelectedUserRole)
-    saveAssignmentsBtn.addEventListener('click', saveSelectedUserAssignments)
-   createNewUserBtn.addEventListener('click', createNewUserProfile)
+    const confirmed = confirm(`Da li sigurno želiš da obrišeš adresu "${label}"?`)
+    if (!confirmed) return
 
-    applyFiltersBtn.addEventListener('click', () => {
-      currentPage = 1
-      renderAddresses()
-      setStatus('✅ Filteri primenjeni.')
-    })
+    try {
+      const { error } = await supabase
+        .from('addresses')
+        .delete()
+        .eq('id', id)
 
-    resetFiltersBtn.addEventListener('click', () => {
-      filterStreetEl.value = ''
-      filterStatusEl.value = ''
-      searchInputEl.value = ''
-      currentPage = 1
-      renderAddresses()
-      setStatus('✅ Filteri resetovani.')
-    })
+      if (error) throw error
 
-    exportCsvBtn.addEventListener('click', exportFilteredCsv)
-    exportExcelBtn.addEventListener('click', exportFilteredExcel)
-    printBtn.addEventListener('click', printFilteredView)
-
-    streetSelectEl.addEventListener('change', updateAddressLabel)
-    houseNumberEl.addEventListener('input', updateAddressLabel)
-    houseSuffixEl.addEventListener('input', updateAddressLabel)
-
-    supabase.auth.onAuthStateChange(async (event) => {
-      if (event === 'SIGNED_IN') await initApp()
-      if (event === 'SIGNED_OUT') {
-        renderLoggedOut()
-        setStatus('Uspešno si odjavljen.')
+      if (String(editingAddressId) === String(id)) {
+        exitEditMode()
       }
-    })
 
-    initApp()
-  </script>
+      setStatus(`🗑️ Adresa "${label}" je obrisana.`)
+      await loadAddresses()
+      await loadDashboardStats()
+    } catch (err) {
+      setStatus(`❌ Greška pri brisanju: ${err.message}`)
+    }
+  }
+
+  async function deleteDuplicateAddresses() {
+    if (!isAdmin()) {
+      setStatus('❌ Samo admin može brisati duplikate.')
+      return
+    }
+
+    if (!confirm('Da li si siguran? Ovo će obrisati sve duplikate i ostaviti samo prvu adresu za isti street_id + full_address_label.')) return
+
+    deleteDuplicatesBtn.disabled = true
+    deleteDuplicatesBtn.textContent = '⏳ Brišem...'
+    setStatus('Tražim duplikate...')
+
+    try {
+      const { data: all, error } = await supabase
+        .from('addresses')
+        .select('id, street_id, full_address_label')
+        .order('id', { ascending: true })
+
+      if (error) throw error
+
+      const seen = new Map()
+      const toDelete = []
+
+      for (const row of all || []) {
+        const key = `${row.street_id}||${(row.full_address_label || '').toLowerCase().trim()}`
+        if (seen.has(key)) {
+          toDelete.push(row.id)
+        } else {
+          seen.set(key, row.id)
+        }
+      }
+
+      if (toDelete.length === 0) {
+        setStatus('✅ Nema duplikata za brisanje!')
+        return
+      }
+
+      const batchSize = 50
+
+      for (let i = 0; i < toDelete.length; i += batchSize) {
+        const batch = toDelete.slice(i, i + batchSize)
+        const { error: delErr } = await supabase
+          .from('addresses')
+          .delete()
+          .in('id', batch)
+
+        if (delErr) throw delErr
+      }
+
+      setStatus(`🗑️ Obrišeno ${toDelete.length} duplikata! Lista je osvežena.`)
+      await loadAddresses()
+      await loadDashboardStats()
+    } catch (err) {
+      setStatus(`❌ Greška pri brisanju: ${err.message}`)
+    } finally {
+      deleteDuplicatesBtn.disabled = false
+      deleteDuplicatesBtn.textContent = '🗑️ Obriši duplikate'
+    }
+  }
+
+  async function initApp() {
+    setStatus('Pokretanje...')
+    const ok = await loadCurrentUserAndProfile()
+
+    if (ok) {
+      await loadAllowedStreets()
+      await loadAddresses()
+      await loadDashboardStats()
+
+      if (isAdmin()) {
+        await loadAdminProfiles()
+        await loadAllSystemStreets()
+      }
+
+      setStatus(`✅ Spreman za rad! Aktivna rola: ${getRole()}`)
+    } else {
+      setStatus('Nisi prijavljen. Pošalji magic link za pristup.')
+    }
+  }
+
+  loginBtn.addEventListener('click', signInWithMagicLink)
+  passwordLoginBtn.addEventListener('click', signInWithPassword)
+
+  logoutBtn.addEventListener('click', async () => {
+    await supabase.auth.signOut()
+    renderLoggedOut()
+    setStatus('Uspešno si odjavljen.')
+  })
+
+  saveBtn.addEventListener('click', saveAddress)
+  updateBtn.addEventListener('click', updateAddress)
+  cancelEditBtn.addEventListener('click', () => exitEditMode())
+  deleteDuplicatesBtn.addEventListener('click', deleteDuplicateAddresses)
+
+  refreshStreetsBtn.addEventListener('click', async () => {
+    if (!isAdmin()) {
+      setStatus('❌ Samo admin može osvežavati ulice ručno.')
+      return
+    }
+    setStatus('Osvežavam ulice...')
+    await loadAllowedStreets()
+    await loadAllSystemStreets()
+    await loadDashboardStats()
+    await loadSelectedUserAssignments()
+    setStatus(`✅ Ulice osvežene. Ukupno: ${availableStreets.length}`)
+  })
+
+  refreshAdminPanelBtn.addEventListener('click', async () => {
+    if (!isAdmin()) return
+    setStatus('Osvežavam admin panel...')
+    await loadAdminProfiles()
+    await loadAllSystemStreets()
+    await loadSelectedUserAssignments()
+    setStatus('✅ Admin panel osvežen.')
+  })
+
+  adminUserSelectEl.addEventListener('change', async () => {
+    const selectedUserId = adminUserSelectEl.value
+    const selectedUser = allProfiles.find(p => String(p.id) === String(selectedUserId))
+
+    if (selectedUser) {
+      newUserEmailEl.value = selectedUser.email || ''
+      newUserFullnameEl.value = selectedUser.fullname || ''
+      newUserRoleEl.value = selectedUser.role || 'viewer'
+      adminRoleSelectEl.value = selectedUser.role || 'viewer'
+    } else {
+      newUserEmailEl.value = ''
+      newUserFullnameEl.value = ''
+      newUserRoleEl.value = 'viewer'
+      adminRoleSelectEl.value = 'viewer'
+    }
+
+    await loadSelectedUserAssignments()
+  })
+
+  saveUserRoleBtn.addEventListener('click', saveSelectedUserRole)
+  saveAssignmentsBtn.addEventListener('click', saveSelectedUserAssignments)
+  createNewUserBtn.addEventListener('click', createNewUserProfile)
+
+  applyFiltersBtn.addEventListener('click', () => {
+    currentPage = 1
+    renderAddresses()
+    setStatus('✅ Filteri primenjeni.')
+  })
+
+  resetFiltersBtn.addEventListener('click', () => {
+    filterStreetEl.value = ''
+    filterStatusEl.value = ''
+    searchInputEl.value = ''
+    currentPage = 1
+    renderAddresses()
+    setStatus('✅ Filteri resetovani.')
+  })
+
+  exportCsvBtn.addEventListener('click', exportFilteredCsv)
+  exportExcelBtn.addEventListener('click', exportFilteredExcel)
+  printBtn.addEventListener('click', printFilteredView)
+
+  streetSelectEl.addEventListener('change', updateAddressLabel)
+  houseNumberEl.addEventListener('input', updateAddressLabel)
+  houseSuffixEl.addEventListener('input', updateAddressLabel)
+
+  supabase.auth.onAuthStateChange(async (event) => {
+    if (event === 'SIGNED_IN') await initApp()
+    if (event === 'SIGNED_OUT') {
+      renderLoggedOut()
+      setStatus('Uspešno si odjavljen.')
+    }
+  })
+
+  initApp()
+</script>
 </body>
 </html>
