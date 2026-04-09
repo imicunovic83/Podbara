@@ -1180,28 +1180,23 @@ window.sb = supabase
       setStatus('Prijava lozinkom...')
       passwordLoginBtn.disabled = true
 
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      })
+      try {
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password
+        })
 
-      console.log('LOGIN START');
+        if (error) {
+          setStatus(`Greška: ${error.message}`)
+          return
+        }
 
-const email = emailInputEl.value.trim();
-const password = passwordInputEl.value.trim();
-
-console.log('email entered:', email);
-console.log('password exists:', !!password);
-console.log('before signInWithPassword call');
-
-      passwordLoginBtn.disabled = false
-
-      if (error) {
-        setStatus(`Greška: ${error.message}`)
-        return
+        setStatus('✅ Uspešna prijava lozinkom.')
+      } catch (err) {
+        setStatus(`Greška: ${err.message}`)
+      } finally {
+        passwordLoginBtn.disabled = false
       }
-
-      setStatus('✅ Uspešna prijava lozinkom.')
     }
 
     function renderLoggedOut() {
@@ -1435,95 +1430,59 @@ console.log('before signInWithPassword call');
     }
 
  async function createNewUserProfile() {
-  if (!isAdmin()) {
-    setStatus('Samo admin može dodavati novog korisnika.');
-    return;
-  }
+      if (!isAdmin()) {
+        setStatus('Samo admin može dodavati novog korisnika.')
+        return
+      }
 
-  const email = newUserEmailEl.value.trim().toLowerCase();
-  const fullname = newUserFullnameEl.value.trim();
-  const role = newUserRoleEl.value;
-  const password = newUserPasswordEl.value.trim();
+      const email = newUserEmailEl.value.trim().toLowerCase()
+      const fullname = newUserFullnameEl.value.trim()
+      const role = newUserRoleEl.value
+      const password = newUserPasswordEl.value.trim()
 
-  if (!email || !fullname || !role || !password) {
-    setStatus('Unesi email, ime i prezime, rolu i privremenu lozinku.');
-    return;
-  }
+      if (!email || !fullname || !role || !password) {
+        setStatus('Unesi email, ime i prezime, rolu i privremenu lozinku.')
+        return
+      }
 
-  createNewUserBtn.disabled = true;
-  createNewUserBtn.textContent = 'Kreiram korisnika...';
-  setStatus('Kreiram korisnika...');
+      createNewUserBtn.disabled = true
+      createNewUserBtn.textContent = 'Kreiram korisnika...'
+      setStatus('Kreiram korisnika...')
 
-  try {
-    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+      try {
+        const { data: sessionData, error: sessionError } = await supabase.auth.getSession()
+        if (sessionError) throw sessionError
 
-    if (sessionError) {
-      throw sessionError;
+        const accessToken = sessionData?.session?.access_token
+        if (!accessToken) {
+          throw new Error('Nema aktivne sesije. Prijavi se ponovo.')
+        }
+
+        const { error } = await supabase.functions.invoke('create-user', {
+          body: { email, password, fullname, role },
+          headers: { Authorization: `Bearer ${accessToken}` }
+        })
+
+        if (error) throw error
+
+        setStatus('✅ Korisnik je uspešno kreiran.')
+        newUserEmailEl.value = ''
+        newUserFullnameEl.value = ''
+        newUserPasswordEl.value = ''
+        newUserRoleEl.value = 'viewer'
+        await loadAdminProfiles()
+      } catch (err) {
+        if (err.name === 'AbortError') {
+          setStatus('Greška: create-user funkcija nije odgovorila na vreme (timeout 15s).')
+        } else {
+          setStatus(`Greška: ${err.message}`)
+        }
+        console.error('createNewUserProfile error:', err)
+      } finally {
+        createNewUserBtn.disabled = false
+        createNewUserBtn.textContent = '➕ Dodaj / poveži usera'
+      }
     }
-
-    const accessToken = sessionData?.session?.access_token;
-
-    console.log('accessToken exists:', !!accessToken);
-console.log('accessToken preview:', accessToken?.slice(0, 20));
-console.log('is JWT format:', accessToken?.split('.').length === 3);
-
-    if (!accessToken) {
-      throw new Error('Nema aktivne sesije. Prijavi se ponovo.');
-    }
-
-     async function signInWithPassword() {
-  const email = emailInputEl.value.trim()
-  const password = passwordInputEl.value.trim()
-
-  console.log('LOGIN START')
-  console.log('email entered:', email)
-  console.log('password exists:', !!password)
-
-  if (!email || !password) {
-    setStatus('Unesi email i lozinku.')
-    return
-  }
-
-  setStatus('Prijava lozinkom...')
-  passwordLoginBtn.disabled = true
-
-  try {
-    console.log('before signInWithPassword call')
-
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    })
-
-    console.log('after signInWithPassword call')
-    console.log('login error:', error)
-    console.log('login data:', data)
-
-    if (error) {
-      setStatus(`Greška: ${error.message}`)
-      return
-    }
-
-    setStatus('✅ Uspešna prijava lozinkom.')
-  } catch (err) {
-    console.error('signInWithPassword exception:', err)
-    setStatus(`Greška: ${err.message}`)
-  } finally {
-    passwordLoginBtn.disabled = false
-  }
-}
-  } catch (err) {
-    if (err.name === 'AbortError') {
-      setStatus('Greška: create-user funkcija nije odgovorila na vreme (timeout 15s).');
-    } else {
-      setStatus(`Greška: ${err.message}`);
-    }
-    console.error('createNewUserProfile error:', err);
-  } finally {
-    createNewUserBtn.disabled = false;
-    createNewUserBtn.textContent = 'Dodaj / poveži usera';
-  }
-}
 
     async function loadAllowedStreets() {
       if (!currentProfile) return
