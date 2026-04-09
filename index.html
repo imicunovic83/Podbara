@@ -1462,42 +1462,44 @@ console.log('is JWT format:', accessToken?.split('.').length === 3);
       throw new Error('Nema aktivne sesije. Prijavi se ponovo.');
     }
 
-    const controller = new AbortController();
+       const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 15000);
 
-   let response;
+    let response;
 
-try {
-  console.log('create-user start');
-  console.log('email:', email);
-  console.log('role:', role);
-  console.log('using apikey:', !!supabase_key);
-  console.log('calling edge function...');
+    try {
+      console.log('create-user start');
+      console.log('email:', email);
+      console.log('role:', role);
+      console.log('using apikey:', !!supabase_key);
+      console.log('calling edge function...');
 
-  response = await fetch('https://wdmipyooncrcdmvlloou.supabase.co/functions/v1/create-user', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'apikey': supabase_key,
-      'Authorization': `Bearer ${accessToken}`,
-    },
-    body: JSON.stringify({
-      email,
-      password,
-      fullname,
-      role,
-    }),
-    signal: controller.signal,
-  });
+      response = await fetch('https://wdmipyooncrcdmvlloou.supabase.co/functions/v1/create-user', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': supabase_key,
+          'Authorization': `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          email,
+          password,
+          fullname,
+          role,
+        }),
+        signal: controller.signal,
+      });
 
-  console.log('response status:', response.status);
-  console.log('response ok:', response.ok);
-} finally {
-  clearTimeout(timeoutId);
-}
+      console.log('response status:', response.status);
+      console.log('response ok:', response.ok);
+    } finally {
+      clearTimeout(timeoutId);
+    }
 
     let result = null;
     const rawText = await response.text();
+
+    console.log('raw response text:', rawText);
 
     try {
       result = rawText ? JSON.parse(rawText) : null;
