@@ -503,8 +503,8 @@
 
     </div>
           <div class="field">
-            <label for="KućaSuffix">Dodatak broju</label>
-            <input id="KućaSuffix" type="text" placeholder="npr. A" />
+            <label for="houseSuffix">Dodatak broju</label>
+            <input id="houseSuffix" type="text" placeholder="npr. A" />
           </div>
           <div class="field">
             <label for="addressLabel">Puna adresa</label>
@@ -600,8 +600,8 @@
   const passwordLoginBtn = document.getElementById('passwordLoginBtn')
   const logoutBtn = document.getElementById('logoutBtn')
   const streetSelectEl = document.getElementById('streetSelect')
-  const KućaNumberEl = document.getElementById('KućaNumber')
-  const KućaSuffixEl = document.getElementById('KućaSuffix')
+  const houseNumberEl = document.getElementById('KućaNumber')
+  const houseSuffixEl = document.getElementById('houseSuffix')
   const addressLabelEl = document.getElementById('addressLabel')
   const addressTypeEl = document.getElementById('addressType')
   const saveBtn = document.getElementById('saveBtn')
@@ -708,16 +708,16 @@
 
   function resetForm() {
     streetSelectEl.value = ''
-    KućaNumberEl.value = ''
-    KućaSuffixEl.value = ''
+    houseNumberEl.value = ''
+    houseSuffixEl.value = ''
     addressLabelEl.value = ''
     addressTypeEl.value = 'Kuća'
   }
 
   function updateAddressLabel() {
     const sid = streetSelectEl.value
-    const num = KućaNumberEl.value.trim()
-    const suffix = KućaSuffixEl.value.trim()
+    const num = houseNumberEl.value.trim()
+    const suffix = houseSuffixEl.value.trim()
     const street = availableStreets.find(s => String(s.id) === String(sid))
     const name = cleanStreetName(street?.name || '')
     addressLabelEl.value = [name, num ? `${num}${suffix}` : ''].filter(Boolean).join(' ').trim()
@@ -731,8 +731,8 @@
 
     editingAddressId = item.id
     streetSelectEl.value = item.street_id ?? ''
-    KućaNumberEl.value = item.Kuća_number ?? ''
-    KućaSuffixEl.value = item.Kuća_number_suffix ?? ''
+    houseNumberEl.value = item.house_number ?? ''
+    houseSuffixEl.value = item.house_number_suffix ?? ''
     addressLabelEl.value = item.full_address_label ?? ''
     addressTypeEl.value = item.address_type ?? 'Kuća'
     formTitleEl.textContent = 'Izmena adrese'
@@ -818,7 +818,7 @@
     return allAddresses.filter(item => {
       const streetName = cleanStreetName(item.streets?.name || '').toLowerCase()
       const fullLabel = String(item.full_address_label || '').toLowerCase()
-      const KućaNumber = String(item.Kuća_number || '').toLowerCase()
+      const KućaNumber = String(item.house_number || '').toLowerCase()
 
       const matchStreet = !selectedStreet || String(item.street_id) === String(selectedStreet)
       const matchStatus = !selectedStatus || String(item.census_status) === String(selectedStatus)
@@ -878,8 +878,8 @@
             <h3>${item.full_address_label ?? 'Bez naziva'}</h3>
             <div class="addr-row"><span class="addr-label">Ulica:</span> ${cleanStreetName(item.streets?.name) || '-'}</div>
             <div class="addr-row"><span class="addr-label">Naselje:</span> ${item.streets?.settlement_name ?? '-'}</div>
-            <div class="addr-row"><span class="addr-label">Broj:</span> ${item.Kuća_number ?? '-'}</div>
-            <div class="addr-row"><span class="addr-label">Dodatak:</span> ${item.Kuća_number_suffix ?? '-'}</div>
+            <div class="addr-row"><span class="addr-label">Broj:</span> ${item.house_number ?? '-'}</div>
+            <div class="addr-row"><span class="addr-label">Dodatak:</span> ${item.house_number_suffix ?? '-'}</div>
             <div class="addr-row"><span class="addr-label">Tip:</span> ${item.address_type ?? '-'}</div>
             <div class="addr-row"><span class="addr-label">Aktivna:</span> ${item.is_active ? 'Da' : 'Ne'}</div>
             <div class="addr-row">
@@ -1001,8 +1001,8 @@
       rows.push([
         cleanStreetName(item.streets?.name || ''),
         item.streets?.settlement_name || '',
-        item.Kuća_number || '',
-        item.Kuća_number_suffix || '',
+        item.house_number || '',
+        item.house_number_suffix || '',
         item.full_address_label || '',
         item.address_type || '',
         getStatusLabel(item.census_status),
@@ -1027,8 +1027,8 @@
     const detailRows = filtered.map(item => ({
       Ulica: cleanStreetName(item.streets?.name || ''),
       Naselje: item.streets?.settlement_name || '',
-      Broj: item.Kuća_number || '',
-      Dodatak: item.Kuća_number_suffix || '',
+      Broj: item.house_number || '',
+      Dodatak: item.house_number_suffix || '',
       'Puna adresa': item.full_address_label || '',
       Tip: item.address_type || '',
       Status: getStatusLabel(item.census_status),
@@ -1102,8 +1102,8 @@
       <tr>
         <td>${cleanStreetName(item.streets?.name || '')}</td>
         <td>${item.streets?.settlement_name || ''}</td>
-        <td>${item.Kuća_number || ''}</td>
-        <td>${item.Kuća_number_suffix || ''}</td>
+        <td>${item.house_number || ''}</td>
+        <td>${item.house_number_suffix || ''}</td>
         <td>${item.full_address_label || ''}</td>
         <td>${item.address_type || ''}</td>
         <td>${getStatusLabel(item.census_status)}</td>
@@ -1664,8 +1664,8 @@
       .select(`
         id,
         street_id,
-        Kuća_number,
-        Kuća_number_suffix,
+        house_number,
+        house_number_suffix,
         full_address_label,
         address_type,
         census_status,
@@ -1712,12 +1712,12 @@
     }
 
     const street_id = streetSelectEl.value
-    const Kuća_number = KućaNumberEl.value.trim()
-    const Kuća_number_suffix = KućaSuffixEl.value.trim()
+    const house_number = houseNumberEl.value.trim()
+    const house_number_suffix = houseSuffixEl.value.trim()
     const full_address_label = addressLabelEl.value.trim()
     const address_type = addressTypeEl.value
 
-    if (!street_id || !Kuća_number || !full_address_label || !address_type) {
+    if (!street_id || !house_number || !full_address_label || !address_type) {
       setStatus('❌ Popuni sva obavezna polja!')
       return
     }
@@ -1744,8 +1744,8 @@
         .from('addresses')
         .insert([{
           street_id,
-          Kuća_number,
-          Kuća_number_suffix: Kuća_number_suffix || null,
+          house_number,
+          house_number_suffix: house_number_suffix || null,
           full_address_label,
           address_type,
           census_status: 'pending',
@@ -1780,12 +1780,12 @@
     }
 
     const street_id = streetSelectEl.value
-    const Kuća_number = KućaNumberEl.value.trim()
-    const Kuća_number_suffix = KućaSuffixEl.value.trim()
+    const house_number = houseNumberEl.value.trim()
+    const house_number_suffix = houseSuffixEl.value.trim()
     const full_address_label = addressLabelEl.value.trim()
     const address_type = addressTypeEl.value
 
-    if (!street_id || !Kuća_number || !full_address_label || !address_type) {
+    if (!street_id || !house_number || !full_address_label || !address_type) {
       setStatus('❌ Popuni sva obavezna polja!')
       return
     }
@@ -1813,8 +1813,8 @@
         .from('addresses')
         .update({
           street_id,
-          Kuća_number,
-          Kuća_number_suffix: Kuća_number_suffix || null,
+          house_number,
+          house_number_suffix: house_number_suffix || null,
           full_address_label,
           address_type,
           updated_by: currentUser.id
@@ -2023,8 +2023,8 @@
   printBtn.addEventListener('click', printFilteredView)
 
   streetSelectEl.addEventListener('change', updateAddressLabel)
-  KućaNumberEl.addEventListener('input', updateAddressLabel)
-  KućaSuffixEl.addEventListener('input', updateAddressLabel)
+  houseNumberEl.addEventListener('input', updateAddressLabel)
+  houseSuffixEl.addEventListener('input', updateAddressLabel)
 
   supabase.auth.onAuthStateChange((event) => {
   if (event === 'SIGNED_IN') {
