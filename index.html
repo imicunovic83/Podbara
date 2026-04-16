@@ -491,34 +491,43 @@
 
       <div id="editorSection" class="card-box">
         <h2 id="formTitle">Unos nove adrese</h2>
-        <div class="form-grid">
-          <div class="field">
-            <label for="streetSelect">Ulica</label>
-            <select id="streetSelect">
-              <option value="">Izaberi ulicu...</option>
-            </select>
-          </div>
-          <div class="field">
-            <label for="KućaNumber">Broj kuće</label>
-            <input id="KućaNumber" type="text" placeholder="npr. 15" />
+       <div class="form-grid">
+  <div class="field">
+    <label for="streetSelect">Ulica</label>
+    <select id="streetSelect">
+      <option value="">Izaberi ulicu...</option>
+    </select>
+  </div>
 
-    </div>
-          <div class="field">
-            <label for="houseSuffix">Dodatak broju</label>
-            <input id="houseSuffix" type="text" placeholder="npr. A" />
-          </div>
-          <div class="field">
-            <label for="addressLabel">Puna adresa</label>
-            <input id="addressLabel" type="text" placeholder="npr. Bele njive 15" />
-          </div>
-          <div class="field">
-            <label for="addressType">Tip adrese</label>
-            <select id="addressType">
-              <option value="Kuća">Kuća</option>
-              <option value="Zgrada">Zgrada</option>
-            </select>
-          </div>
-        </div>
+  <div class="field">
+    <label for="KućaNumber">Broj kuće</label>
+    <input id="KućaNumber" type="text" placeholder="npr. 15" />
+  </div>
+
+  <div class="field">
+    <label for="houseSuffix">Dodatak broju</label>
+    <input id="houseSuffix" type="text" placeholder="npr. A" />
+  </div>
+
+  <div class="field">
+    <label for="unitNumber" id="unitNumberLabel">Stan / jedinica</label>
+    <input id="unitNumber" type="text" placeholder="npr. 3 ili A2" />
+    <div id="unitNumberHelp" class="note">Za kuću opciono, za zgradu obavezno.</div>
+  </div>
+
+  <div class="field">
+    <label for="addressLabel">Puna adresa</label>
+   <input id="addressLabel" type="text" placeholder="npr. Bele njive 15 / 3" readonly />
+  </div>
+
+  <div class="field">
+    <label for="addressType">Tip adrese</label>
+    <select id="addressType">
+      <option value="Kuća">Kuća</option>
+      <option value="Zgrada">Zgrada</option>
+    </select>
+  </div>
+</div>
         <div class="actions">
           <button id="saveBtn" type="button">Sačuvaj adresu</button>
           <button id="updateBtn" type="button" class="btn-dark hidden">Sačuvaj izmene</button>
@@ -605,6 +614,8 @@
   const houseSuffixEl = document.getElementById('houseSuffix')
   const addressLabelEl = document.getElementById('addressLabel')
   const addressTypeEl = document.getElementById('addressType')
+  const unitNumberEl = document.getElementById('unitNumber')
+  const unitNumberLabelEl = document.getElementById('unitNumberLabel')
   const saveBtn = document.getElementById('saveBtn')
   const updateBtn = document.getElementById('updateBtn')
   const cancelEditBtn = document.getElementById('cancelEditBtn')
@@ -707,42 +718,83 @@
     })
   }
 
-  function resetForm() {
-    streetSelectEl.value = ''
-    houseNumberEl.value = ''
-    houseSuffixEl.value = ''
-    addressLabelEl.value = ''
-    addressTypeEl.value = 'Kuća'
+function resetForm() {
+  streetSelectEl.value = ''
+  houseNumberEl.value = ''
+  houseSuffixEl.value = ''
+  unitNumberEl.value = ''
+  addressLabelEl.value = ''
+  addressTypeEl.value = 'Kuća'
+  updateUnitFieldState()
+}
+function updateUnitFieldState() {
+  const isBuilding = addressTypeEl.value === 'Zgrada'
+
+  unitNumberEl.required = isBuilding
+
+  if (unitNumberLabelEl) {
+    unitNumberLabelEl.textContent = isBuilding
+      ? 'Stan / jedinica *'
+      : 'Stan / jedinica'
+  }
+}
+
+function validateUnitNumber() {
+  const isBuilding = addressTypeEl.value === 'Zgrada'
+  const unitNumber = unitNumberEl.value.trim()
+
+  if (isBuilding && !unitNumber) {
+    setStatus('❌ Za tip adrese "Zgrada" polje Stan / jedinica je obavezno.')
+    unitNumberEl.focus()
+    return false
   }
 
-  function updateAddressLabel() {
-    const sid = streetSelectEl.value
-    const num = houseNumberEl.value.trim()
-    const suffix = houseSuffixEl.value.trim()
-    const street = availableStreets.find(s => String(s.id) === String(sid))
-    const name = cleanStreetName(street?.name || '')
-    addressLabelEl.value = [name, num ? `${num}${suffix}` : ''].filter(Boolean).join(' ').trim()
+  return true
+}
+
+function formatFullAddress(streetName, houseNumber, houseSuffix, unitNumber) {
+  const numberPart = `${houseNumber || ''}${houseSuffix || ''}`.trim()
+  const baseAddress = [streetName, numberPart].filter(Boolean).join(' ').trim()
+
+  if (unitNumber) {
+    return `${baseAddress} / ${unitNumber}`.trim()
   }
+
+  return baseAddress
+}
+  
+ function updateAddressLabel() {
+  const sid = streetSelectEl.value
+  const num = houseNumberEl.value.trim()
+  const suffix = houseSuffixEl.value.trim()
+  const unitNumber = unitNumberEl.value.trim()
+  const street = availableStreets.find(s => String(s.id) === String(sid))
+  const name = cleanStreetName(street?.name || '')
+
+  addressLabelEl.value = formatFullAddress(name, num, suffix, unitNumber)
+}
 
   function enterEditMode(item) {
-    if (!canEdit()) {
-      setStatus('❌ Nemaš dozvolu za izmenu.')
-      return
-    }
-
-    editingAddressId = item.id
-    streetSelectEl.value = item.street_id ?? ''
-    houseNumberEl.value = item.house_number ?? ''
-    houseSuffixEl.value = item.house_number_suffix ?? ''
-    addressLabelEl.value = item.full_address_label ?? ''
-    addressTypeEl.value = item.address_type ?? 'Kuća'
-    formTitleEl.textContent = 'Izmena adrese'
-    saveBtn.classList.add('hidden')
-    updateBtn.classList.remove('hidden')
-    cancelEditBtn.classList.remove('hidden')
-    setStatus(`✏️ Menjaš adresu: ${item.full_address_label}`)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+  if (!canEdit()) {
+    setStatus('❌ Nemaš dozvolu za izmenu.')
+    return
   }
+
+  editingAddressId = item.id
+ streetSelectEl.value = item.street_id ?? ''
+houseNumberEl.value = item.house_number ?? ''
+houseSuffixEl.value = item.house_number_suffix ?? ''
+unitNumberEl.value = item.unit_number ?? ''
+addressLabelEl.value = item.full_address_label ?? ''
+addressTypeEl.value = item.address_type ?? 'Kuća'
+updateUnitFieldState()
+formTitleEl.textContent = 'Izmena adrese'
+  saveBtn.classList.add('hidden')
+  updateBtn.classList.remove('hidden')
+  cancelEditBtn.classList.remove('hidden')
+  setStatus(`✏️ Menjaš adresu: ${item.full_address_label}`)
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+}
 
   function exitEditMode(silent = false) {
     editingAddressId = null
@@ -812,22 +864,29 @@
   }
 
   function getFilteredAddresses() {
-    const selectedStreet = filterStreetEl.value
-    const selectedStatus = filterStatusEl.value
-    const search = searchInputEl.value.trim().toLowerCase()
+  const selectedStreet = filterStreetEl.value
+  const selectedStatus = filterStatusEl.value
+  const search = searchInputEl.value.trim().toLowerCase()
 
-    return allAddresses.filter(item => {
-      const streetName = cleanStreetName(item.streets?.name || '').toLowerCase()
-      const fullLabel = String(item.full_address_label || '').toLowerCase()
-      const KućaNumber = String(item.house_number || '').toLowerCase()
+  return allAddresses.filter(item => {
+    const streetName = cleanStreetName(item.streets?.name || '').toLowerCase()
+    const fullLabel = String(item.full_address_label || '').toLowerCase()
+    const KućaNumber = String(item.house_number || '').toLowerCase()
+    const unitNumber = String(item.unit_number || '').toLowerCase()
 
-      const matchStreet = !selectedStreet || String(item.street_id) === String(selectedStreet)
-      const matchStatus = !selectedStatus || String(item.census_status) === String(selectedStatus)
-      const matchSearch = !search || streetName.includes(search) || fullLabel.includes(search) || KućaNumber.includes(search)
+    const matchStreet = !selectedStreet || String(item.street_id) === String(selectedStreet)
+    const matchStatus = !selectedStatus || String(item.census_status) === String(selectedStatus)
 
-      return matchStreet && matchStatus && matchSearch
-    })
-  }
+    const matchSearch =
+      !search ||
+      streetName.includes(search) ||
+      fullLabel.includes(search) ||
+      KućaNumber.includes(search) ||
+      unitNumber.includes(search)
+
+    return matchStreet && matchStatus && matchSearch
+  })
+}
 
   function renderPagination(totalItems) {
     const totalPages = Math.max(1, Math.ceil(totalItems / pageSize))
@@ -879,14 +938,15 @@
             <h3>${item.full_address_label ?? 'Bez naziva'}</h3>
             <div class="addr-row"><span class="addr-label">Ulica:</span> ${cleanStreetName(item.streets?.name) || '-'}</div>
             <div class="addr-row"><span class="addr-label">Naselje:</span> ${item.streets?.settlement_name ?? '-'}</div>
-            <div class="addr-row"><span class="addr-label">Broj:</span> ${item.house_number ?? '-'}</div>
-            <div class="addr-row"><span class="addr-label">Dodatak:</span> ${item.house_number_suffix ?? '-'}</div>
-            <div class="addr-row"><span class="addr-label">Tip:</span> ${item.address_type ?? '-'}</div>
-            <div class="addr-row"><span class="addr-label">Aktivna:</span> ${item.is_active ? 'Da' : 'Ne'}</div>
-            <div class="addr-row">
-              <span class="addr-label">Status:</span>
-              <span class="status-badge ${getStatusClass(item.census_status)}">${getStatusLabel(item.census_status)}</span>
-            </div>
+  <div class="addr-row"><span class="addr-label">Broj:</span> ${item.house_number ?? '-'}</div>
+<div class="addr-row"><span class="addr-label">Dodatak:</span> ${item.house_number_suffix ?? '-'}</div>
+<div class="addr-row"><span class="addr-label">Stan / jedinica:</span> ${item.unit_number ?? '-'}</div>
+<div class="addr-row"><span class="addr-label">Tip:</span> ${item.address_type ?? '-'}</div>
+<div class="addr-row"><span class="addr-label">Aktivna:</span> ${item.is_active ? 'Da' : 'Ne'}</div>
+<div class="addr-row">
+  <span class="addr-label">Status:</span>
+  <span class="status-badge ${getStatusClass(item.census_status)}">${getStatusLabel(item.census_status)}</span>
+</div>
 
             ${canEdit() ? `
               <div class="status-editor">
@@ -994,16 +1054,17 @@
       return
     }
 
-    const rows = [
-      ['Ulica', 'Naselje', 'Broj', 'Dodatak', 'Puna adresa', 'Tip', 'Status', 'Aktivna']
-    ]
+   const rows = [
+  ['Ulica', 'Naselje', 'Broj', 'Dodatak', 'Stan / jedinica', 'Puna adresa', 'Tip', 'Status', 'Aktivna']
+]
 
-    filtered.forEach(item => {
+filtered.forEach(item => {
       rows.push([
         cleanStreetName(item.streets?.name || ''),
         item.streets?.settlement_name || '',
         item.house_number || '',
         item.house_number_suffix || '',
+        item.unit_number || '',
         item.full_address_label || '',
         item.address_type || '',
         getStatusLabel(item.census_status),
@@ -1026,15 +1087,16 @@
     }
 
     const detailRows = filtered.map(item => ({
-      Ulica: cleanStreetName(item.streets?.name || ''),
-      Naselje: item.streets?.settlement_name || '',
-      Broj: item.house_number || '',
-      Dodatak: item.house_number_suffix || '',
-      'Puna adresa': item.full_address_label || '',
-      Tip: item.address_type || '',
-      Status: getStatusLabel(item.census_status),
-      Aktivna: item.is_active ? 'Da' : 'Ne'
-    }))
+  Ulica: cleanStreetName(item.streets?.name || ''),
+  Naselje: item.streets?.settlement_name || '',
+  Broj: item.house_number || '',
+  Dodatak: item.house_number_suffix || '',
+  'Stan / jedinica': item.unit_number || '',
+  'Puna adresa': item.full_address_label || '',
+  Tip: item.address_type || '',
+  Status: getStatusLabel(item.census_status),
+  Aktivna: item.is_active ? 'Da' : 'Ne'
+}))
 
     const summaryMap = new Map()
 
@@ -1070,10 +1132,17 @@
     XLSX.utils.book_append_sheet(wb, wsDetails, 'Adrese')
     XLSX.utils.book_append_sheet(wb, wsSummary, 'Sumarni pregled')
 
-    wsDetails['!cols'] = [
-      { wch: 24 }, { wch: 18 }, { wch: 10 }, { wch: 10 },
-      { wch: 30 }, { wch: 12 }, { wch: 14 }, { wch: 10 }
-    ]
+   wsDetails['!cols'] = [
+  { wch: 24 }, // Ulica
+  { wch: 18 }, // Naselje
+  { wch: 10 }, // Broj
+  { wch: 10 }, // Dodatak
+  { wch: 16 }, // Stan / jedinica
+  { wch: 30 }, // Puna adresa
+  { wch: 12 }, // Tip
+  { wch: 14 }, // Status
+  { wch: 10 }  // Aktivna
+]
 
     wsSummary['!cols'] = [
       { wch: 24 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 10 }
@@ -1100,18 +1169,18 @@
     }
 
     const rowsHtml = filtered.map(item => `
-      <tr>
-        <td>${cleanStreetName(item.streets?.name || '')}</td>
-        <td>${item.streets?.settlement_name || ''}</td>
-        <td>${item.house_number || ''}</td>
-        <td>${item.house_number_suffix || ''}</td>
-        <td>${item.full_address_label || ''}</td>
-        <td>${item.address_type || ''}</td>
-        <td>${getStatusLabel(item.census_status)}</td>
-        <td>${item.is_active ? 'Da' : 'Ne'}</td>
-      </tr>
-    `).join('')
-
+  <tr>
+    <td>${cleanStreetName(item.streets?.name || '')}</td>
+    <td>${item.streets?.settlement_name || ''}</td>
+    <td>${item.house_number || ''}</td>
+    <td>${item.house_number_suffix || ''}</td>
+    <td>${item.unit_number || ''}</td>
+    <td>${item.full_address_label || ''}</td>
+    <td>${item.address_type || ''}</td>
+    <td>${getStatusLabel(item.census_status)}</td>
+    <td>${item.is_active ? 'Da' : 'Ne'}</td>
+  </tr>
+`).join('')
     printWindow.document.write(`
       <!DOCTYPE html>
       <html lang="sr">
@@ -1132,16 +1201,17 @@
         <p>Ukupno redova: ${filtered.length}</p>
         <table>
           <thead>
-            <tr>
-              <th>Ulica</th>
-              <th>Naselje</th>
-              <th>Broj</th>
-              <th>Dodatak</th>
-              <th>Puna adresa</th>
-              <th>Tip</th>
-              <th>Status</th>
-              <th>Aktivna</th>
-            </tr>
+          <tr>
+  <th>Ulica</th>
+  <th>Naselje</th>
+  <th>Broj</th>
+  <th>Dodatak</th>
+  <th>Stan / jedinica</th>
+  <th>Puna adresa</th>
+  <th>Tip</th>
+  <th>Status</th>
+  <th>Aktivna</th>
+</tr>
           </thead>
           <tbody>
             ${rowsHtml}
@@ -1664,16 +1734,17 @@
       .from('addresses')
       .select(`
         id,
-        street_id,
-        house_number,
-        house_number_suffix,
-        full_address_label,
-        address_type,
-        census_status,
-        is_active,
-        created_by,
-        updated_by,
-        streets (
+street_id,
+house_number,
+house_number_suffix,
+unit_number,
+full_address_label,
+address_type,
+census_status,
+is_active,
+created_by,
+updated_by,
+streets (
           id,
           name,
           settlement_name
@@ -1706,135 +1777,163 @@
     renderAddresses()
   }
 
-  async function saveAddress() {
-    if (!canEdit()) {
-      setStatus('❌ Nemaš dozvolu za unos adrese.')
-      return
-    }
-
-    const street_id = streetSelectEl.value
-    const house_number = houseNumberEl.value.trim()
-    const house_number_suffix = houseSuffixEl.value.trim()
-    const full_address_label = addressLabelEl.value.trim()
-    const address_type = addressTypeEl.value
-
-    if (!street_id || !house_number || !full_address_label || !address_type) {
-      setStatus('❌ Popuni sva obavezna polja!')
-      return
-    }
-
-    saveBtn.disabled = true
-    saveBtn.textContent = 'Čuvam...'
-
-    try {
-      const { data: existing, error: existingError } = await supabase
-        .from('addresses')
-        .select('id')
-        .eq('street_id', street_id)
-        .eq('full_address_label', full_address_label)
-        .maybeSingle()
-
-      if (existingError) throw existingError
-
-      if (existing) {
-        setStatus('⚠️ Adresa već postoji!')
-        return
-      }
-
-      const { error } = await supabase
-        .from('addresses')
-        .insert([{
-          street_id,
-          house_number,
-          house_number_suffix: house_number_suffix || null,
-          full_address_label,
-          address_type,
-          census_status: 'pending',
-          is_active: true,
-          created_by: currentUser.id,
-          updated_by: currentUser.id
-        }])
-
-      if (error) throw error
-
-      resetForm()
-      setStatus('✅ Adresa sačuvana!')
-      await loadAddresses()
-      await loadDashboardStats()
-    } catch (err) {
-      setStatus(`❌ Greška: ${err.message}`)
-    } finally {
-      saveBtn.disabled = false
-      saveBtn.textContent = 'Sačuvaj adresu'
-    }
+ async function saveAddress() {
+  if (!canEdit()) {
+    setStatus('❌ Nemaš dozvolu za unos adrese.')
+    return
   }
 
-  async function updateAddress() {
-    if (!canEdit()) {
-      setStatus('❌ Nemaš dozvolu za izmenu adrese.')
-      return
-    }
+  const street_id = streetSelectEl.value
+  const house_number = houseNumberEl.value.trim()
+  const house_number_suffix = houseSuffixEl.value.trim()
+  const unit_number = unitNumberEl.value.trim()
+  const address_type = addressTypeEl.value
 
-    if (!editingAddressId) {
-      setStatus('❌ Nije izabrana adresa za izmenu.')
-      return
-    }
+  const street = availableStreets.find(s => String(s.id) === String(street_id))
+  const streetName = cleanStreetName(street?.name || '')
+  const full_address_label = formatFullAddress(streetName, house_number, house_number_suffix, unit_number)
 
-    const street_id = streetSelectEl.value
-    const house_number = houseNumberEl.value.trim()
-    const house_number_suffix = houseSuffixEl.value.trim()
-    const full_address_label = addressLabelEl.value.trim()
-    const address_type = addressTypeEl.value
-
-    if (!street_id || !house_number || !full_address_label || !address_type) {
-      setStatus('❌ Popuni sva obavezna polja!')
-      return
-    }
-
-    updateBtn.disabled = true
-    updateBtn.textContent = 'Čuvam izmene...'
-
-    try {
-      const { data: existing, error: checkError } = await supabase
-        .from('addresses')
-        .select('id')
-        .eq('street_id', street_id)
-        .eq('full_address_label', full_address_label)
-        .neq('id', editingAddressId)
-        .maybeSingle()
-
-      if (checkError) throw checkError
-
-      if (existing) {
-        setStatus('⚠️ Već postoji druga adresa sa istim nazivom na toj ulici.')
-        return
-      }
-
-      const { error } = await supabase
-        .from('addresses')
-        .update({
-          street_id,
-          house_number,
-          house_number_suffix: house_number_suffix || null,
-          full_address_label,
-          address_type,
-          updated_by: currentUser.id
-        })
-        .eq('id', editingAddressId)
-
-      if (error) throw error
-
-      setStatus('✅ Adresa uspešno izmenjena.')
-      exitEditMode()
-      await loadAddresses()
-      await loadDashboardStats()
-    } catch (err) {
-      setStatus(`❌ Greška pri izmeni: ${err.message}`)
-    } finally {
-      updateBtn.disabled = false
-      updateBtn.textContent = 'Sačuvaj izmene'
-    }
+  if (!street_id || !house_number || !address_type) {
+    setStatus('❌ Popuni sva obavezna polja!')
+    return
   }
+
+  if (!validateUnitNumber()) {
+    return
+  }
+
+  if (!full_address_label) {
+    setStatus('❌ Puna adresa nije ispravno formirana.')
+    return
+  }
+
+  saveBtn.disabled = true
+  saveBtn.textContent = 'Čuvam...'
+
+  try {
+    const { data: existing, error: existingError } = await supabase
+      .from('addresses')
+      .select('id')
+      .eq('street_id', street_id)
+      .eq('full_address_label', full_address_label)
+      .maybeSingle()
+
+    if (existingError) throw existingError
+
+    if (existing) {
+      setStatus('⚠️ Adresa već postoji!')
+      return
+    }
+
+    const { error } = await supabase
+      .from('addresses')
+      .insert([{
+        street_id,
+        house_number,
+        house_number_suffix: house_number_suffix || null,
+        unit_number: unit_number || null,
+        full_address_label,
+        address_type,
+        census_status: 'pending',
+        is_active: true,
+        created_by: currentUser.id,
+        updated_by: currentUser.id
+      }])
+
+    if (error) throw error
+
+    resetForm()
+    setStatus('✅ Adresa sačuvana!')
+    await loadAddresses()
+    await loadDashboardStats()
+  } catch (err) {
+    setStatus(`❌ Greška: ${err.message}`)
+  } finally {
+    saveBtn.disabled = false
+    saveBtn.textContent = 'Sačuvaj adresu'
+  }
+}
+
+ async function updateAddress() {
+  if (!canEdit()) {
+    setStatus('❌ Nemaš dozvolu za izmenu adrese.')
+    return
+  }
+
+  if (!editingAddressId) {
+    setStatus('❌ Nije izabrana adresa za izmenu.')
+    return
+  }
+
+  const street_id = streetSelectEl.value
+  const house_number = houseNumberEl.value.trim()
+  const house_number_suffix = houseSuffixEl.value.trim()
+  const unit_number = unitNumberEl.value.trim()
+  const address_type = addressTypeEl.value
+
+  const street = availableStreets.find(s => String(s.id) === String(street_id))
+  const streetName = cleanStreetName(street?.name || '')
+  const full_address_label = formatFullAddress(streetName, house_number, house_number_suffix, unit_number)
+
+  if (!street_id || !house_number || !address_type) {
+    setStatus('❌ Popuni sva obavezna polja!')
+    return
+  }
+
+  if (!validateUnitNumber()) {
+    return
+  }
+
+  if (!full_address_label) {
+    setStatus('❌ Puna adresa nije ispravno formirana.')
+    return
+  }
+
+  updateBtn.disabled = true
+  updateBtn.textContent = 'Čuvam izmene...'
+
+  try {
+    const { data: existing, error: checkError } = await supabase
+      .from('addresses')
+      .select('id')
+      .eq('street_id', street_id)
+      .eq('full_address_label', full_address_label)
+      .neq('id', editingAddressId)
+      .maybeSingle()
+
+    if (checkError) throw checkError
+
+    if (existing) {
+      setStatus('⚠️ Već postoji druga adresa sa istim nazivom na toj ulici.')
+      return
+    }
+
+    const { error } = await supabase
+      .from('addresses')
+      .update({
+        street_id,
+        house_number,
+        house_number_suffix: house_number_suffix || null,
+        unit_number: unit_number || null,
+        full_address_label,
+        address_type,
+        updated_by: currentUser.id
+      })
+      .eq('id', editingAddressId)
+
+    if (error) throw error
+
+    setStatus('✅ Adresa uspešno izmenjena.')
+    exitEditMode()
+    await loadAddresses()
+    await loadDashboardStats()
+  } catch (err) {
+    setStatus(`❌ Greška pri izmeni: ${err.message}`)
+  } finally {
+    updateBtn.disabled = false
+    updateBtn.textContent = 'Sačuvaj izmene'
+  }
+}
 
   async function deleteAddress(id, label) {
     if (!canEdit()) {
@@ -2023,9 +2122,17 @@
   exportExcelBtn.addEventListener('click', exportFilteredExcel)
   printBtn.addEventListener('click', printFilteredView)
 
-  streetSelectEl.addEventListener('change', updateAddressLabel)
-  houseNumberEl.addEventListener('input', updateAddressLabel)
-  houseSuffixEl.addEventListener('input', updateAddressLabel)
+ streetSelectEl.addEventListener('change', updateAddressLabel)
+houseNumberEl.addEventListener('input', updateAddressLabel)
+houseSuffixEl.addEventListener('input', updateAddressLabel)
+unitNumberEl.addEventListener('input', updateAddressLabel)
+
+addressTypeEl.addEventListener('change', () => {
+  updateUnitFieldState()
+  updateAddressLabel()
+})
+
+updateUnitFieldState()
 
   supabase.auth.onAuthStateChange((event) => {
   if (event === 'SIGNED_IN') {
