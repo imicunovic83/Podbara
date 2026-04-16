@@ -189,6 +189,60 @@
     grid-template-columns: 1fr;
   }
 }
+
+    .address-picker-grid {
+  display: grid;
+  grid-template-columns: minmax(280px, 520px);
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.address-detail-card {
+  background: var(--color-surface-2);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-md);
+  border: 1px solid rgba(0,0,0,0.06);
+}
+
+.address-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-4);
+}
+
+.address-detail-title {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  margin: 0;
+}
+
+.address-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-3) var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.address-detail-actions {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin-top: var(--space-4);
+}
+
+@media (max-width: 768px) {
+  .address-picker-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .address-detail-grid {
+    grid-template-columns: 1fr;
+  }
+}
     
 .field label {
   display: block;
@@ -220,14 +274,6 @@
       outline: none;
       border-color: var(--color-primary);
       box-shadow: 0 0 0 3px rgba(1, 105, 111, 0.12);
-    }
-
-    .actions,
-    .pagination {
-      margin-top: var(--space-4);
-      display: flex;
-      gap: var(--space-3);
-      flex-wrap: wrap;
     }
 
     button {
@@ -684,11 +730,20 @@
       </div>
 
       <h2 class="section-title">Lista adresa</h2>
-      <div id="pageInfo" class="page-info"></div>
-      <div id="addresses"></div>
-      <div id="pagination" class="pagination"></div>
+
+<div class="card-box">
+  <div class="address-picker-grid">
+    <div class="field">
+      <label for="addressSelect">Izaberi adresu</label>
+      <select id="addressSelect">
+        <option value="">Izaberi adresu...</option>
+      </select>
     </div>
   </div>
+
+  <div id="pageInfo" class="page-info"></div>
+  <div id="selectedAddressDetails"></div>
+</div>
 
 <script type="module">
   import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
@@ -734,7 +789,6 @@
   const cancelEditBtn = document.getElementById('cancelEditBtn')
   const deleteDuplicatesBtn = document.getElementById('deleteDuplicatesBtn')
   const refreshStreetsBtn = document.getElementById('refreshStreetsBtn')
-  const addressesEl = document.getElementById('addresses')
   const formTitleEl = document.getElementById('formTitle')
   const statsCardsEl = document.getElementById('statsCards')
   const streetStatsEl = document.getElementById('streetStats')
@@ -746,8 +800,9 @@
   const exportCsvBtn = document.getElementById('exportCsvBtn')
   const exportExcelBtn = document.getElementById('exportExcelBtn')
   const printBtn = document.getElementById('printBtn')
-  const paginationEl = document.getElementById('pagination')
   const pageInfoEl = document.getElementById('pageInfo')
+  const addressSelectEl = document.getElementById('addressSelect')
+  const selectedAddressDetailsEl = document.getElementById('selectedAddressDetails')
 
   const adminUserSelectEl = document.getElementById('adminUserSelect')
   const adminRoleSelectEl = document.getElementById('adminRoleSelect')
@@ -763,16 +818,15 @@
   const createNewUserBtn = document.getElementById('createNewUserBtn')
   const newUserPasswordEl = document.getElementById('newUserPassword')
 
-  let currentUser = null
-  let currentProfile = null
-  let availableStreets = []
-  let allSystemStreets = []
-  let allProfiles = []
-  let selectedAdminUserAssignments = []
-  let editingAddressId = null
-  let allAddresses = []
-  let currentPage = 1
-  const pageSize = 20
+let currentUser = null
+let currentProfile = null
+let availableStreets = []
+let allSystemStreets = []
+let allProfiles = []
+let selectedAdminUserAssignments = []
+let editingAddressId = null
+let selectedAddressId = null
+let allAddresses = []
 
   function cleanStreetName(value) {
     if (!value) return ''
@@ -836,9 +890,9 @@ function resetForm() {
   houseNumberEl.value = ''
   houseSuffixEl.value = ''
   unitNumberEl.value = ''
-  addressLabelEl.value = ''
   addressTypeEl.value = 'Kuća'
   updateUnitFieldState()
+  updateAddressLabel()
 }
 function updateUnitFieldState() {
   const isBuilding = addressTypeEl.value === 'Zgrada'
@@ -976,7 +1030,7 @@ formTitleEl.textContent = 'Izmena adrese'
       : 'Izaberi korisnika da vidi i menja dodeljene ulice.'
   }
 
-  function getFilteredAddresses() {
+function getFilteredAddresses() {
   const selectedStreet = filterStreetEl.value
   const selectedStatus = filterStatusEl.value
   const search = searchInputEl.value.trim().toLowerCase()
@@ -984,7 +1038,8 @@ formTitleEl.textContent = 'Izmena adrese'
   return allAddresses.filter(item => {
     const streetName = cleanStreetName(item.streets?.name || '').toLowerCase()
     const fullLabel = String(item.full_address_label || '').toLowerCase()
-    const KućaNumber = String(item.house_number || '').toLowerCase()
+    const houseNumber = String(item.house_number || '').toLowerCase()
+    const houseSuffix = String(item.house_number_suffix || '').toLowerCase()
     const unitNumber = String(item.unit_number || '').toLowerCase()
 
     const matchStreet = !selectedStreet || String(item.street_id) === String(selectedStreet)
@@ -994,117 +1049,125 @@ formTitleEl.textContent = 'Izmena adrese'
       !search ||
       streetName.includes(search) ||
       fullLabel.includes(search) ||
-      KućaNumber.includes(search) ||
+      houseNumber.includes(search) ||
+      houseSuffix.includes(search) ||
       unitNumber.includes(search)
 
     return matchStreet && matchStatus && matchSearch
   })
 }
 
-  function renderPagination(totalItems) {
-    const totalPages = Math.max(1, Math.ceil(totalItems / pageSize))
-    if (currentPage > totalPages) currentPage = totalPages
+  function populateAddressSelect(filtered) {
+  if (!addressSelectEl) return
 
-    paginationEl.innerHTML = `
-      <button type="button" class="btn-dark" id="prevPageBtn" ${currentPage === 1 ? 'disabled' : ''}>Prethodna</button>
-      <button type="button" class="btn-dark" id="nextPageBtn" ${currentPage === totalPages ? 'disabled' : ''}>Sledeća</button>
-    `
+  addressSelectEl.innerHTML = `
+    <option value="">Izaberi adresu...</option>
+    ${filtered.map(item => `
+      <option value="${item.id}">
+        ${item.full_address_label || 'Bez naziva'}
+      </option>
+    `).join('')}
+  `
 
-    document.getElementById('prevPageBtn')?.addEventListener('click', () => {
-      if (currentPage > 1) {
-        currentPage--
-        renderAddresses()
-      }
-    })
+  const hasSelected = filtered.some(item => String(item.id) === String(selectedAddressId))
 
-    document.getElementById('nextPageBtn')?.addEventListener('click', () => {
-      if (currentPage < totalPages) {
-        currentPage++
-        renderAddresses()
-      }
-    })
+  if (!hasSelected) {
+    selectedAddressId = filtered.length ? String(filtered[0].id) : null
   }
 
-  function renderAddresses() {
-    const filtered = getFilteredAddresses()
+  addressSelectEl.value = selectedAddressId || ''
+}
 
-    if (!filtered.length) {
-      pageInfoEl.textContent = 'Nema rezultata za izabrane filtere.'
-      addressesEl.innerHTML = '<div class="empty">Nema adresa za prikaz.</div>'
-      paginationEl.innerHTML = ''
-      return
-    }
+function getSelectedAddress(filtered) {
+  if (!filtered.length) return null
 
-    const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize))
-    if (currentPage > totalPages) currentPage = totalPages
+  const selected =
+    filtered.find(item => String(item.id) === String(selectedAddressId)) || filtered[0]
 
-    const start = (currentPage - 1) * pageSize
-    const end = start + pageSize
-    const pageItems = filtered.slice(start, end)
+  if (selected) {
+    selectedAddressId = String(selected.id)
+  }
 
-    pageInfoEl.textContent = `Prikaz ${start + 1}-${Math.min(end, filtered.length)} od ${filtered.length} adresa | Strana ${currentPage}/${totalPages}`
+  return selected
+}
 
-    addressesEl.innerHTML = `
-      <div class="grid">
-        ${pageItems.map(item => `
-          <div class="addr-card">
-            <h3>${item.full_address_label ?? 'Bez naziva'}</h3>
-            <div class="addr-row"><span class="addr-label">Ulica:</span> ${cleanStreetName(item.streets?.name) || '-'}</div>
-            <div class="addr-row"><span class="addr-label">Naselje:</span> ${item.streets?.settlement_name ?? '-'}</div>
-  <div class="addr-row"><span class="addr-label">Broj:</span> ${item.house_number ?? '-'}</div>
-<div class="addr-row"><span class="addr-label">Dodatak:</span> ${item.house_number_suffix ?? '-'}</div>
-<div class="addr-row"><span class="addr-label">Stan / jedinica:</span> ${item.unit_number ?? '-'}</div>
-<div class="addr-row"><span class="addr-label">Tip:</span> ${item.address_type ?? '-'}</div>
-<div class="addr-row"><span class="addr-label">Aktivna:</span> ${item.is_active ? 'Da' : 'Ne'}</div>
-<div class="addr-row">
-  <span class="addr-label">Status:</span>
-  <span class="status-badge ${getStatusClass(item.census_status)}">${getStatusLabel(item.census_status)}</span>
-</div>
+function renderSelectedAddressDetails(item) {
+  if (!item) {
+    selectedAddressDetailsEl.innerHTML = '<div class="empty">Nema adrese za prikaz.</div>'
+    return
+  }
 
-            ${canEdit() ? `
-              <div class="status-editor">
-                <label for="status-${item.id}">Promeni status</label>
-                <select class="status-select" id="status-${item.id}" data-status-id="${item.id}">
-                  <option value="pending" ${item.census_status === 'pending' ? 'selected' : ''}>Pending</option>
-                  <option value="visited" ${item.census_status === 'visited' ? 'selected' : ''}>Visited</option>
-                  <option value="refused" ${item.census_status === 'refused' ? 'selected' : ''}>Refused</option>
-                  <option value="scheduled" ${item.census_status === 'scheduled' ? 'selected' : ''}>Scheduled</option>
-                </select>
-              </div>
-
-              <div class="actions">
-                <button type="button" class="btn-dark" data-edit-id="${item.id}">Izmeni</button>
-                <button type="button" class="btn-danger" data-delete-id="${item.id}" data-delete-label="${(item.full_address_label ?? 'Bez naziva').replace(/"/g, '&quot;')}">Obriši</button>
-              </div>
-            ` : ''}
-          </div>
-        `).join('')}
+  selectedAddressDetailsEl.innerHTML = `
+    <div class="address-detail-card">
+      <div class="address-detail-header">
+        <h3 class="address-detail-title">${item.full_address_label ?? 'Bez naziva'}</h3>
+        <span class="status-badge ${getStatusClass(item.census_status)}">${getStatusLabel(item.census_status)}</span>
       </div>
-    `
 
-    if (canEdit()) {
-      addressesEl.querySelectorAll('[data-edit-id]').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const item = allAddresses.find(row => String(row.id) === String(btn.dataset.editId))
-          if (item) enterEditMode(item)
-        })
-      })
+      <div class="address-detail-grid">
+        <div class="addr-row"><span class="addr-label">Ulica:</span> ${cleanStreetName(item.streets?.name) || '-'}</div>
+        <div class="addr-row"><span class="addr-label">Naselje:</span> ${item.streets?.settlement_name ?? '-'}</div>
+        <div class="addr-row"><span class="addr-label">Broj:</span> ${item.house_number ?? '-'}</div>
+        <div class="addr-row"><span class="addr-label">Dodatak:</span> ${item.house_number_suffix ?? '-'}</div>
+        <div class="addr-row"><span class="addr-label">Stan / jedinica:</span> ${item.unit_number ?? '-'}</div>
+        <div class="addr-row"><span class="addr-label">Tip:</span> ${item.address_type ?? '-'}</div>
+        <div class="addr-row"><span class="addr-label">Aktivna:</span> ${item.is_active ? 'Da' : 'Ne'}</div>
+      </div>
 
-      addressesEl.querySelectorAll('[data-delete-id]').forEach(btn => {
-        btn.addEventListener('click', () => {
-          deleteAddress(btn.dataset.deleteId, btn.dataset.deleteLabel)
-        })
-      })
+      ${canEdit() ? `
+        <div class="status-editor">
+          <label for="status-${item.id}">Promeni status</label>
+          <select class="status-select" id="status-${item.id}" data-status-id="${item.id}">
+            <option value="pending" ${item.census_status === 'pending' ? 'selected' : ''}>Pending</option>
+            <option value="visited" ${item.census_status === 'visited' ? 'selected' : ''}>Visited</option>
+            <option value="refused" ${item.census_status === 'refused' ? 'selected' : ''}>Refused</option>
+            <option value="scheduled" ${item.census_status === 'scheduled' ? 'selected' : ''}>Scheduled</option>
+          </select>
+        </div>
 
-      addressesEl.querySelectorAll('[data-status-id]').forEach(select => {
-        select.addEventListener('change', () => {
-          updateCensusStatus(select.dataset.statusId, select.value)
-        })
-      })
-    }
+        <div class="address-detail-actions">
+          <button type="button" class="btn-dark" data-edit-id="${item.id}">Izmeni</button>
+          <button
+            type="button"
+            class="btn-danger"
+            data-delete-id="${item.id}"
+            data-delete-label="${(item.full_address_label ?? 'Bez naziva').replace(/"/g, '&quot;')}"
+          >
+            Obriši
+          </button>
+        </div>
+      ` : ''}
+    </div>
+  `
 
-    renderPagination(filtered.length)
+  if (canEdit()) {
+    selectedAddressDetailsEl.querySelector('[data-edit-id]')?.addEventListener('click', () => {
+      enterEditMode(item)
+    })
+
+    selectedAddressDetailsEl.querySelector('[data-delete-id]')?.addEventListener('click', () => {
+      deleteAddress(item.id, item.full_address_label ?? 'Bez naziva')
+    })
+
+    selectedAddressDetailsEl.querySelector('[data-status-id]')?.addEventListener('change', (e) => {
+      updateCensusStatus(e.target.dataset.statusId, e.target.value)
+    })
   }
+}
+
+function renderAddresses() {
+  const filtered = getFilteredAddresses()
+
+ addressSelectEl.innerHTML = '<option value="">Nema adresa</option>'
+
+  populateAddressSelect(filtered)
+
+  const selectedItem = getSelectedAddress(filtered)
+
+  pageInfoEl.textContent = `Ukupno pronađenih adresa: ${filtered.length}`
+
+  renderSelectedAddressDetails(selectedItem)
+}
 
   function renderStreetStatsFromAddresses(addressRows) {
     if (!addressRows?.length) {
@@ -1850,52 +1913,50 @@ assignedStreetsSummaryEl.textContent = streetCount
   }
 
   async function loadAddresses() {
-    let query = supabase
-      .from('addresses')
-      .select(`
+  let query = supabase
+    .from('addresses')
+    .select(`
+      id,
+      street_id,
+      house_number,
+      house_number_suffix,
+      unit_number,
+      full_address_label,
+      address_type,
+      census_status,
+      is_active,
+      created_by,
+      updated_by,
+      streets (
         id,
-street_id,
-house_number,
-house_number_suffix,
-unit_number,
-full_address_label,
-address_type,
-census_status,
-is_active,
-created_by,
-updated_by,
-streets (
-          id,
-          name,
-          settlement_name
-        )
-      `)
-      .order('id', { ascending: false })
+        name,
+        settlement_name
+      )
+    `)
+    .order('id', { ascending: false })
 
-    if (!isAdmin()) {
-      const allowedStreetIds = availableStreets.map(s => s.id).filter(Boolean)
+  if (!isAdmin()) {
+    const allowedStreetIds = availableStreets.map(s => s.id).filter(Boolean)
 
-      if (!allowedStreetIds.length) {
-        allAddresses = []
-        currentPage = 1
-        renderAddresses()
-        return
-      }
-
-      query = query.in('street_id', allowedStreetIds)
-    }
-
-    const { data, error } = await query
-
-    if (error) {
-      addressesEl.innerHTML = `<div class="empty">Greška: ${error.message}</div>`
+    if (!allowedStreetIds.length) {
+      allAddresses = []
+      renderAddresses()
       return
     }
 
-    allAddresses = data || []
-    currentPage = 1
-    renderAddresses()
+    query = query.in('street_id', allowedStreetIds)
   }
+
+  const { data, error } = await query
+
+  if (error) {
+    selectedAddressDetailsEl.innerHTML = `<div class="empty">Greška: ${error.message}</div>`
+    return
+  }
+
+  allAddresses = data || []
+  renderAddresses()
+}
 
  async function saveAddress() {
   if (!canEdit()) {
@@ -2223,20 +2284,19 @@ streets (
   saveAssignmentsBtn.addEventListener('click', saveSelectedUserAssignments)
   createNewUserBtn.addEventListener('click', createNewUserProfile)
 
-  applyFiltersBtn.addEventListener('click', () => {
-    currentPage = 1
-    renderAddresses()
-    setStatus('✅ Filteri primenjeni.')
-  })
+applyFiltersBtn.addEventListener('click', () => {
+  renderAddresses()
+  setStatus('✅ Filteri primenjeni.')
+})
 
-  resetFiltersBtn.addEventListener('click', () => {
-    filterStreetEl.value = ''
-    filterStatusEl.value = ''
-    searchInputEl.value = ''
-    currentPage = 1
-    renderAddresses()
-    setStatus('✅ Filteri resetovani.')
-  })
+resetFiltersBtn.addEventListener('click', () => {
+  filterStreetEl.value = ''
+  filterStatusEl.value = ''
+  searchInputEl.value = ''
+  selectedAddressId = null
+  renderAddresses()
+  setStatus('✅ Filteri resetovani.')
+})
 
   exportCsvBtn.addEventListener('click', exportFilteredCsv)
   exportExcelBtn.addEventListener('click', exportFilteredExcel)
@@ -2246,6 +2306,10 @@ streets (
 houseNumberEl.addEventListener('input', updateAddressLabel)
 houseSuffixEl.addEventListener('input', updateAddressLabel)
 unitNumberEl.addEventListener('input', updateAddressLabel)
+  addressSelectEl.addEventListener('change', () => {
+  selectedAddressId = addressSelectEl.value || null
+  renderAddresses()
+})
 
 addressTypeEl.addEventListener('change', () => {
   updateUnitFieldState()
