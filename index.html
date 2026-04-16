@@ -156,8 +156,16 @@
       color: var(--color-text);
     }
 
-    .field-small {
+   .field-small {
   max-width: 180px;
+}
+
+.field-medium {
+  max-width: 220px;
+}
+
+.field-wide {
+  min-width: 320px;
 }
     
     .field input:focus,
@@ -503,6 +511,14 @@
     </select>
   </div>
 
+  <div class="field field-medium">
+    <label for="addressType">Tip adrese</label>
+    <select id="addressType">
+      <option value="Kuća">Kuća</option>
+      <option value="Zgrada">Zgrada</option>
+    </select>
+  </div>
+
   <div class="field field-small">
     <label for="KućaNumber">Broj kuće/zgrade</label>
     <input id="KućaNumber" type="text" placeholder="npr. 15" />
@@ -519,17 +535,9 @@
     <div id="unitNumberHelp" class="note">Za kuću opciono, za zgradu obavezno.</div>
   </div>
 
-  <div class="field">
+  <div class="field field-wide">
     <label for="addressLabel">Puna adresa</label>
     <input id="addressLabel" type="text" placeholder="npr. Bele njive 15 / 3" readonly />
-  </div>
-
-  <div class="field field-small">
-    <label for="addressType">Tip adrese</label>
-    <select id="addressType">
-      <option value="Kuća">Kuća</option>
-      <option value="Zgrada">Zgrada</option>
-    </select>
   </div>
 </div>
         <div class="actions">
