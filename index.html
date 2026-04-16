@@ -129,21 +129,34 @@
       font-weight: 600;
     }
 
-    .form-grid,
-    .stats-grid,
-    .filters-grid,
-    .admin-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: var(--space-4);
-    }
+   .form-grid,
+.stats-grid,
+.filters-grid,
+.admin-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-4);
+}
 
-    .field label {
-      display: block;
-      font-size: var(--text-sm);
-      margin-bottom: var(--space-2);
-      font-weight: 600;
-    }
+.compact-fields {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(120px, 180px));
+  gap: var(--space-4);
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .compact-fields {
+    grid-template-columns: 1fr;
+  }
+}
+
+.field label {
+  display: block;
+  font-size: var(--text-sm);
+  margin-bottom: var(--space-2);
+  font-weight: 600;
+}
 
     .field input,
     .field select {
@@ -499,8 +512,9 @@
     </select>
   </div>
 
+  <div class="compact-fields">
   <div class="field">
-    <label for="KućaNumber">Broj kuće</label>
+    <label for="KućaNumber">Broj kuće/zgrade</label>
     <input id="KućaNumber" type="text" placeholder="npr. 15" />
   </div>
 
@@ -514,6 +528,7 @@
     <input id="unitNumber" type="text" placeholder="npr. 3 ili A2" />
     <div id="unitNumberHelp" class="note">Za kuću opciono, za zgradu obavezno.</div>
   </div>
+</div>
 
   <div class="field">
     <label for="addressLabel">Puna adresa</label>
