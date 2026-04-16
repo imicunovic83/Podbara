@@ -138,6 +138,35 @@
   gap: var(--space-4);
 }
 
+ .address-form-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 0.85fr 0.85fr 1fr 1.9fr;
+  gap: var(--space-4);
+  align-items: start;
+}
+
+.address-form-grid .field {
+  min-width: 0;
+}
+
+.address-form-grid .note {
+  margin-top: 8px;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+@media (max-width: 1200px) {
+  .address-form-grid {
+    grid-template-columns: repeat(3, minmax(220px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .address-form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+    
 .field label {
   display: block;
   font-size: var(--text-sm);
@@ -145,29 +174,24 @@
   font-weight: 600;
 }
 
-    .field input,
-    .field select {
-      width: 100%;
-      padding: var(--space-3);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-md);
-      font-size: var(--text-sm);
-      background: var(--color-surface-2);
-      color: var(--color-text);
-    }
-
-   .field-small {
-  max-width: 180px;
+   .field input,
+.field select {
+  width: 100%;
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  background: var(--color-surface-2);
+  color: var(--color-text);
 }
 
-.field-medium {
-  max-width: 220px;
+#addressLabel {
+  background: #f3f4f6;
+  font-weight: 600;
+  color: #374151;
+  cursor: not-allowed;
+  border-color: #d1d5db;
 }
-
-.field-wide {
-  min-width: 320px;
-}
-    
     .field input:focus,
     .field select:focus {
       outline: none;
@@ -501,54 +525,57 @@
         </div>
       </div>
 
-      <div id="editorSection" class="card-box">
-        <h2 id="formTitle">Unos nove adrese</h2>
-<div class="form-grid">
-  <div class="field">
-    <label for="streetSelect">Ulica</label>
-    <select id="streetSelect">
-      <option value="">Izaberi ulicu...</option>
-    </select>
+     <div id="editorSection" class="card-box">
+  <h2 id="formTitle">Unos nove adrese</h2>
+
+  <div class="address-form-grid">
+    <div class="field">
+      <label for="streetSelect">Ulica</label>
+      <select id="streetSelect">
+        <option value="">Izaberi ulicu...</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="addressType">Tip adrese</label>
+      <select id="addressType">
+        <option value="Kuća">Kuća</option>
+        <option value="Zgrada">Zgrada</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="KućaNumber">Broj kuće/zgrade</label>
+      <input id="KućaNumber" type="text" placeholder="npr. 15" />
+    </div>
+
+    <div class="field">
+      <label for="houseSuffix">Dodatak broju</label>
+      <input id="houseSuffix" type="text" placeholder="npr. A" />
+    </div>
+
+    <div class="field">
+      <label for="unitNumber" id="unitNumberLabel">Stan / jedinica</label>
+      <input id="unitNumber" type="text" placeholder="npr. 3 ili A2" />
+      <div id="unitNumberHelp" class="note">Za kuću opciono, za zgradu obavezno.</div>
+    </div>
+
+    <div class="field">
+      <label for="addressLabel">Puna adresa</label>
+      <input id="addressLabel" type="text" placeholder="npr. Bele njive 15 / 3" readonly />
+    </div>
   </div>
 
-  <div class="field field-medium">
-    <label for="addressType">Tip adrese</label>
-    <select id="addressType">
-      <option value="Kuća">Kuća</option>
-      <option value="Zgrada">Zgrada</option>
-    </select>
+  <div class="actions">
+    <button id="saveBtn" type="button">Sačuvaj adresu</button>
+    <button id="updateBtn" type="button" class="btn-dark hidden">Sačuvaj izmene</button>
+    <button id="cancelEditBtn" type="button" class="btn-dark hidden">Otkaži izmenu</button>
+    <button id="refreshStreetsBtn" type="button" class="btn-dark admin-only">🔄 Osveži ulice</button>
+    <button id="deleteDuplicatesBtn" type="button" class="btn-danger admin-only">🗑️ Obriši duplikate</button>
   </div>
 
-  <div class="field field-small">
-    <label for="KućaNumber">Broj kuće/zgrade</label>
-    <input id="KućaNumber" type="text" placeholder="npr. 15" />
-  </div>
-
-  <div class="field field-small">
-    <label for="houseSuffix">Dodatak broju</label>
-    <input id="houseSuffix" type="text" placeholder="npr. A" />
-  </div>
-
-  <div class="field field-small">
-    <label for="unitNumber" id="unitNumberLabel">Stan / jedinica</label>
-    <input id="unitNumber" type="text" placeholder="npr. 3 ili A2" />
-    <div id="unitNumberHelp" class="note">Za kuću opciono, za zgradu obavezno.</div>
-  </div>
-
-  <div class="field field-wide">
-    <label for="addressLabel">Puna adresa</label>
-    <input id="addressLabel" type="text" placeholder="npr. Bele njive 15 / 3" readonly />
-  </div>
+  <p class="note">Admin vidi sve aktivne ulice, ostali korisnici samo dodeljene.</p>
 </div>
-        <div class="actions">
-          <button id="saveBtn" type="button">Sačuvaj adresu</button>
-          <button id="updateBtn" type="button" class="btn-dark hidden">Sačuvaj izmene</button>
-          <button id="cancelEditBtn" type="button" class="btn-dark hidden">Otkaži izmenu</button>
-          <button id="refreshStreetsBtn" type="button" class="btn-dark admin-only">🔄 Osveži ulice</button>
-          <button id="deleteDuplicatesBtn" type="button" class="btn-danger admin-only">🗑️ Obriši duplikate</button>
-        </div>
-        <p class="note">Admin vidi sve aktivne ulice, ostali korisnici samo dodeljene.</p>
-      </div>
 
       <div class="card-box">
         <h2>Filteri</h2>
