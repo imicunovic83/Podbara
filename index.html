@@ -350,6 +350,52 @@
       font-size: var(--text-sm);
     }
 
+    .streets-dropdown {
+  margin-top: var(--space-2);
+  background: #fcfcfa;
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.streets-dropdown summary {
+  cursor: pointer;
+  list-style: none;
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.streets-dropdown summary::-webkit-details-marker {
+  display: none;
+}
+
+.streets-dropdown summary::after {
+  content: '▾';
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  transition: transform 0.2s ease;
+}
+
+.streets-dropdown[open] summary::after {
+  transform: rotate(180deg);
+}
+
+.streets-dropdown summary:hover {
+  background: #f7f7f5;
+}
+
+.streets-dropdown .street-list {
+  margin: 0;
+  padding: 0 var(--space-4) var(--space-4) 2rem;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
     .street-stats-box {
       display: grid;
       gap: var(--space-3);
@@ -441,10 +487,14 @@
         <h2>Tvoje dozvole</h2>
         <div class="addr-row"><span class="addr-label">Korisnik:</span> <span id="infoEmail">-</span></div>
         <div class="addr-row"><span class="addr-label">Rola:</span> <span id="infoRole">-</span></div>
-        <div class="addr-row"><span class="addr-label">Dozvoljene ulice:</span></div>
-        <ul id="assignedStreets" class="street-list">
-          <li>Učitavanje...</li>
-        </ul>
+       <div class="addr-row"><span class="addr-label">Dozvoljene ulice:</span></div>
+
+<details class="streets-dropdown">
+ <summary id="assignedStreetsSummary">Dozvoljene ulice (0)</summary>
+  <ul id="assignedStreets" class="street-list">
+    <li>Učitavanje...</li>
+  </ul>
+</details>
       </div>
 
       <div id="adminPanelSection" class="card-box hidden">
@@ -643,6 +693,7 @@
   const infoEmailEl = document.getElementById('infoEmail')
   const infoRoleEl = document.getElementById('infoRole')
   const assignedStreetsEl = document.getElementById('assignedStreets')
+  const assignedStreetsSummaryEl = document.getElementById('assignedStreetsSummary')
   const emailInputEl = document.getElementById('emailInput')
   const loginBtn = document.getElementById('loginBtn')
   const passwordInputEl = document.getElementById('passwordInput')
@@ -1661,6 +1712,7 @@ filtered.forEach(item => {
       if (uniqueIds.length === 0) {
         streetSelectEl.innerHTML = '<option value="">Nema dozvoljenih ulica</option>'
         assignedStreetsEl.innerHTML = '<li>Nema dodeljenih ulica</li>'
+        assignedStreetsSummaryEl.textContent = 'Dozvoljene ulice (0)'
         availableStreets = []
         populateStreetFilters()
         return
@@ -1686,6 +1738,12 @@ filtered.forEach(item => {
     assignedStreetsEl.innerHTML = availableStreets.length
       ? availableStreets.map(s => `<li>${cleanStreetName(s.name)}</li>`).join('')
       : '<li>Nema dodeljenih ulica</li>'
+
+    const streetCount = availableStreets.length
+
+assignedStreetsSummaryEl.textContent = streetCount
+  ? `Dozvoljene ulice (${streetCount})`
+  : 'Dozvoljene ulice (0)'
 
     populateStreetFilters()
   }
