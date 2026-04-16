@@ -138,20 +138,6 @@
   gap: var(--space-4);
 }
 
-.compact-fields {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(120px, 180px));
-  gap: var(--space-4);
-  align-items: start;
-  justify-content: start;
-}
-
-@media (max-width: 900px) {
-  .compact-fields {
-    grid-template-columns: 1fr;
-  }
-}
-
 .field label {
   display: block;
   font-size: var(--text-sm);
@@ -170,6 +156,10 @@
       color: var(--color-text);
     }
 
+    .field-small {
+  max-width: 180px;
+}
+    
     .field input:focus,
     .field select:focus {
       outline: none;
@@ -505,7 +495,7 @@
 
       <div id="editorSection" class="card-box">
         <h2 id="formTitle">Unos nove adrese</h2>
-       <div class="form-grid">
+<div class="form-grid">
   <div class="field">
     <label for="streetSelect">Ulica</label>
     <select id="streetSelect">
@@ -513,30 +503,28 @@
     </select>
   </div>
 
-  <div class="compact-fields">
-  <div class="field">
+  <div class="field field-small">
     <label for="KućaNumber">Broj kuće/zgrade</label>
     <input id="KućaNumber" type="text" placeholder="npr. 15" />
   </div>
 
-  <div class="field">
+  <div class="field field-small">
     <label for="houseSuffix">Dodatak broju</label>
     <input id="houseSuffix" type="text" placeholder="npr. A" />
   </div>
 
-  <div class="field">
+  <div class="field field-small">
     <label for="unitNumber" id="unitNumberLabel">Stan / jedinica</label>
     <input id="unitNumber" type="text" placeholder="npr. 3 ili A2" />
     <div id="unitNumberHelp" class="note">Za kuću opciono, za zgradu obavezno.</div>
   </div>
-</div>
 
   <div class="field">
     <label for="addressLabel">Puna adresa</label>
-   <input id="addressLabel" type="text" placeholder="npr. Bele njive 15 / 3" readonly />
+    <input id="addressLabel" type="text" placeholder="npr. Bele njive 15 / 3" readonly />
   </div>
 
-  <div class="field">
+  <div class="field field-small">
     <label for="addressType">Tip adrese</label>
     <select id="addressType">
       <option value="Kuća">Kuća</option>
