@@ -544,7 +544,7 @@
     </div>
 
     <div id="appSection" class="hidden">
-      <div class="topbar">
+<div class="topbar">
         <div class="user-panel">
           <div id="userBadge" class="user-badge">Nije prijavljen</div>
           <div id="roleBadge" class="role-badge">Rola: -</div>
@@ -566,67 +566,67 @@
         <h2>Tvoje dozvole</h2>
         <div class="addr-row"><span class="addr-label">Korisnik:</span> <span id="infoEmail">-</span></div>
         <div class="addr-row"><span class="addr-label">Rola:</span> <span id="infoRole">-</span></div>
-        <div class="addr-row"><span class="addr-label">Dozvoljene ulice:</span></div>
+       <div class="addr-row"><span class="addr-label">Dozvoljene ulice:</span></div>
 
-        <details class="streets-dropdown">
-          <summary id="assignedStreetsSummary">Dozvoljene ulice (0)</summary>
-          <ul id="assignedStreets" class="street-list">
-            <li>Učitavanje...</li>
-          </ul>
-        </details>
+<details class="streets-dropdown">
+ <summary id="assignedStreetsSummary">Dozvoljene ulice (0)</summary>
+  <ul id="assignedStreets" class="street-list">
+    <li>Učitavanje...</li>
+  </ul>
+</details>
       </div>
 
       <div id="editorSection" class="card-box">
-        <h2 id="formTitle">Unos nove adrese</h2>
+  <h2 id="formTitle">Unos nove adrese</h2>
 
-        <div class="address-form-grid">
-          <div class="field">
-            <label for="streetSelect">Ulica</label>
-            <select id="streetSelect">
-              <option value="">Izaberi ulicu...</option>
-            </select>
-          </div>
+  <div class="address-form-grid">
+    <div class="field">
+      <label for="streetSelect">Ulica</label>
+      <select id="streetSelect">
+        <option value="">Izaberi ulicu...</option>
+      </select>
+    </div>
 
-          <div class="field">
-            <label for="addressType">Tip adrese</label>
-            <select id="addressType">
-              <option value="Kuća">Kuća</option>
-              <option value="Zgrada">Zgrada</option>
-            </select>
-          </div>
+    <div class="field">
+      <label for="addressType">Tip adrese</label>
+      <select id="addressType">
+        <option value="Kuća">Kuća</option>
+        <option value="Zgrada">Zgrada</option>
+      </select>
+    </div>
 
-          <div class="field">
-            <label for="KućaNumber">Broj kuće/zgrade</label>
-            <input id="KućaNumber" type="text" placeholder="npr. 15" />
-          </div>
+    <div class="field">
+      <label for="KućaNumber">Broj kuće/zgrade</label>
+      <input id="KućaNumber" type="text" placeholder="npr. 15" />
+    </div>
 
-          <div class="field">
-            <label for="houseSuffix">Dodatak broju</label>
-            <input id="houseSuffix" type="text" placeholder="npr. A" />
-          </div>
+    <div class="field">
+      <label for="houseSuffix">Dodatak broju</label>
+      <input id="houseSuffix" type="text" placeholder="npr. A" />
+    </div>
 
-          <div class="field">
-            <label for="unitNumber" id="unitNumberLabel">Stan / jedinica</label>
-            <input id="unitNumber" type="text" placeholder="npr. 3 ili A2" />
-            <div id="unitNumberHelp" class="note">Za kuću opciono, za zgradu obavezno.</div>
-          </div>
+    <div class="field">
+      <label for="unitNumber" id="unitNumberLabel">Stan / jedinica</label>
+      <input id="unitNumber" type="text" placeholder="npr. 3 ili A2" />
+      <div id="unitNumberHelp" class="note">Za kuću opciono, za zgradu obavezno.</div>
+    </div>
 
-          <div class="field">
-            <label for="addressLabel">Puna adresa</label>
-            <input id="addressLabel" type="text" placeholder="npr. Bele njive 15 / 3" readonly />
-          </div>
-        </div>
+    <div class="field">
+      <label for="addressLabel">Puna adresa</label>
+      <input id="addressLabel" type="text" placeholder="npr. Bele njive 15 / 3" readonly />
+    </div>
+  </div>
 
-        <div class="actions">
-          <button id="saveBtn" type="button">Sačuvaj adresu</button>
-          <button id="updateBtn" type="button" class="btn-dark hidden">Sačuvaj izmene</button>
-          <button id="cancelEditBtn" type="button" class="btn-dark hidden">Otkaži izmenu</button>
-          <button id="refreshStreetsBtn" type="button" class="btn-dark admin-only">🔄 Osveži ulice</button>
-          <button id="deleteDuplicatesBtn" type="button" class="btn-danger admin-only">🗑️ Obriši duplikate</button>
-        </div>
+  <div class="actions">
+    <button id="saveBtn" type="button">Sačuvaj adresu</button>
+    <button id="updateBtn" type="button" class="btn-dark hidden">Sačuvaj izmene</button>
+    <button id="cancelEditBtn" type="button" class="btn-dark hidden">Otkaži izmenu</button>
+    <button id="refreshStreetsBtn" type="button" class="btn-dark admin-only">🔄 Osveži ulice</button>
+    <button id="deleteDuplicatesBtn" type="button" class="btn-danger admin-only">🗑️ Obriši duplikate</button>
+  </div>
 
-        <p class="note">Admin vidi sve aktivne ulice, ostali korisnici samo dodeljene.</p>
-      </div>
+  <p class="note">Admin vidi sve aktivne ulice, ostali korisnici samo dodeljene.</p>
+</div>
 
       <div class="card-box">
         <h2>Pretraga evidencije</h2>
@@ -663,28 +663,26 @@
 
       <h2 class="section-title">Evidencija obilazaka</h2>
 
-      <div class="card-box">
-        <div class="address-picker-grid">
-          <div class="field">
-            <label for="addressSelect">Izaberi adresu</label>
-            <select id="addressSelect">
-              <option value="">Izaberi adresu...</option>
-            </select>
-          </div>
-        </div>
+<div class="card-box">
+  <div class="address-picker-grid">
+    <div class="field">
+      <label for="addressSelect">Izaberi adresu</label>
+      <select id="addressSelect">
+        <option value="">Izaberi adresu...</option>
+      </select>
+    </div>
+  </div>
 
-        <div id="pageInfo" class="page-info"></div>
-        <div id="selectedAddressDetails"></div>
-      </div>
-
-      <div class="card-box">
+  <div id="pageInfo" class="page-info"></div>
+  <div id="selectedAddressDetails"></div>
+<div class="card-box">
         <h2>Statistika po ulicama</h2>
         <div id="streetStats" class="street-stats-box">
           <div class="empty">Učitavanje statistike...</div>
         </div>
       </div>
 
-      <div id="adminPanelSection" class="card-box hidden">
+     <div id="adminPanelSection" class="card-box hidden">
         <h2>Admin panel</h2>
 
         <div class="admin-form-grid">
@@ -744,81 +742,82 @@
           </div>
         </div>
       </div>
+
+      
     </div>
-  </div>
 
-  <script type="module">
-    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
 
-    const supabase_url = 'https://wdmipyooncrcdmvlloou.supabase.co'
-    const supabase_key = 'sb_publishable_u-KtwCVzKm55-UAdFJ3FgQ_RsZSpm0u'
+  const supabase_url = 'https://wdmipyooncrcdmvlloou.supabase.co'
+  const supabase_key = 'sb_publishable_u-KtwCVzKm55-UAdFJ3FgQ_RsZSpm0u'
 
-    const supabase = createClient(supabase_url, supabase_key, {
-      auth: {
-        persistSession: true,
-        autoRefreshToken: true,
-        detectSessionInUrl: true
-      }
-    })
+  const supabase = createClient(supabase_url, supabase_key, {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true
+    }
+  })
 
-    window.sb = supabase
+  window.sb = supabase
 
-    const statusEl = document.getElementById('status')
-    const authSectionEl = document.getElementById('authSection')
-    const appSectionEl = document.getElementById('appSection')
-    const editorSectionEl = document.getElementById('editorSection')
-    const adminPanelSectionEl = document.getElementById('adminPanelSection')
-    const userBadgeEl = document.getElementById('userBadge')
-    const roleBadgeEl = document.getElementById('roleBadge')
-    const infoEmailEl = document.getElementById('infoEmail')
-    const infoRoleEl = document.getElementById('infoRole')
-    const assignedStreetsEl = document.getElementById('assignedStreets')
-    const assignedStreetsSummaryEl = document.getElementById('assignedStreetsSummary')
-    const emailInputEl = document.getElementById('emailInput')
-    const loginBtn = document.getElementById('loginBtn')
-    const passwordInputEl = document.getElementById('passwordInput')
-    const passwordLoginBtn = document.getElementById('passwordLoginBtn')
-    const logoutBtn = document.getElementById('logoutBtn')
-    const streetSelectEl = document.getElementById('streetSelect')
-    const houseNumberEl = document.getElementById('KućaNumber')
-    const houseSuffixEl = document.getElementById('houseSuffix')
-    const addressLabelEl = document.getElementById('addressLabel')
-    const addressTypeEl = document.getElementById('addressType')
-    const unitNumberEl = document.getElementById('unitNumber')
-    const unitNumberLabelEl = document.getElementById('unitNumberLabel')
-    const saveBtn = document.getElementById('saveBtn')
-    const updateBtn = document.getElementById('updateBtn')
-    const cancelEditBtn = document.getElementById('cancelEditBtn')
-    const deleteDuplicatesBtn = document.getElementById('deleteDuplicatesBtn')
-    const refreshStreetsBtn = document.getElementById('refreshStreetsBtn')
-    const formTitleEl = document.getElementById('formTitle')
-    const statsCardsEl = document.getElementById('statsCards')
-    const streetStatsEl = document.getElementById('streetStats')
-    const filterStreetEl = document.getElementById('filterStreet')
-    const filterStatusEl = document.getElementById('filterStatus')
-    const searchInputEl = document.getElementById('searchInput')
-    const applyFiltersBtn = document.getElementById('applyFiltersBtn')
-    const resetFiltersBtn = document.getElementById('resetFiltersBtn')
-    const exportCsvBtn = document.getElementById('exportCsvBtn')
-    const exportExcelBtn = document.getElementById('exportExcelBtn')
-    const printBtn = document.getElementById('printBtn')
-    const pageInfoEl = document.getElementById('pageInfo')
-    const addressSelectEl = document.getElementById('addressSelect')
-    const selectedAddressDetailsEl = document.getElementById('selectedAddressDetails')
+  const statusEl = document.getElementById('status')
+  const authSectionEl = document.getElementById('authSection')
+  const appSectionEl = document.getElementById('appSection')
+  const editorSectionEl = document.getElementById('editorSection')
+  const adminPanelSectionEl = document.getElementById('adminPanelSection')
+  const userBadgeEl = document.getElementById('userBadge')
+  const roleBadgeEl = document.getElementById('roleBadge')
+  const infoEmailEl = document.getElementById('infoEmail')
+  const infoRoleEl = document.getElementById('infoRole')
+  const assignedStreetsEl = document.getElementById('assignedStreets')
+  const assignedStreetsSummaryEl = document.getElementById('assignedStreetsSummary')
+  const emailInputEl = document.getElementById('emailInput')
+  const loginBtn = document.getElementById('loginBtn')
+  const passwordInputEl = document.getElementById('passwordInput')
+  const passwordLoginBtn = document.getElementById('passwordLoginBtn')
+  const logoutBtn = document.getElementById('logoutBtn')
+  const streetSelectEl = document.getElementById('streetSelect')
+  const houseNumberEl = document.getElementById('KućaNumber')
+  const houseSuffixEl = document.getElementById('houseSuffix')
+  const addressLabelEl = document.getElementById('addressLabel')
+  const addressTypeEl = document.getElementById('addressType')
+  const unitNumberEl = document.getElementById('unitNumber')
+  const unitNumberLabelEl = document.getElementById('unitNumberLabel')
+  const saveBtn = document.getElementById('saveBtn')
+  const updateBtn = document.getElementById('updateBtn')
+  const cancelEditBtn = document.getElementById('cancelEditBtn')
+  const deleteDuplicatesBtn = document.getElementById('deleteDuplicatesBtn')
+  const refreshStreetsBtn = document.getElementById('refreshStreetsBtn')
+  const formTitleEl = document.getElementById('formTitle')
+  const statsCardsEl = document.getElementById('statsCards')
+  const streetStatsEl = document.getElementById('streetStats')
+  const filterStreetEl = document.getElementById('filterStreet')
+  const filterStatusEl = document.getElementById('filterStatus')
+  const searchInputEl = document.getElementById('searchInput')
+  const applyFiltersBtn = document.getElementById('applyFiltersBtn')
+  const resetFiltersBtn = document.getElementById('resetFiltersBtn')
+  const exportCsvBtn = document.getElementById('exportCsvBtn')
+  const exportExcelBtn = document.getElementById('exportExcelBtn')
+  const printBtn = document.getElementById('printBtn')
+  const pageInfoEl = document.getElementById('pageInfo')
+  const addressSelectEl = document.getElementById('addressSelect')
+  const selectedAddressDetailsEl = document.getElementById('selectedAddressDetails')
 
-    const adminUserSelectEl = document.getElementById('adminUserSelect')
-    const adminRoleSelectEl = document.getElementById('adminRoleSelect')
-    const saveUserRoleBtn = document.getElementById('saveUserRoleBtn')
-    const refreshAdminPanelBtn = document.getElementById('refreshAdminPanelBtn')
-    const adminAssignmentsInfoEl = document.getElementById('adminAssignmentsInfo')
-    const adminStreetCheckboxesEl = document.getElementById('adminStreetCheckboxes')
-    const saveAssignmentsBtn = document.getElementById('saveAssignmentsBtn')
+  const adminUserSelectEl = document.getElementById('adminUserSelect')
+  const adminRoleSelectEl = document.getElementById('adminRoleSelect')
+  const saveUserRoleBtn = document.getElementById('saveUserRoleBtn')
+  const refreshAdminPanelBtn = document.getElementById('refreshAdminPanelBtn')
+  const adminAssignmentsInfoEl = document.getElementById('adminAssignmentsInfo')
+  const adminStreetCheckboxesEl = document.getElementById('adminStreetCheckboxes')
+  const saveAssignmentsBtn = document.getElementById('saveAssignmentsBtn')
 
-    const newUserEmailEl = document.getElementById('newUserEmail')
-    const newUserFullnameEl = document.getElementById('newUserFullname')
-    const newUserRoleEl = document.getElementById('newUserRole')
-    const createNewUserBtn = document.getElementById('createNewUserBtn')
-    const newUserPasswordEl = document.getElementById('newUserPassword')
+  const newUserEmailEl = document.getElementById('newUserEmail')
+  const newUserFullnameEl = document.getElementById('newUserFullname')
+  const newUserRoleEl = document.getElementById('newUserRole')
+  const createNewUserBtn = document.getElementById('createNewUserBtn')
+  const newUserPasswordEl = document.getElementById('newUserPassword')
 
 let currentUser = null
 let currentProfile = null
@@ -830,62 +829,62 @@ let editingAddressId = null
 let selectedAddressId = null
 let allAddresses = []
 
-    function cleanStreetName(value) {
-      if (!value) return ''
-      return String(value).replace(/^name\s*=\s*/i, '').trim()
+  function cleanStreetName(value) {
+    if (!value) return ''
+    return String(value).replace(/^name\s*=\s*/i, '').trim()
+  }
+
+  function normalizeStreetKey(name, settlement) {
+    return `${cleanStreetName(name).trim().toLowerCase()}||${String(settlement || '').trim().toLowerCase()}`
+  }
+
+  function dedupeStreets(streets) {
+    const uniqueMap = new Map()
+    for (const street of streets || []) {
+      const key = normalizeStreetKey(street.name, street.settlement_name)
+      if (!uniqueMap.has(key)) uniqueMap.set(key, street)
+    }
+    return Array.from(uniqueMap.values()).sort((a, b) => {
+      const nameA = cleanStreetName(a.name).toLowerCase()
+      const nameB = cleanStreetName(b.name).toLowerCase()
+      return nameA.localeCompare(nameB, 'sr')
+    })
+  }
+
+  function setStatus(msg) {
+    statusEl.textContent = msg
+  }
+
+  function getRole() {
+    return currentProfile?.role || 'viewer'
+  }
+
+  function isAdmin() {
+    return getRole() === 'admin'
+  }
+
+  function canEdit() {
+    return getRole() === 'admin' || getRole() === 'editor'
+  }
+
+  function applyRolePermissions() {
+    const role = getRole()
+    roleBadgeEl.textContent = `Rola: ${role}`
+    infoRoleEl.textContent = role
+
+    if (canEdit()) {
+      editorSectionEl.classList.remove('hidden')
+    } else {
+      editorSectionEl.classList.add('hidden')
+      exitEditMode(true)
     }
 
-    function normalizeStreetKey(name, settlement) {
-      return `${cleanStreetName(name).trim().toLowerCase()}||${String(settlement || '').trim().toLowerCase()}`
-    }
+    adminPanelSectionEl.classList.toggle('hidden', !isAdmin())
 
-    function dedupeStreets(streets) {
-      const uniqueMap = new Map()
-      for (const street of streets || []) {
-        const key = normalizeStreetKey(street.name, street.settlement_name)
-        if (!uniqueMap.has(key)) uniqueMap.set(key, street)
-      }
-      return Array.from(uniqueMap.values()).sort((a, b) => {
-        const nameA = cleanStreetName(a.name).toLowerCase()
-        const nameB = cleanStreetName(b.name).toLowerCase()
-        return nameA.localeCompare(nameB, 'sr')
-      })
-    }
-
-    function setStatus(msg) {
-      statusEl.textContent = msg
-    }
-
-    function getRole() {
-      return currentProfile?.role || 'viewer'
-    }
-
-    function isAdmin() {
-      return getRole() === 'admin'
-    }
-
-    function canEdit() {
-      return getRole() === 'admin' || getRole() === 'editor'
-    }
-
-    function applyRolePermissions() {
-      const role = getRole()
-      roleBadgeEl.textContent = `Rola: ${role}`
-      infoRoleEl.textContent = role
-
-      if (canEdit()) {
-        editorSectionEl.classList.remove('hidden')
-      } else {
-        editorSectionEl.classList.add('hidden')
-        exitEditMode(true)
-      }
-
-      adminPanelSectionEl.classList.toggle('hidden', !isAdmin())
-
-      document.querySelectorAll('.admin-only').forEach(el => {
-        el.classList.toggle('hidden', !isAdmin())
-      })
-    }
+    document.querySelectorAll('.admin-only').forEach(el => {
+      el.classList.toggle('hidden', !isAdmin())
+    })
+  }
 
 function resetForm() {
   streetSelectEl.value = ''
@@ -964,7 +963,8 @@ formTitleEl.textContent = 'Unos nove adrese'
   setStatus(`✏️ Menjaš adresu: ${item.full_address_label}`)
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
-function exitEditMode(silent = false) {
+
+  function exitEditMode(silent = false) {
     editingAddressId = null
     resetForm()
     formTitleEl.textContent = 'Unos nove adrese'
@@ -1188,7 +1188,9 @@ function renderAddresses() {
 
       grouped[street][status] = (grouped[street][status] || 0) + 1
       grouped[street].total += 1
-    }... const sortedEntries = Object.entries(grouped).sort((a, b) => a[0].localeCompare(b[0], 'sr'))
+    }
+
+    const sortedEntries = Object.entries(grouped).sort((a, b) => a[0].localeCompare(b[0], 'sr'))
 
     streetStatsEl.innerHTML = sortedEntries.map(([street, values]) => `
       <div class="street-stat-item">
