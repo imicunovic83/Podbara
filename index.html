@@ -884,15 +884,15 @@
   const createNewUserBtn = document.getElementById('createNewUserBtn')
   const newUserPasswordEl = document.getElementById('newUserPassword')
 
-let currentUser = null
-let currentProfile = null
-let availableStreets = []
-let allSystemStreets = []
-let allProfiles = []
-let selectedAdminUserAssignments = []
-let editingAddressId = null
-let selectedAddressId = null
-let allAddresses = []
+  let currentUser = null
+  let currentProfile = null
+  let availableStreets = []
+  let allSystemStreets = []
+  let allProfiles = []
+  let selectedAdminUserAssignments = []
+  let editingAddressId = null
+  let selectedAddressId = null
+  let allAddresses = []
 
   function cleanStreetName(value) {
     if (!value) return ''
@@ -951,83 +951,75 @@ let allAddresses = []
     })
   }
 
-function resetForm() {
-  streetSelectEl.value = ''
-  houseNumberEl.value = ''
-  houseSuffixEl.value = ''
-  unitNumberEl.value = ''
-  addressTypeEl.value = 'Kuća'
-  updateUnitFieldState()
-  updateAddressLabel()
-}
-function updateUnitFieldState() {
-  const isBuilding = addressTypeEl.value === 'Zgrada'
-
-  unitNumberEl.required = isBuilding
-
-  if (unitNumberLabelEl) {
-    unitNumberLabelEl.textContent = isBuilding
-      ? 'Stan / jedinica *'
-      : 'Stan / jedinica'
-  }
-}
-
-function validateUnitNumber() {
-  const isBuilding = addressTypeEl.value === 'Zgrada'
-  const unitNumber = unitNumberEl.value.trim()
-
-  if (isBuilding && !unitNumber) {
-    setStatus('❌ Za tip adrese "Zgrada" polje Stan / jedinica je obavezno.')
-    unitNumberEl.focus()
-    return false
+  function resetForm() {
+    streetSelectEl.value = ''
+    houseNumberEl.value = ''
+    houseSuffixEl.value = ''
+    unitNumberEl.value = ''
+    addressTypeEl.value = 'Kuća'
+    updateUnitFieldState()
+    updateAddressLabel()
   }
 
-  return true
-}
-
-function formatFullAddress(streetName, houseNumber, houseSuffix, unitNumber) {
-  const numberPart = `${houseNumber || ''}${houseSuffix || ''}`.trim()
-  const baseAddress = [streetName, numberPart].filter(Boolean).join(' ').trim()
-
-  if (unitNumber) {
-    return `${baseAddress} / ${unitNumber}`.trim()
+  function updateUnitFieldState() {
+    const isBuilding = addressTypeEl.value === 'Zgrada'
+    unitNumberEl.required = isBuilding
+    if (unitNumberLabelEl) {
+      unitNumberLabelEl.textContent = isBuilding ? 'Stan / jedinica *' : 'Stan / jedinica'
+    }
   }
 
-  return baseAddress
-}
-  
- function updateAddressLabel() {
-  const sid = streetSelectEl.value
-  const num = houseNumberEl.value.trim()
-  const suffix = houseSuffixEl.value.trim()
-  const unitNumber = unitNumberEl.value.trim()
-  const street = availableStreets.find(s => String(s.id) === String(sid))
-  const name = cleanStreetName(street?.name || '')
+  function validateUnitNumber() {
+    const isBuilding = addressTypeEl.value === 'Zgrada'
+    const unitNumber = unitNumberEl.value.trim()
 
-  addressLabelEl.value = formatFullAddress(name, num, suffix, unitNumber)
-}
+    if (isBuilding && !unitNumber) {
+      setStatus('❌ Za tip adrese "Zgrada" polje Stan / jedinica je obavezno.')
+      unitNumberEl.focus()
+      return false
+    }
+
+    return true
+  }
+
+  function formatFullAddress(streetName, houseNumber, houseSuffix, unitNumber) {
+    const numberPart = `${houseNumber || ''}${houseSuffix || ''}`.trim()
+    const baseAddress = [streetName, numberPart].filter(Boolean).join(' ').trim()
+    if (unitNumber) return `${baseAddress} / ${unitNumber}`.trim()
+    return baseAddress
+  }
+
+  function updateAddressLabel() {
+    const sid = streetSelectEl.value
+    const num = houseNumberEl.value.trim()
+    const suffix = houseSuffixEl.value.trim()
+    const unitNumber = unitNumberEl.value.trim()
+    const street = availableStreets.find(s => String(s.id) === String(sid))
+    const name = cleanStreetName(street?.name || '')
+    addressLabelEl.value = formatFullAddress(name, num, suffix, unitNumber)
+  }
 
   function enterEditMode(item) {
-  if (!canEdit()) {
-    setStatus('❌ Nemaš dozvolu za izmenu.')
-    return
-  }
+    if (!canEdit()) {
+      setStatus('❌ Nemaš dozvolu za izmenu.')
+      return
+    }
 
-  editingAddressId = item.id
- streetSelectEl.value = item.street_id ?? ''
-houseNumberEl.value = item.house_number ?? ''
-houseSuffixEl.value = item.house_number_suffix ?? ''
-unitNumberEl.value = item.unit_number ?? ''
-addressLabelEl.value = item.full_address_label ?? ''
-addressTypeEl.value = item.address_type ?? 'Kuća'
-updateUnitFieldState()
-formTitleEl.textContent = 'Unos nove adrese'
-  saveBtn.classList.add('hidden')
-  updateBtn.classList.remove('hidden')
-  cancelEditBtn.classList.remove('hidden')
-  setStatus(`✏️ Menjaš adresu: ${item.full_address_label}`)
-  window.scrollTo({ top: 0, behavior: 'smooth' })
-}
+    editingAddressId = item.id
+    streetSelectEl.value = item.street_id ?? ''
+    houseNumberEl.value = item.house_number ?? ''
+    houseSuffixEl.value = item.house_number_suffix ?? ''
+    unitNumberEl.value = item.unit_number ?? ''
+    addressLabelEl.value = item.full_address_label ?? ''
+    addressTypeEl.value = item.address_type ?? 'Kuća'
+    updateUnitFieldState()
+    formTitleEl.textContent = 'Unos nove adrese'
+    saveBtn.classList.add('hidden')
+    updateBtn.classList.remove('hidden')
+    cancelEditBtn.classList.remove('hidden')
+    setStatus(`✏️ Menjaš adresu: ${item.full_address_label}`)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
 
   function exitEditMode(silent = false) {
     editingAddressId = null
@@ -1096,144 +1088,119 @@ formTitleEl.textContent = 'Unos nove adrese'
       : 'Izaberi korisnika da vidi i menja dodeljene ulice.'
   }
 
-function getFilteredAddresses() {
-  const selectedStreet = filterStreetEl.value
-  const selectedStatus = filterStatusEl.value
-  const search = searchInputEl.value.trim().toLowerCase()
+  function getFilteredAddresses() {
+    const selectedStreet = filterStreetEl.value
+    const selectedStatus = filterStatusEl.value
+    const search = searchInputEl.value.trim().toLowerCase()
 
-  return allAddresses.filter(item => {
-    const streetName = cleanStreetName(item.streets?.name || '').toLowerCase()
-    const fullLabel = String(item.full_address_label || '').toLowerCase()
-    const houseNumber = String(item.house_number || '').toLowerCase()
-    const houseSuffix = String(item.house_number_suffix || '').toLowerCase()
-    const unitNumber = String(item.unit_number || '').toLowerCase()
+    return allAddresses.filter(item => {
+      const streetName = cleanStreetName(item.streets?.name || '').toLowerCase()
+      const fullLabel = String(item.full_address_label || '').toLowerCase()
+      const houseNumber = String(item.house_number || '').toLowerCase()
+      const houseSuffix = String(item.house_number_suffix || '').toLowerCase()
+      const unitNumber = String(item.unit_number || '').toLowerCase()
 
-    const matchStreet = !selectedStreet || String(item.street_id) === String(selectedStreet)
-    const matchStatus = !selectedStatus || String(item.census_status) === String(selectedStatus)
+      const matchStreet = !selectedStreet || String(item.street_id) === String(selectedStreet)
+      const matchStatus = !selectedStatus || String(item.census_status) === String(selectedStatus)
 
-    const matchSearch =
-      !search ||
-      streetName.includes(search) ||
-      fullLabel.includes(search) ||
-      houseNumber.includes(search) ||
-      houseSuffix.includes(search) ||
-      unitNumber.includes(search)
+      const matchSearch =
+        !search ||
+        streetName.includes(search) ||
+        fullLabel.includes(search) ||
+        houseNumber.includes(search) ||
+        houseSuffix.includes(search) ||
+        unitNumber.includes(search)
 
-    return matchStreet && matchStatus && matchSearch
-  })
-}
+      return matchStreet && matchStatus && matchSearch
+    })
+  }
 
   function populateAddressSelect(filtered) {
-  if (!addressSelectEl) return
+    if (!addressSelectEl) return
 
-  addressSelectEl.innerHTML = `
-    <option value="">Izaberi adresu...</option>
-    ${filtered.map(item => `
-      <option value="${item.id}">
-        ${item.full_address_label || 'Bez naziva'}
-      </option>
-    `).join('')}
-  `
+    addressSelectEl.innerHTML = `
+      <option value="">Izaberi adresu...</option>
+      ${filtered.map(item => `
+        <option value="${item.id}">
+          ${item.full_address_label || 'Bez naziva'}
+        </option>
+      `).join('')}
+    `
 
-  const hasSelected = filtered.some(item => String(item.id) === String(selectedAddressId))
-
-  if (!hasSelected) {
-    selectedAddressId = filtered.length ? String(filtered[0].id) : null
+    const hasSelected = filtered.some(item => String(item.id) === String(selectedAddressId))
+    if (!hasSelected) selectedAddressId = filtered.length ? String(filtered[0].id) : null
+    addressSelectEl.value = selectedAddressId || ''
   }
 
-  addressSelectEl.value = selectedAddressId || ''
-}
-
-function getSelectedAddress(filtered) {
-  if (!filtered.length) return null
-
-  const selected =
-    filtered.find(item => String(item.id) === String(selectedAddressId)) || filtered[0]
-
-  if (selected) {
-    selectedAddressId = String(selected.id)
+  function getSelectedAddress(filtered) {
+    if (!filtered.length) return null
+    const selected =
+      filtered.find(item => String(item.id) === String(selectedAddressId)) || filtered[0]
+    if (selected) selectedAddressId = String(selected.id)
+    return selected
   }
 
-  return selected
-}
+  function renderSelectedAddressDetails(item) {
+    if (!item) {
+      selectedAddressDetailsEl.innerHTML = '<div class="empty">Nema adrese za prikaz.</div>'
+      return
+    }
 
-function renderSelectedAddressDetails(item) {
-  if (!item) {
-    selectedAddressDetailsEl.innerHTML = '<div class="empty">Nema adrese za prikaz.</div>'
-    return
-  }
-
-  selectedAddressDetailsEl.innerHTML = `
-    <div class="address-detail-card">
-      <div class="address-detail-header">
-        <h3 class="address-detail-title">${item.full_address_label ?? 'Bez naziva'}</h3>
-        <span class="status-badge ${getStatusClass(item.census_status)}">${getStatusLabel(item.census_status)}</span>
-      </div>
-
-      <div class="address-detail-grid">
-        <div class="addr-row"><span class="addr-label">Ulica:</span> ${cleanStreetName(item.streets?.name) || '-'}</div>
-        <div class="addr-row"><span class="addr-label">Naselje:</span> ${item.streets?.settlement_name ?? '-'}</div>
-        <div class="addr-row"><span class="addr-label">Broj:</span> ${item.house_number ?? '-'}</div>
-        <div class="addr-row"><span class="addr-label">Dodatak:</span> ${item.house_number_suffix ?? '-'}</div>
-        <div class="addr-row"><span class="addr-label">Stan / jedinica:</span> ${item.unit_number ?? '-'}</div>
-        <div class="addr-row"><span class="addr-label">Tip:</span> ${item.address_type ?? '-'}</div>
-        <div class="addr-row"><span class="addr-label">Aktivna:</span> ${item.is_active ? 'Da' : 'Ne'}</div>
-      </div>
-
-      ${canEdit() ? `
-        <div class="status-editor">
-          <label for="status-${item.id}">Promeni status</label>
-          <select class="status-select" id="status-${item.id}" data-status-id="${item.id}">
-            <option value="pending" ${item.census_status === 'pending' ? 'selected' : ''}>Pending</option>
-            <option value="visited" ${item.census_status === 'visited' ? 'selected' : ''}>Visited</option>
-            <option value="refused" ${item.census_status === 'refused' ? 'selected' : ''}>Refused</option>
-            <option value="scheduled" ${item.census_status === 'scheduled' ? 'selected' : ''}>Scheduled</option>
-          </select>
+    selectedAddressDetailsEl.innerHTML = `
+      <div class="address-detail-card">
+        <div class="address-detail-header">
+          <h3 class="address-detail-title">${item.full_address_label ?? 'Bez naziva'}</h3>
+          <span class="status-badge ${getStatusClass(item.census_status)}">${getStatusLabel(item.census_status)}</span>
         </div>
 
-        <div class="address-detail-actions">
-          <button type="button" class="btn-dark" data-edit-id="${item.id}">Izmeni</button>
-          <button
-            type="button"
-            class="btn-danger"
-            data-delete-id="${item.id}"
-            data-delete-label="${(item.full_address_label ?? 'Bez naziva').replace(/"/g, '&quot;')}"
-          >
-            Obriši
-          </button>
+        <div class="address-detail-grid">
+          <div class="addr-row"><span class="addr-label">Ulica:</span> ${cleanStreetName(item.streets?.name) || '-'}</div>
+          <div class="addr-row"><span class="addr-label">Naselje:</span> ${item.streets?.settlement_name ?? '-'}</div>
+          <div class="addr-row"><span class="addr-label">Broj:</span> ${item.house_number ?? '-'}</div>
+          <div class="addr-row"><span class="addr-label">Dodatak:</span> ${item.house_number_suffix ?? '-'}</div>
+          <div class="addr-row"><span class="addr-label">Stan / jedinica:</span> ${item.unit_number ?? '-'}</div>
+          <div class="addr-row"><span class="addr-label">Tip:</span> ${item.address_type ?? '-'}</div>
+          <div class="addr-row"><span class="addr-label">Aktivna:</span> ${item.is_active ? 'Da' : 'Ne'}</div>
         </div>
-      ` : ''}
-    </div>
-  `
 
-  if (canEdit()) {
-    selectedAddressDetailsEl.querySelector('[data-edit-id]')?.addEventListener('click', () => {
-      enterEditMode(item)
-    })
+        ${canEdit() ? `
+          <div class="status-editor">
+            <label for="status-${item.id}">Promeni status</label>
+            <select class="status-select" id="status-${item.id}" data-status-id="${item.id}">
+              <option value="pending" ${item.census_status === 'pending' ? 'selected' : ''}>Pending</option>
+              <option value="visited" ${item.census_status === 'visited' ? 'selected' : ''}>Visited</option>
+              <option value="refused" ${item.census_status === 'refused' ? 'selected' : ''}>Refused</option>
+              <option value="scheduled" ${item.census_status === 'scheduled' ? 'selected' : ''}>Scheduled</option>
+            </select>
+          </div>
 
-    selectedAddressDetailsEl.querySelector('[data-delete-id]')?.addEventListener('click', () => {
-      deleteAddress(item.id, item.full_address_label ?? 'Bez naziva')
-    })
+          <div class="address-detail-actions">
+            <button type="button" class="btn-dark" data-edit-id="${item.id}">Izmeni</button>
+            <button type="button" class="btn-danger" data-delete-id="${item.id}" data-delete-label="${(item.full_address_label ?? 'Bez naziva').replace(/"/g, '&quot;')}">Obriši</button>
+          </div>
+        ` : ''}
+      </div>
+    `
 
-    selectedAddressDetailsEl.querySelector('[data-status-id]')?.addEventListener('change', (e) => {
-      updateCensusStatus(e.target.dataset.statusId, e.target.value)
-    })
+    if (canEdit()) {
+      selectedAddressDetailsEl.querySelector('[data-edit-id]')?.addEventListener('click', () => enterEditMode(item))
+      selectedAddressDetailsEl.querySelector('[data-delete-id]')?.addEventListener('click', () => {
+        deleteAddress(item.id, item.full_address_label ?? 'Bez naziva')
+      })
+      selectedAddressDetailsEl.querySelector('[data-status-id]')?.addEventListener('change', (e) => {
+        updateCensusStatus(e.target.dataset.statusId, e.target.value)
+      })
+    }
   }
-}
 
-function renderAddresses() {
-  const filtered = getFilteredAddresses()
-
- addressSelectEl.innerHTML = '<option value="">Nema adresa</option>'
-
-  populateAddressSelect(filtered)
-
-  const selectedItem = getSelectedAddress(filtered)
-
-  pageInfoEl.textContent = `Ukupno pronađenih adresa: ${filtered.length}`
-
-  renderSelectedAddressDetails(selectedItem)
-}
+  function renderAddresses() {
+    const filtered = getFilteredAddresses()
+    addressSelectEl.innerHTML = '<option value="">Nema adresa</option>'
+    populateAddressSelect(filtered)
+    const selectedItem = getSelectedAddress(filtered)
+    pageInfoEl.textContent = `Ukupno pronađenih adresa: ${filtered.length}`
+    renderSelectedAddressDetails(selectedItem)
+  }
 
   function renderStreetStatsFromAddresses(addressRows) {
     if (!addressRows?.length) {
@@ -1242,21 +1209,15 @@ function renderAddresses() {
     }
 
     const grouped = {}
-
     for (const row of addressRows) {
       const street = cleanStreetName(row.streets?.name || 'Nepoznata ulica')
       const status = row.census_status || 'pending'
-
-      if (!grouped[street]) {
-        grouped[street] = { pending: 0, visited: 0, refused: 0, scheduled: 0, total: 0 }
-      }
-
+      if (!grouped[street]) grouped[street] = { pending: 0, visited: 0, refused: 0, scheduled: 0, total: 0 }
       grouped[street][status] = (grouped[street][status] || 0) + 1
       grouped[street].total += 1
     }
 
     const sortedEntries = Object.entries(grouped).sort((a, b) => a[0].localeCompare(b[0], 'sr'))
-
     streetStatsEl.innerHTML = sortedEntries.map(([street, values]) => `
       <div class="street-stat-item">
         <div class="street-stat-name">${street}</div>
@@ -1290,17 +1251,16 @@ function renderAddresses() {
 
   function exportFilteredCsv() {
     const filtered = getFilteredAddresses()
-
     if (!filtered.length) {
       setStatus('❌ Nema podataka za CSV export.')
       return
     }
 
-   const rows = [
-  ['Ulica', 'Naselje', 'Broj', 'Dodatak', 'Stan / jedinica', 'Puna adresa', 'Tip', 'Status', 'Aktivna']
-]
+    const rows = [
+      ['Ulica', 'Naselje', 'Broj', 'Dodatak', 'Stan / jedinica', 'Puna adresa', 'Tip', 'Status', 'Aktivna']
+    ]
 
-filtered.forEach(item => {
+    filtered.forEach(item => {
       rows.push([
         cleanStreetName(item.streets?.name || ''),
         item.streets?.settlement_name || '',
@@ -1322,26 +1282,24 @@ filtered.forEach(item => {
 
   function exportFilteredExcel() {
     const filtered = getFilteredAddresses()
-
     if (!filtered.length) {
       setStatus('❌ Nema podataka za Excel export.')
       return
     }
 
     const detailRows = filtered.map(item => ({
-  Ulica: cleanStreetName(item.streets?.name || ''),
-  Naselje: item.streets?.settlement_name || '',
-  Broj: item.house_number || '',
-  Dodatak: item.house_number_suffix || '',
-  'Stan / jedinica': item.unit_number || '',
-  'Puna adresa': item.full_address_label || '',
-  Tip: item.address_type || '',
-  Status: getStatusLabel(item.census_status),
-  Aktivna: item.is_active ? 'Da' : 'Ne'
-}))
+      Ulica: cleanStreetName(item.streets?.name || ''),
+      Naselje: item.streets?.settlement_name || '',
+      Broj: item.house_number || '',
+      Dodatak: item.house_number_suffix || '',
+      'Stan / jedinica': item.unit_number || '',
+      'Puna adresa': item.full_address_label || '',
+      Tip: item.address_type || '',
+      Status: getStatusLabel(item.census_status),
+      Aktivna: item.is_active ? 'Da' : 'Ne'
+    }))
 
     const summaryMap = new Map()
-
     filtered.forEach(item => {
       const street = cleanStreetName(item.streets?.name || '')
       if (!summaryMap.has(street)) {
@@ -1363,10 +1321,7 @@ filtered.forEach(item => {
       row.Ukupno++
     })
 
-    const summaryRows = Array.from(summaryMap.values()).sort((a, b) =>
-      String(a.Ulica).localeCompare(String(b.Ulica), 'sr')
-    )
-
+    const summaryRows = Array.from(summaryMap.values()).sort((a, b) => String(a.Ulica).localeCompare(String(b.Ulica), 'sr'))
     const wb = XLSX.utils.book_new()
     const wsDetails = XLSX.utils.json_to_sheet(detailRows)
     const wsSummary = XLSX.utils.json_to_sheet(summaryRows)
@@ -1374,17 +1329,9 @@ filtered.forEach(item => {
     XLSX.utils.book_append_sheet(wb, wsDetails, 'Adrese')
     XLSX.utils.book_append_sheet(wb, wsSummary, 'Sumarni pregled')
 
-   wsDetails['!cols'] = [
-  { wch: 24 },
-  { wch: 18 },
-  { wch: 10 },
-  { wch: 10 },
-  { wch: 16 },
-  { wch: 30 },
-  { wch: 12 },
-  { wch: 14 },
-  { wch: 10 }
-]
+    wsDetails['!cols'] = [
+      { wch: 24 }, { wch: 18 }, { wch: 10 }, { wch: 10 }, { wch: 16 }, { wch: 30 }, { wch: 12 }, { wch: 14 }, { wch: 10 }
+    ]
 
     wsSummary['!cols'] = [
       { wch: 24 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 10 }
@@ -1398,7 +1345,6 @@ filtered.forEach(item => {
 
   function printFilteredView() {
     const filtered = getFilteredAddresses()
-
     if (!filtered.length) {
       setStatus('❌ Nema podataka za štampu.')
       return
@@ -1411,18 +1357,19 @@ filtered.forEach(item => {
     }
 
     const rowsHtml = filtered.map(item => `
-  <tr>
-    <td>${cleanStreetName(item.streets?.name || '')}</td>
-    <td>${item.streets?.settlement_name || ''}</td>
-    <td>${item.house_number || ''}</td>
-    <td>${item.house_number_suffix || ''}</td>
-    <td>${item.unit_number || ''}</td>
-    <td>${item.full_address_label || ''}</td>
-    <td>${item.address_type || ''}</td>
-    <td>${getStatusLabel(item.census_status)}</td>
-    <td>${item.is_active ? 'Da' : 'Ne'}</td>
-  </tr>
-`).join('')
+      <tr>
+        <td>${cleanStreetName(item.streets?.name || '')}</td>
+        <td>${item.streets?.settlement_name || ''}</td>
+        <td>${item.house_number || ''}</td>
+        <td>${item.house_number_suffix || ''}</td>
+        <td>${item.unit_number || ''}</td>
+        <td>${item.full_address_label || ''}</td>
+        <td>${item.address_type || ''}</td>
+        <td>${getStatusLabel(item.census_status)}</td>
+        <td>${item.is_active ? 'Da' : 'Ne'}</td>
+      </tr>
+    `).join('')
+
     printWindow.document.write(`
       <!DOCTYPE html>
       <html lang="sr">
@@ -1443,17 +1390,17 @@ filtered.forEach(item => {
         <p>Ukupno redova: ${filtered.length}</p>
         <table>
           <thead>
-          <tr>
-  <th>Ulica</th>
-  <th>Naselje</th>
-  <th>Broj</th>
-  <th>Dodatak</th>
-  <th>Stan / jedinica</th>
-  <th>Puna adresa</th>
-  <th>Tip</th>
-  <th>Status</th>
-  <th>Aktivna</th>
-</tr>
+            <tr>
+              <th>Ulica</th>
+              <th>Naselje</th>
+              <th>Broj</th>
+              <th>Dodatak</th>
+              <th>Stan / jedinica</th>
+              <th>Puna adresa</th>
+              <th>Tip</th>
+              <th>Status</th>
+              <th>Aktivna</th>
+            </tr>
           </thead>
           <tbody>
             ${rowsHtml}
@@ -1465,15 +1412,12 @@ filtered.forEach(item => {
 
     printWindow.document.close()
     printWindow.focus()
-    setTimeout(() => {
-      printWindow.print()
-    }, 300)
+    setTimeout(() => printWindow.print(), 300)
     setStatus(`✅ Print pregled spreman. Redova: ${filtered.length}`)
   }
 
   async function signInWithMagicLink() {
     const email = emailInputEl.value.trim()
-
     if (!email) {
       setStatus('Unesi validnu email adresu.')
       return
@@ -1532,7 +1476,6 @@ filtered.forEach(item => {
       }
 
       const ok = await loadCurrentUserAndProfile()
-
       if (!ok) {
         setStatus('Prijava je prošla, ali profil nije učitan.')
         return
@@ -1606,44 +1549,29 @@ filtered.forEach(item => {
 
   async function loadAdminProfiles() {
     if (!isAdmin()) return
-
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('id, email, fullname, role, is_active')
-      .order('email', { ascending: true })
-
+    const { data, error } = await supabase.from('profiles').select('id, email, fullname, role, is_active').order('email', { ascending: true })
     if (error) {
       setStatus(`Greška profiles: ${error.message}`)
       return
     }
-
     allProfiles = data || []
     renderAdminUsers()
   }
 
   async function loadAllSystemStreets() {
     if (!isAdmin()) return
-
-    const { data, error } = await supabase
-      .from('streets')
-      .select('id, name, settlement_name, is_active')
-      .eq('is_active', true)
-      .order('name', { ascending: true })
-
+    const { data, error } = await supabase.from('streets').select('id, name, settlement_name, is_active').eq('is_active', true).order('name', { ascending: true })
     if (error) {
       setStatus(`Greška streets admin: ${error.message}`)
       return
     }
-
     allSystemStreets = dedupeStreets(data || [])
     renderStreetCheckboxes()
   }
 
   async function loadSelectedUserAssignments() {
     if (!isAdmin()) return
-
     const selectedUserId = adminUserSelectEl.value
-
     if (!selectedUserId) {
       selectedAdminUserAssignments = []
       renderStreetCheckboxes()
@@ -1662,10 +1590,8 @@ filtered.forEach(item => {
     }
 
     selectedAdminUserAssignments = data || []
-
     const selectedUser = allProfiles.find(p => String(p.id) === String(selectedUserId))
     if (selectedUser) adminRoleSelectEl.value = selectedUser.role || 'viewer'
-
     renderStreetCheckboxes()
   }
 
@@ -1687,13 +1613,8 @@ filtered.forEach(item => {
     saveUserRoleBtn.textContent = 'Čuvam rolu...'
 
     try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({ role: selectedRole })
-        .eq('id', selectedUserId)
-
+      const { error } = await supabase.from('profiles').update({ role: selectedRole }).eq('id', selectedUserId)
       if (error) throw error
-
       await loadAdminProfiles()
       setStatus(`✅ Rola korisnika je sačuvana: ${selectedRole}`)
     } catch (err) {
@@ -1716,9 +1637,7 @@ filtered.forEach(item => {
       return
     }
 
-    const checkedStreetIds = Array.from(
-      adminStreetCheckboxesEl.querySelectorAll('input[type="checkbox"]:checked')
-    ).map(input => input.value)
+    const checkedStreetIds = Array.from(adminStreetCheckboxesEl.querySelectorAll('input[type="checkbox"]:checked')).map(input => input.value)
 
     saveAssignmentsBtn.disabled = true
     saveAssignmentsBtn.textContent = 'Čuvam dodele...'
@@ -1735,42 +1654,26 @@ filtered.forEach(item => {
       const existingByStreet = new Map(existingRows.map(row => [String(row.street_id), row]))
       const checkedSet = new Set(checkedStreetIds.map(String))
 
-      const idsToDeactivate = existingRows
-        .filter(row => row.is_active && !checkedSet.has(String(row.street_id)))
-        .map(row => row.id)
-
-      const idsToReactivate = existingRows
-        .filter(row => !row.is_active && checkedSet.has(String(row.street_id)))
-        .map(row => row.id)
-
-      const rowsToInsert = checkedStreetIds
-        .filter(streetId => !existingByStreet.has(String(streetId)))
-        .map(streetId => ({
-          user_id: selectedUserId,
-          street_id: streetId,
-          is_active: true
-        }))
+      const idsToDeactivate = existingRows.filter(row => row.is_active && !checkedSet.has(String(row.street_id))).map(row => row.id)
+      const idsToReactivate = existingRows.filter(row => !row.is_active && checkedSet.has(String(row.street_id))).map(row => row.id)
+      const rowsToInsert = checkedStreetIds.filter(streetId => !existingByStreet.has(String(streetId))).map(streetId => ({
+        user_id: selectedUserId,
+        street_id: streetId,
+        is_active: true
+      }))
 
       if (idsToDeactivate.length) {
-        const { error } = await supabase
-          .from('user_street_assignments')
-          .update({ is_active: false })
-          .in('id', idsToDeactivate)
+        const { error } = await supabase.from('user_street_assignments').update({ is_active: false }).in('id', idsToDeactivate)
         if (error) throw error
       }
 
       if (idsToReactivate.length) {
-        const { error } = await supabase
-          .from('user_street_assignments')
-          .update({ is_active: true })
-          .in('id', idsToReactivate)
+        const { error } = await supabase.from('user_street_assignments').update({ is_active: true }).in('id', idsToReactivate)
         if (error) throw error
       }
 
       if (rowsToInsert.length) {
-        const { error } = await supabase
-          .from('user_street_assignments')
-          .insert(rowsToInsert)
+        const { error } = await supabase.from('user_street_assignments').insert(rowsToInsert)
         if (error) throw error
       }
 
@@ -1810,26 +1713,20 @@ filtered.forEach(item => {
       if (sessionError) throw sessionError
 
       const accessToken = sessionData?.session?.access_token
-      if (!accessToken) {
-        throw new Error('Nema aktivne sesije. Prijavi se ponovo.')
-      }
+      if (!accessToken) throw new Error('Nema aktivne sesije. Prijavi se ponovo.')
 
       const { data, error } = await supabase.functions.invoke('create-user', {
         body: { email, password, fullname, role },
-        headers: {
-          Authorization: `Bearer ${accessToken}`
-        }
+        headers: { Authorization: `Bearer ${accessToken}` }
       })
 
       if (error) throw error
 
       setStatus(`✅ Korisnik uspešno dodat: ${data?.email ?? email}`)
-
       newUserEmailEl.value = ''
       newUserFullnameEl.value = ''
       newUserPasswordEl.value = ''
       newUserRoleEl.value = 'viewer'
-
       await loadAdminProfiles()
     } catch (err) {
       setStatus(`❌ Greška: ${err.message}`)
@@ -1842,10 +1739,7 @@ filtered.forEach(item => {
   async function loadAllowedStreets() {
     if (!currentProfile) return
 
-    let query = supabase
-      .from('streets')
-      .select('id, name, settlement_name, is_active')
-      .eq('is_active', true)
+    let query = supabase.from('streets').select('id, name, settlement_name, is_active').eq('is_active', true)
 
     if (currentProfile.role !== 'admin') {
       const { data: assignments, error: assignmentError } = await supabase
@@ -1892,11 +1786,7 @@ filtered.forEach(item => {
       : '<li>Nema dodeljenih ulica</li>'
 
     const streetCount = availableStreets.length
-
-assignedStreetsSummaryEl.textContent = streetCount
-  ? `Dozvoljene ulice (${streetCount})`
-  : 'Dozvoljene ulice (0)'
-
+    assignedStreetsSummaryEl.textContent = streetCount ? `Dozvoljene ulice (${streetCount})` : 'Dozvoljene ulice (0)'
     populateStreetFilters()
   }
 
@@ -1959,13 +1849,9 @@ assignedStreetsSummaryEl.textContent = streetCount
     }
 
     setStatus('Čuvam status...')
-
     const { error } = await supabase
       .from('addresses')
-      .update({
-        census_status: newStatus,
-        updated_by: currentUser.id
-      })
+      .update({ census_status: newStatus, updated_by: currentUser.id })
       .eq('id', addressId)
 
     if (error) {
@@ -1979,102 +1865,94 @@ assignedStreetsSummaryEl.textContent = streetCount
   }
 
   async function loadAddresses() {
-  let query = supabase
-    .from('addresses')
-    .select(`
-      id,
-      street_id,
-      house_number,
-      house_number_suffix,
-      unit_number,
-      full_address_label,
-      address_type,
-      census_status,
-      is_active,
-      created_by,
-      updated_by,
-      streets (
+    let query = supabase
+      .from('addresses')
+      .select(`
         id,
-        name,
-        settlement_name
-      )
-    `)
-    .order('id', { ascending: false })
+        street_id,
+        house_number,
+        house_number_suffix,
+        unit_number,
+        full_address_label,
+        address_type,
+        census_status,
+        is_active,
+        created_by,
+        updated_by,
+        streets (
+          id,
+          name,
+          settlement_name
+        )
+      `)
+      .order('id', { ascending: false })
 
-  if (!isAdmin()) {
-    const allowedStreetIds = availableStreets.map(s => s.id).filter(Boolean)
+    if (!isAdmin()) {
+      const allowedStreetIds = availableStreets.map(s => s.id).filter(Boolean)
+      if (!allowedStreetIds.length) {
+        allAddresses = []
+        renderAddresses()
+        return
+      }
+      query = query.in('street_id', allowedStreetIds)
+    }
 
-    if (!allowedStreetIds.length) {
-      allAddresses = []
-      renderAddresses()
+    const { data, error } = await query
+    if (error) {
+      selectedAddressDetailsEl.innerHTML = `<div class="empty">Greška: ${error.message}</div>`
       return
     }
 
-    query = query.in('street_id', allowedStreetIds)
+    allAddresses = data || []
+    renderAddresses()
   }
 
-  const { data, error } = await query
-
-  if (error) {
-    selectedAddressDetailsEl.innerHTML = `<div class="empty">Greška: ${error.message}</div>`
-    return
-  }
-
-  allAddresses = data || []
-  renderAddresses()
-}
-
- async function saveAddress() {
-  if (!canEdit()) {
-    setStatus('❌ Nemaš dozvolu za unos adrese.')
-    return
-  }
-
-  const street_id = streetSelectEl.value
-  const house_number = houseNumberEl.value.trim()
-  const house_number_suffix = houseSuffixEl.value.trim()
-  const unit_number = unitNumberEl.value.trim()
-  const address_type = addressTypeEl.value
-
-  const street = availableStreets.find(s => String(s.id) === String(street_id))
-  const streetName = cleanStreetName(street?.name || '')
-  const full_address_label = formatFullAddress(streetName, house_number, house_number_suffix, unit_number)
-
-  if (!street_id || !house_number || !address_type) {
-    setStatus('❌ Popuni sva obavezna polja!')
-    return
-  }
-
-  if (!validateUnitNumber()) {
-    return
-  }
-
-  if (!full_address_label) {
-    setStatus('❌ Puna adresa nije ispravno formirana.')
-    return
-  }
-
-  saveBtn.disabled = true
-  saveBtn.textContent = 'Čuvam...'
-
-  try {
-    const { data: existing, error: existingError } = await supabase
-      .from('addresses')
-      .select('id')
-      .eq('street_id', street_id)
-      .eq('full_address_label', full_address_label)
-      .maybeSingle()
-
-    if (existingError) throw existingError
-
-    if (existing) {
-      setStatus('⚠️ Adresa već postoji!')
+  async function saveAddress() {
+    if (!canEdit()) {
+      setStatus('❌ Nemaš dozvolu za unos adrese.')
       return
     }
 
-    const { error } = await supabase
-      .from('addresses')
-      .insert([{
+    const street_id = streetSelectEl.value
+    const house_number = houseNumberEl.value.trim()
+    const house_number_suffix = houseSuffixEl.value.trim()
+    const unit_number = unitNumberEl.value.trim()
+    const address_type = addressTypeEl.value
+
+    const street = availableStreets.find(s => String(s.id) === String(street_id))
+    const streetName = cleanStreetName(street?.name || '')
+    const full_address_label = formatFullAddress(streetName, house_number, house_number_suffix, unit_number)
+
+    if (!street_id || !house_number || !address_type) {
+      setStatus('❌ Popuni sva obavezna polja!')
+      return
+    }
+
+    if (!validateUnitNumber()) return
+    if (!full_address_label) {
+      setStatus('❌ Puna adresa nije ispravno formirana.')
+      return
+    }
+
+    saveBtn.disabled = true
+    saveBtn.textContent = 'Čuvam...'
+
+    try {
+      const { data: existing, error: existingError } = await supabase
+        .from('addresses')
+        .select('id')
+        .eq('street_id', street_id)
+        .eq('full_address_label', full_address_label)
+        .maybeSingle()
+
+      if (existingError) throw existingError
+
+      if (existing) {
+        setStatus('⚠️ Adresa već postoji!')
+        return
+      }
+
+      const { error } = await supabase.from('addresses').insert([{
         street_id,
         house_number,
         house_number_suffix: house_number_suffix || null,
@@ -2087,100 +1965,97 @@ assignedStreetsSummaryEl.textContent = streetCount
         updated_by: currentUser.id
       }])
 
-    if (error) throw error
+      if (error) throw error
 
-    resetForm()
-    setStatus('✅ Adresa sačuvana!')
-    await loadAddresses()
-    await loadDashboardStats()
-  } catch (err) {
-    setStatus(`❌ Greška: ${err.message}`)
-  } finally {
-    saveBtn.disabled = false
-    saveBtn.textContent = 'Sačuvaj adresu'
-  }
-}
-
- async function updateAddress() {
-  if (!canEdit()) {
-    setStatus('❌ Nemaš dozvolu za izmenu adrese.')
-    return
+      resetForm()
+      setStatus('✅ Adresa sačuvana!')
+      await loadAddresses()
+      await loadDashboardStats()
+    } catch (err) {
+      setStatus(`❌ Greška: ${err.message}`)
+    } finally {
+      saveBtn.disabled = false
+      saveBtn.textContent = 'Sačuvaj adresu'
+    }
   }
 
-  if (!editingAddressId) {
-    setStatus('❌ Nije izabrana adresa za izmenu.')
-    return
-  }
-
-  const street_id = streetSelectEl.value
-  const house_number = houseNumberEl.value.trim()
-  const house_number_suffix = houseSuffixEl.value.trim()
-  const unit_number = unitNumberEl.value.trim()
-  const address_type = addressTypeEl.value
-
-  const street = availableStreets.find(s => String(s.id) === String(street_id))
-  const streetName = cleanStreetName(street?.name || '')
-  const full_address_label = formatFullAddress(streetName, house_number, house_number_suffix, unit_number)
-
-  if (!street_id || !house_number || !address_type) {
-    setStatus('❌ Popuni sva obavezna polja!')
-    return
-  }
-
-  if (!validateUnitNumber()) {
-    return
-  }
-
-  if (!full_address_label) {
-    setStatus('❌ Puna adresa nije ispravno formirana.')
-    return
-  }
-
-  updateBtn.disabled = true
-  updateBtn.textContent = 'Čuvam izmene...'
-
-  try {
-    const { data: existing, error: checkError } = await supabase
-      .from('addresses')
-      .select('id')
-      .eq('street_id', street_id)
-      .eq('full_address_label', full_address_label)
-      .neq('id', editingAddressId)
-      .maybeSingle()
-
-    if (checkError) throw checkError
-
-    if (existing) {
-      setStatus('⚠️ Već postoji druga adresa sa istim nazivom na toj ulici.')
+  async function updateAddress() {
+    if (!canEdit()) {
+      setStatus('❌ Nemaš dozvolu za izmenu adrese.')
       return
     }
 
-    const { error } = await supabase
-      .from('addresses')
-      .update({
-        street_id,
-        house_number,
-        house_number_suffix: house_number_suffix || null,
-        unit_number: unit_number || null,
-        full_address_label,
-        address_type,
-        updated_by: currentUser.id
-      })
-      .eq('id', editingAddressId)
+    if (!editingAddressId) {
+      setStatus('❌ Nije izabrana adresa za izmenu.')
+      return
+    }
 
-    if (error) throw error
+    const street_id = streetSelectEl.value
+    const house_number = houseNumberEl.value.trim()
+    const house_number_suffix = houseSuffixEl.value.trim()
+    const unit_number = unitNumberEl.value.trim()
+    const address_type = addressTypeEl.value
 
-    setStatus('✅ Adresa uspešno izmenjena.')
-    exitEditMode()
-    await loadAddresses()
-    await loadDashboardStats()
-  } catch (err) {
-    setStatus(`❌ Greška pri izmeni: ${err.message}`)
-  } finally {
-    updateBtn.disabled = false
-    updateBtn.textContent = 'Sačuvaj izmene'
+    const street = availableStreets.find(s => String(s.id) === String(street_id))
+    const streetName = cleanStreetName(street?.name || '')
+    const full_address_label = formatFullAddress(streetName, house_number, house_number_suffix, unit_number)
+
+    if (!street_id || !house_number || !address_type) {
+      setStatus('❌ Popuni sva obavezna polja!')
+      return
+    }
+
+    if (!validateUnitNumber()) return
+    if (!full_address_label) {
+      setStatus('❌ Puna adresa nije ispravno formirana.')
+      return
+    }
+
+    updateBtn.disabled = true
+    updateBtn.textContent = 'Čuvam izmene...'
+
+    try {
+      const { data: existing, error: checkError } = await supabase
+        .from('addresses')
+        .select('id')
+        .eq('street_id', street_id)
+        .eq('full_address_label', full_address_label)
+        .neq('id', editingAddressId)
+        .maybeSingle()
+
+      if (checkError) throw checkError
+
+      if (existing) {
+        setStatus('⚠️ Već postoji druga adresa sa istim nazivom na toj ulici.')
+        return
+      }
+
+      const { error } = await supabase
+        .from('addresses')
+        .update({
+          street_id,
+          house_number,
+          house_number_suffix: house_number_suffix || null,
+          unit_number: unit_number || null,
+          full_address_label,
+          address_type,
+          updated_by: currentUser.id
+        })
+        .eq('id', editingAddressId)
+
+      if (error) throw error
+
+      setStatus('✅ Adresa uspešno izmenjena.')
+      exitEditMode()
+      await loadAddresses()
+      await loadDashboardStats()
+    } catch (err) {
+      setStatus(`❌ Greška pri izmeni: ${err.message}`)
+    } finally {
+      updateBtn.disabled = false
+      updateBtn.textContent = 'Sačuvaj izmene'
+    }
   }
-}
 
   async function deleteAddress(id, label) {
     if (!canEdit()) {
@@ -2192,17 +2067,10 @@ assignedStreetsSummaryEl.textContent = streetCount
     if (!confirmed) return
 
     try {
-      const { error } = await supabase
-        .from('addresses')
-        .delete()
-        .eq('id', id)
-
+      const { error } = await supabase.from('addresses').delete().eq('id', id)
       if (error) throw error
 
-      if (String(editingAddressId) === String(id)) {
-        exitEditMode()
-      }
-
+      if (String(editingAddressId) === String(id)) exitEditMode()
       setStatus(`🗑️ Adresa "${label}" je obrisana.`)
       await loadAddresses()
       await loadDashboardStats()
@@ -2236,11 +2104,8 @@ assignedStreetsSummaryEl.textContent = streetCount
 
       for (const row of all || []) {
         const key = `${row.street_id}||${(row.full_address_label || '').toLowerCase().trim()}`
-        if (seen.has(key)) {
-          toDelete.push(row.id)
-        } else {
-          seen.set(key, row.id)
-        }
+        if (seen.has(key)) toDelete.push(row.id)
+        else seen.set(key, row.id)
       }
 
       if (toDelete.length === 0) {
@@ -2249,14 +2114,9 @@ assignedStreetsSummaryEl.textContent = streetCount
       }
 
       const batchSize = 50
-
       for (let i = 0; i < toDelete.length; i += batchSize) {
         const batch = toDelete.slice(i, i + batchSize)
-        const { error: delErr } = await supabase
-          .from('addresses')
-          .delete()
-          .in('id', batch)
-
+        const { error: delErr } = await supabase.from('addresses').delete().in('id', batch)
         if (delErr) throw delErr
       }
 
@@ -2350,53 +2210,53 @@ assignedStreetsSummaryEl.textContent = streetCount
   saveAssignmentsBtn.addEventListener('click', saveSelectedUserAssignments)
   createNewUserBtn.addEventListener('click', createNewUserProfile)
 
-applyFiltersBtn.addEventListener('click', () => {
-  renderAddresses()
-  setStatus('✅ Filteri primenjeni.')
-})
+  applyFiltersBtn.addEventListener('click', () => {
+    renderAddresses()
+    setStatus('✅ Filteri primenjeni.')
+  })
 
-resetFiltersBtn.addEventListener('click', () => {
-  filterStreetEl.value = ''
-  filterStatusEl.value = ''
-  searchInputEl.value = ''
-  selectedAddressId = null
-  renderAddresses()
-  setStatus('✅ Filteri resetovani.')
-})
+  resetFiltersBtn.addEventListener('click', () => {
+    filterStreetEl.value = ''
+    filterStatusEl.value = ''
+    searchInputEl.value = ''
+    selectedAddressId = null
+    renderAddresses()
+    setStatus('✅ Filteri resetovani.')
+  })
 
   exportCsvBtn.addEventListener('click', exportFilteredCsv)
   exportExcelBtn.addEventListener('click', exportFilteredExcel)
   printBtn.addEventListener('click', printFilteredView)
 
- streetSelectEl.addEventListener('change', updateAddressLabel)
-houseNumberEl.addEventListener('input', updateAddressLabel)
-houseSuffixEl.addEventListener('input', updateAddressLabel)
-unitNumberEl.addEventListener('input', updateAddressLabel)
+  streetSelectEl.addEventListener('change', updateAddressLabel)
+  houseNumberEl.addEventListener('input', updateAddressLabel)
+  houseSuffixEl.addEventListener('input', updateAddressLabel)
+  unitNumberEl.addEventListener('input', updateAddressLabel)
+
   addressSelectEl.addEventListener('change', () => {
-  selectedAddressId = addressSelectEl.value || null
-  renderAddresses()
-})
+    selectedAddressId = addressSelectEl.value || null
+    renderAddresses()
+  })
 
-addressTypeEl.addEventListener('change', () => {
+  addressTypeEl.addEventListener('change', () => {
+    updateUnitFieldState()
+    updateAddressLabel()
+  })
+
   updateUnitFieldState()
-  updateAddressLabel()
-})
-
-updateUnitFieldState()
 
   supabase.auth.onAuthStateChange((event) => {
-  if (event === 'SIGNED_IN') {
-    setTimeout(() => {
-      initApp()
-    }, 0)
-  }
+    if (event === 'SIGNED_IN') {
+      setTimeout(() => {
+        initApp()
+      }, 0)
+    }
 
-  if (event === 'SIGNED_OUT') {
-    renderLoggedOut()
-    setStatus('Uspešno si odjavljen.')
-  }
-})
-
+    if (event === 'SIGNED_OUT') {
+      renderLoggedOut()
+      setStatus('Uspešno si odjavljen.')
+    }
+  })
 
   initApp()
 </script>
