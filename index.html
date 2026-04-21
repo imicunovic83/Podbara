@@ -2125,15 +2125,14 @@ renderStreetStatsFromAddresses(rows)
 
   updateUnitFieldState()
 
-  supabase.auth.onAuthStateChange((event) => {
-    if (event === 'SIGNED_IN') {
-      setTimeout(() => { initApp() }, 0)
-    }
-    if (event === 'SIGNED_OUT') {
-      renderLoggedOut()
-      setStatus('Uspešno si odjavljen.')
-    }
-  })
+supabase.auth.onAuthStateChange((event) => {
+  if (event === 'SIGNED_IN') {
+    setTimeout(() => initApp(), 0)
+  } else if (event === 'SIGNED_OUT') {
+    renderLoggedOut()
+    setStatus('Uspešno si odjavljen.')
+  }
+})
 
   initApp()
 </script>
