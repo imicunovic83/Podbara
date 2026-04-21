@@ -105,7 +105,7 @@
       padding: var(--space-6) var(--space-4) var(--space-10);
     }
 
-    /* ── Legacy h1/h2 (for auth, fallback) ── */
+    /* ── Legacy h1/h2 ── */
     h1 {
       font-size: var(--text-hero);
       font-weight: 700;
@@ -178,7 +178,7 @@
       flex-shrink: 0;
     }
 
-    /* ── Topbar / user panel ── */
+    /* ── Topbar ── */
     .topbar {
       display: flex;
       justify-content: space-between;
@@ -229,7 +229,7 @@
     /* ── Stat cards ── */
     .stats-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
       gap: var(--space-4);
     }
 
@@ -256,9 +256,12 @@
     }
 
     .stat-card:nth-child(1)::before { background: var(--color-primary); }
-    .stat-card:nth-child(2)::before { background: #f59e0b; }
-    .stat-card:nth-child(3)::before { background: #22c55e; }
-    .stat-card:nth-child(4)::before { background: #3b82f6; }
+    .stat-card:nth-child(2)::before { background: #7c3aed; }
+    .stat-card:nth-child(3)::before { background: #dc2626; }
+    .stat-card:nth-child(4)::before { background: #f59e0b; }
+    .stat-card:nth-child(5)::before { background: #22c55e; }
+    .stat-card:nth-child(6)::before { background: #ef4444; }
+    .stat-card:nth-child(7)::before { background: #3b82f6; }
 
     .stat-card h3 {
       font-size: var(--text-xs);
@@ -278,9 +281,12 @@
     }
 
     .stat-card:nth-child(1) .stat-value { color: var(--color-primary); }
-    .stat-card:nth-child(2) .stat-value { color: #d97706; }
-    .stat-card:nth-child(3) .stat-value { color: #16a34a; }
-    .stat-card:nth-child(4) .stat-value { color: #2563eb; }
+    .stat-card:nth-child(2) .stat-value { color: #7c3aed; }
+    .stat-card:nth-child(3) .stat-value { color: #dc2626; }
+    .stat-card:nth-child(4) .stat-value { color: #d97706; }
+    .stat-card:nth-child(5) .stat-value { color: #16a34a; }
+    .stat-card:nth-child(6) .stat-value { color: #ef4444; }
+    .stat-card:nth-child(7) .stat-value { color: #2563eb; }
 
     /* ── Form grids ── */
     .form-grid {
@@ -295,12 +301,6 @@
       gap: var(--space-4);
     }
 
-    .admin-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: var(--space-4);
-    }
-
     .address-form-grid {
       display: grid;
       grid-template-columns: 1.4fr 1fr 0.85fr 0.85fr 1fr 1.9fr;
@@ -309,7 +309,6 @@
     }
 
     .address-form-grid .field { min-width: 0; }
-    .address-form-grid .note { margin-top: 8px; font-size: 12px; line-height: 1.4; }
 
     @media (max-width: 1200px) {
       .address-form-grid { grid-template-columns: repeat(3, minmax(180px, 1fr)); }
@@ -394,7 +393,8 @@
     }
 
     .field input,
-    .field select {
+    .field select,
+    .field textarea {
       width: 100%;
       padding: var(--space-3) var(--space-3);
       border: 1.5px solid var(--color-border);
@@ -406,6 +406,12 @@
       transition: border-color 0.15s, box-shadow 0.15s;
     }
 
+    .field textarea {
+      resize: vertical;
+      min-height: 80px;
+      line-height: 1.5;
+    }
+
     #addressLabel {
       background: #f3f4f6;
       font-weight: 600;
@@ -415,7 +421,8 @@
     }
 
     .field input:focus,
-    .field select:focus {
+    .field select:focus,
+    .field textarea:focus {
       outline: none;
       border-color: var(--color-primary);
       box-shadow: 0 0 0 3px rgba(1, 105, 111, 0.1);
@@ -448,9 +455,7 @@
       box-shadow: 0 4px 12px rgba(1,105,111,0.25);
     }
 
-    button:active {
-      transform: scale(0.98);
-    }
+    button:active { transform: scale(0.98); }
 
     button:disabled {
       background: #93c5fd;
@@ -501,10 +506,7 @@
       border-bottom: 1px solid var(--color-border);
     }
 
-    .addr-label {
-      font-weight: 700;
-      color: var(--color-text);
-    }
+    .addr-label { font-weight: 700; color: var(--color-text); }
 
     /* ── Status badges ── */
     .status-badge {
@@ -517,41 +519,26 @@
       letter-spacing: 0.02em;
     }
 
-   .status-students_win {
-  background: #ede9fe;
-  color: #6b21a8;
-}
-
-.status-sns {
-  background: #fee2e2;
-  color: #991b1b;
-}
-
-.status-not_visited {
-  background: var(--color-warning-bg);
-  color: var(--color-warning-text);
-}
-
-.status-visited {
-  background: var(--color-success-bg);
-  color: var(--color-success-text);
-}
-
-.status-not_found {
-  background: var(--color-not_found-bg);
-  color: var(--color-not_found-text);
-}
-
-.status-scheduled {
-  background: var(--color-scheduled-bg);
-  color: var(--color-scheduled-text);
-}; }
+    .status-students_win { background: #ede9fe; color: #6b21a8; }
+    .status-sns          { background: #fee2e2; color: #991b1b; }
+    .status-not_visited  { background: var(--color-warning-bg); color: var(--color-warning-text); }
+    .status-visited      { background: var(--color-success-bg); color: var(--color-success-text); }
+    .status-not_found    { background: var(--color-not_found-bg); color: var(--color-not_found-text); }
+    .status-scheduled    { background: var(--color-scheduled-bg); color: var(--color-scheduled-text); }
 
     /* ── Status editor ── */
     .status-editor {
       margin-top: var(--space-4);
       padding-top: var(--space-4);
       border-top: 1px solid var(--color-border);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-4);
+      align-items: start;
+    }
+
+    @media (max-width: 640px) {
+      .status-editor { grid-template-columns: 1fr; }
     }
 
     .status-editor label {
@@ -561,15 +548,36 @@
       margin-bottom: var(--space-2);
     }
 
-    .status-editor select {
+    .status-editor select,
+    .status-editor textarea {
       width: 100%;
-      max-width: 260px;
       padding: var(--space-3);
       border: 1.5px solid var(--color-border);
       border-radius: var(--radius-md);
       background: white;
       font-size: var(--text-sm);
       font-family: 'DM Sans', Arial, sans-serif;
+      color: var(--color-text);
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .status-editor textarea {
+      resize: vertical;
+      min-height: 80px;
+      line-height: 1.5;
+    }
+
+    .status-editor select:focus,
+    .status-editor textarea:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(1, 105, 111, 0.1);
+    }
+
+    .notes-save-row {
+      margin-top: var(--space-3);
+      display: flex;
+      justify-content: flex-end;
     }
 
     /* ── Empty state ── */
@@ -590,18 +598,6 @@
       margin-top: var(--space-3);
       line-height: 1.5;
     }
-
-    /* ── Permissions / "Tvoje dozvole" ── */
-    .info-row {
-      display: flex;
-      align-items: baseline;
-      gap: var(--space-2);
-      padding: var(--space-2) 0;
-      font-size: var(--text-sm);
-      border-bottom: 1px solid var(--color-bg);
-    }
-
-    .info-row:last-of-type { border-bottom: none; }
 
     /* ── Streets dropdown ── */
     .streets-dropdown {
@@ -686,11 +682,13 @@
       font-weight: 600;
     }
 
-    .pill-total { background: var(--color-primary-light); color: var(--color-primary); }
-    .pill-not_visited { background: #fef3c7; color: #92400e; }
-    .pill-visited { background: #dcfce7; color: #166534; }
-    .pill-not_found { background: #fee2e2; color: #991b1b; }
-    .pill-scheduled { background: #dbeafe; color: #1d4ed8; }
+    .pill-total        { background: var(--color-primary-light); color: var(--color-primary); }
+    .pill-students_win { background: #ede9fe; color: #6b21a8; }
+    .pill-sns          { background: #fee2e2; color: #991b1b; }
+    .pill-not_visited  { background: #fef3c7; color: #92400e; }
+    .pill-visited      { background: #dcfce7; color: #166534; }
+    .pill-not_found    { background: #fee2e2; color: #991b1b; }
+    .pill-scheduled    { background: #dbeafe; color: #1d4ed8; }
 
     /* ── Admin panel ── */
     .assignments-box {
@@ -788,9 +786,12 @@
         <h2>Pregled</h2>
         <div id="statsCards" class="stats-grid">
           <div class="stat-card"><h3>Ukupno adresa</h3><div class="stat-value">0</div></div>
-          <div class="stat-card"><h3>Pending</h3><div class="stat-value">0</div></div>
-          <div class="stat-card"><h3>Visited</h3><div class="stat-value">0</div></div>
-          <div class="stat-card"><h3>Refused + Scheduled</h3><div class="stat-value">0</div></div>
+          <div class="stat-card"><h3>✌️ Studenti pobedjuju</h3><div class="stat-value">0</div></div>
+          <div class="stat-card"><h3>💩 SNS</h3><div class="stat-value">0</div></div>
+          <div class="stat-card"><h3>Nije obiđeno</h3><div class="stat-value">0</div></div>
+          <div class="stat-card"><h3>Obiđeno</h3><div class="stat-value">0</div></div>
+          <div class="stat-card"><h3>Nije zatečen</h3><div class="stat-value">0</div></div>
+          <div class="stat-card"><h3>Zakazano</h3><div class="stat-value">0</div></div>
         </div>
       </div>
 
@@ -874,13 +875,13 @@
           <div class="field">
             <label for="filterStatus">Filter po statusu</label>
             <select id="filterStatus">
-             <option value="">Svi statusi</option>
-<option value="students_win">✌️ Studenti pobedjuju</option>
-<option value="sns">💩 SNS</option>
-<option value="not_visited">Nije obidjeno</option>
-<option value="visited">Obidjeno</option>
-<option value="not_found">Nije zatečen</option>
-<option value="scheduled">Zakazano</option>
+              <option value="">Svi statusi</option>
+              <option value="students_win">✌️ Studenti pobedjuju</option>
+              <option value="sns">💩 SNS</option>
+              <option value="not_visited">Nije obiđeno</option>
+              <option value="visited">Obiđeno</option>
+              <option value="not_found">Nije zatečen</option>
+              <option value="scheduled">Zakazano</option>
             </select>
           </div>
           <div class="field">
@@ -1003,73 +1004,74 @@
 
   window.sb = supabase
 
-  const statusEl = document.getElementById('status')
-  const authSectionEl = document.getElementById('authSection')
-  const appSectionEl = document.getElementById('appSection')
-  const editorSectionEl = document.getElementById('editorSection')
-  const adminPanelSectionEl = document.getElementById('adminPanelSection')
-  const userBadgeEl = document.getElementById('userBadge')
-  const roleBadgeEl = document.getElementById('roleBadge')
-  const infoEmailEl = document.getElementById('infoEmail')
-  const infoRoleEl = document.getElementById('infoRole')
-  const assignedStreetsEl = document.getElementById('assignedStreets')
-  const assignedStreetsSummaryEl = document.getElementById('assignedStreetsSummary')
-  const emailInputEl = document.getElementById('emailInput')
-  const loginBtn = document.getElementById('loginBtn')
-  const passwordInputEl = document.getElementById('passwordInput')
-  const passwordLoginBtn = document.getElementById('passwordLoginBtn')
-  const logoutBtn = document.getElementById('logoutBtn')
-  const streetSelectEl = document.getElementById('streetSelect')
-  const houseNumberEl = document.getElementById('KućaNumber')
-  const houseSuffixEl = document.getElementById('houseSuffix')
-  const addressLabelEl = document.getElementById('addressLabel')
-  const addressTypeEl = document.getElementById('addressType')
-  const unitNumberEl = document.getElementById('unitNumber')
-  const unitNumberLabelEl = document.getElementById('unitNumberLabel')
-  const saveBtn = document.getElementById('saveBtn')
-  const updateBtn = document.getElementById('updateBtn')
-  const cancelEditBtn = document.getElementById('cancelEditBtn')
-  const deleteDuplicatesBtn = document.getElementById('deleteDuplicatesBtn')
-  const refreshStreetsBtn = document.getElementById('refreshStreetsBtn')
-  const formTitleEl = document.getElementById('formTitle')
-  const statsCardsEl = document.getElementById('statsCards')
-  const streetStatsEl = document.getElementById('streetStats')
-  const filterStreetEl = document.getElementById('filterStreet')
-  const filterStatusEl = document.getElementById('filterStatus')
-  const searchInputEl = document.getElementById('searchInput')
-  const applyFiltersBtn = document.getElementById('applyFiltersBtn')
-  const resetFiltersBtn = document.getElementById('resetFiltersBtn')
-  const exportCsvBtn = document.getElementById('exportCsvBtn')
-  const exportExcelBtn = document.getElementById('exportExcelBtn')
-  const printBtn = document.getElementById('printBtn')
-  const pageInfoEl = document.getElementById('pageInfo')
-  const addressSelectEl = document.getElementById('addressSelect')
-  const selectedAddressDetailsEl = document.getElementById('selectedAddressDetails')
+  // ── DOM refs ──────────────────────────────────────────────────────────────
+  const statusEl                  = document.getElementById('status')
+  const authSectionEl             = document.getElementById('authSection')
+  const appSectionEl              = document.getElementById('appSection')
+  const editorSectionEl           = document.getElementById('editorSection')
+  const adminPanelSectionEl       = document.getElementById('adminPanelSection')
+  const userBadgeEl               = document.getElementById('userBadge')
+  const roleBadgeEl               = document.getElementById('roleBadge')
+  const infoEmailEl               = document.getElementById('infoEmail')
+  const infoRoleEl                = document.getElementById('infoRole')
+  const assignedStreetsEl         = document.getElementById('assignedStreets')
+  const assignedStreetsSummaryEl  = document.getElementById('assignedStreetsSummary')
+  const emailInputEl              = document.getElementById('emailInput')
+  const loginBtn                  = document.getElementById('loginBtn')
+  const passwordInputEl           = document.getElementById('passwordInput')
+  const passwordLoginBtn          = document.getElementById('passwordLoginBtn')
+  const logoutBtn                 = document.getElementById('logoutBtn')
+  const streetSelectEl            = document.getElementById('streetSelect')
+  const houseNumberEl             = document.getElementById('KućaNumber')
+  const houseSuffixEl             = document.getElementById('houseSuffix')
+  const addressLabelEl            = document.getElementById('addressLabel')
+  const addressTypeEl             = document.getElementById('addressType')
+  const unitNumberEl              = document.getElementById('unitNumber')
+  const unitNumberLabelEl         = document.getElementById('unitNumberLabel')
+  const saveBtn                   = document.getElementById('saveBtn')
+  const updateBtn                 = document.getElementById('updateBtn')
+  const cancelEditBtn             = document.getElementById('cancelEditBtn')
+  const deleteDuplicatesBtn       = document.getElementById('deleteDuplicatesBtn')
+  const refreshStreetsBtn          = document.getElementById('refreshStreetsBtn')
+  const formTitleEl               = document.getElementById('formTitle')
+  const statsCardsEl              = document.getElementById('statsCards')
+  const streetStatsEl             = document.getElementById('streetStats')
+  const filterStreetEl            = document.getElementById('filterStreet')
+  const filterStatusEl            = document.getElementById('filterStatus')
+  const searchInputEl             = document.getElementById('searchInput')
+  const applyFiltersBtn           = document.getElementById('applyFiltersBtn')
+  const resetFiltersBtn           = document.getElementById('resetFiltersBtn')
+  const exportCsvBtn              = document.getElementById('exportCsvBtn')
+  const exportExcelBtn            = document.getElementById('exportExcelBtn')
+  const printBtn                  = document.getElementById('printBtn')
+  const pageInfoEl                = document.getElementById('pageInfo')
+  const addressSelectEl           = document.getElementById('addressSelect')
+  const selectedAddressDetailsEl  = document.getElementById('selectedAddressDetails')
+  const adminUserSelectEl         = document.getElementById('adminUserSelect')
+  const adminRoleSelectEl         = document.getElementById('adminRoleSelect')
+  const saveUserRoleBtn           = document.getElementById('saveUserRoleBtn')
+  const refreshAdminPanelBtn      = document.getElementById('refreshAdminPanelBtn')
+  const adminAssignmentsInfoEl    = document.getElementById('adminAssignmentsInfo')
+  const adminStreetCheckboxesEl   = document.getElementById('adminStreetCheckboxes')
+  const saveAssignmentsBtn        = document.getElementById('saveAssignmentsBtn')
+  const newUserEmailEl            = document.getElementById('newUserEmail')
+  const newUserFullnameEl         = document.getElementById('newUserFullname')
+  const newUserRoleEl             = document.getElementById('newUserRole')
+  const createNewUserBtn          = document.getElementById('createNewUserBtn')
+  const newUserPasswordEl         = document.getElementById('newUserPassword')
 
-  const adminUserSelectEl = document.getElementById('adminUserSelect')
-  const adminRoleSelectEl = document.getElementById('adminRoleSelect')
-  const saveUserRoleBtn = document.getElementById('saveUserRoleBtn')
-  const refreshAdminPanelBtn = document.getElementById('refreshAdminPanelBtn')
-  const adminAssignmentsInfoEl = document.getElementById('adminAssignmentsInfo')
-  const adminStreetCheckboxesEl = document.getElementById('adminStreetCheckboxes')
-  const saveAssignmentsBtn = document.getElementById('saveAssignmentsBtn')
-
-  const newUserEmailEl = document.getElementById('newUserEmail')
-  const newUserFullnameEl = document.getElementById('newUserFullname')
-  const newUserRoleEl = document.getElementById('newUserRole')
-  const createNewUserBtn = document.getElementById('createNewUserBtn')
-  const newUserPasswordEl = document.getElementById('newUserPassword')
-
-  let currentUser = null
-  let currentProfile = null
-  let availableStreets = []
-  let allSystemStreets = []
-  let allProfiles = []
+  // ── State ─────────────────────────────────────────────────────────────────
+  let currentUser                 = null
+  let currentProfile              = null
+  let availableStreets            = []
+  let allSystemStreets            = []
+  let allProfiles                 = []
   let selectedAdminUserAssignments = []
-  let editingAddressId = null
-  let selectedAddressId = null
-  let allAddresses = []
+  let editingAddressId            = null
+  let selectedAddressId           = null
+  let allAddresses                = []
 
+  // ── Helpers ───────────────────────────────────────────────────────────────
   function cleanStreetName(value) {
     if (!value) return ''
     return String(value).replace(/^name\s*=\s*/i, '').trim()
@@ -1108,6 +1110,32 @@
     return getRole() === 'admin' || getRole() === 'editor'
   }
 
+  // ── Status helpers ─────────────────────────────────────────────────────────
+  function getStatusClass(status) {
+    switch (status) {
+      case 'students_win': return 'status-students_win'
+      case 'sns':          return 'status-sns'
+      case 'not_visited':  return 'status-not_visited'
+      case 'visited':      return 'status-visited'
+      case 'not_found':    return 'status-not_found'
+      case 'scheduled':    return 'status-scheduled'
+      default:             return 'status-not_visited'
+    }
+  }
+
+  function getStatusLabel(status) {
+    switch (status) {
+      case 'students_win': return '✌️ Studenti pobedjuju'
+      case 'sns':          return '💩 SNS'
+      case 'not_visited':  return 'Nije obiđeno'
+      case 'visited':      return 'Obiđeno'
+      case 'not_found':    return 'Nije zatečen'
+      case 'scheduled':    return 'Zakazano'
+      default:             return 'Nije obiđeno'
+    }
+  }
+
+  // ── Form helpers ───────────────────────────────────────────────────────────
   function applyRolePermissions() {
     const role = getRole()
     roleBadgeEl.textContent = `Rola: ${role}`
@@ -1121,18 +1149,17 @@
     }
 
     adminPanelSectionEl.classList.toggle('hidden', !isAdmin())
-
     document.querySelectorAll('.admin-only').forEach(el => {
       el.classList.toggle('hidden', !isAdmin())
     })
   }
 
   function resetForm() {
-    streetSelectEl.value = ''
-    houseNumberEl.value = ''
-    houseSuffixEl.value = ''
-    unitNumberEl.value = ''
-    addressTypeEl.value = 'Kuća'
+    streetSelectEl.value   = ''
+    houseNumberEl.value    = ''
+    houseSuffixEl.value    = ''
+    unitNumberEl.value     = ''
+    addressTypeEl.value    = 'Kuća'
     updateUnitFieldState()
     updateAddressLabel()
   }
@@ -1147,8 +1174,7 @@
 
   function validateUnitNumber() {
     const isBuilding = addressTypeEl.value === 'Zgrada'
-    const unitNumber = unitNumberEl.value.trim()
-    if (isBuilding && !unitNumber) {
+    if (isBuilding && !unitNumberEl.value.trim()) {
       setStatus('❌ Za tip adrese "Zgrada" polje Stan / jedinica je obavezno.')
       unitNumberEl.focus()
       return false
@@ -1157,34 +1183,31 @@
   }
 
   function formatFullAddress(streetName, houseNumber, houseSuffix, unitNumber) {
-    const numberPart = `${houseNumber || ''}${houseSuffix || ''}`.trim()
+    const numberPart  = `${houseNumber || ''}${houseSuffix || ''}`.trim()
     const baseAddress = [streetName, numberPart].filter(Boolean).join(' ').trim()
     if (unitNumber) return `${baseAddress} / ${unitNumber}`.trim()
     return baseAddress
   }
 
   function updateAddressLabel() {
-    const sid = streetSelectEl.value
-    const num = houseNumberEl.value.trim()
+    const sid    = streetSelectEl.value
+    const num    = houseNumberEl.value.trim()
     const suffix = houseSuffixEl.value.trim()
-    const unitNumber = unitNumberEl.value.trim()
+    const unit   = unitNumberEl.value.trim()
     const street = availableStreets.find(s => String(s.id) === String(sid))
-    const name = cleanStreetName(street?.name || '')
-    addressLabelEl.value = formatFullAddress(name, num, suffix, unitNumber)
+    const name   = cleanStreetName(street?.name || '')
+    addressLabelEl.value = formatFullAddress(name, num, suffix, unit)
   }
 
   function enterEditMode(item) {
-    if (!canEdit()) {
-      setStatus('❌ Nemaš dozvolu za izmenu.')
-      return
-    }
-    editingAddressId = item.id
-    streetSelectEl.value = item.street_id ?? ''
-    houseNumberEl.value = item.house_number ?? ''
-    houseSuffixEl.value = item.house_number_suffix ?? ''
-    unitNumberEl.value = item.unit_number ?? ''
-    addressLabelEl.value = item.full_address_label ?? ''
-    addressTypeEl.value = item.address_type ?? 'Kuća'
+    if (!canEdit()) { setStatus('❌ Nemaš dozvolu za izmenu.'); return }
+    editingAddressId       = item.id
+    streetSelectEl.value   = item.street_id ?? ''
+    houseNumberEl.value    = item.house_number ?? ''
+    houseSuffixEl.value    = item.house_number_suffix ?? ''
+    unitNumberEl.value     = item.unit_number ?? ''
+    addressLabelEl.value   = item.full_address_label ?? ''
+    addressTypeEl.value    = item.address_type ?? 'Kuća'
     updateUnitFieldState()
     formTitleEl.textContent = 'Unos nove adrese'
     saveBtn.classList.add('hidden')
@@ -1204,30 +1227,7 @@
     if (!silent) setStatus('✅ Edit mod zatvoren.')
   }
 
-  function getStatusClass(status) {
-  switch (status) {
-    case 'students_win': return 'status-students_win';
-    case 'sns': return 'status-sns';
-    case 'not_visited': return 'status-not_visited';
-    case 'visited': return 'status-visited';
-    case 'not_found': return 'status-not_found';
-    case 'scheduled': return 'status-scheduled';
-    default: return 'status-not_visited';
-  }
-}
-
-  function getStatusLabel(status) {
-  switch (status) {
-    case 'students_win': return '✌️ Studenti pobedjuju';
-    case 'sns': return '💩 SNS';
-    case 'not_visited': return 'Nije obidjeno';
-    case 'visited': return 'Obidjeno';
-    case 'not_found': return 'Nije zatečen';
-    case 'scheduled': return 'Zakazano';
-    default: return 'Nije obidjeno';
-  }
-}
-
+  // ── Street filters ─────────────────────────────────────────────────────────
   function populateStreetFilters() {
     filterStreetEl.innerHTML = `
       <option value="">Sve ulice</option>
@@ -1235,6 +1235,7 @@
     `
   }
 
+  // ── Admin render ───────────────────────────────────────────────────────────
   function renderAdminUsers() {
     if (!isAdmin()) return
     adminUserSelectEl.innerHTML = `
@@ -1263,16 +1264,17 @@
       : 'Izaberi korisnika da vidi i menja dodeljene ulice.'
   }
 
+  // ── Filter + address list ──────────────────────────────────────────────────
   function getFilteredAddresses() {
     const selectedStreet = filterStreetEl.value
     const selectedStatus = filterStatusEl.value
-    const search = searchInputEl.value.trim().toLowerCase()
+    const search         = searchInputEl.value.trim().toLowerCase()
     return allAddresses.filter(item => {
-      const streetName = cleanStreetName(item.streets?.name || '').toLowerCase()
-      const fullLabel = String(item.full_address_label || '').toLowerCase()
+      const streetName  = cleanStreetName(item.streets?.name || '').toLowerCase()
+      const fullLabel   = String(item.full_address_label || '').toLowerCase()
       const houseNumber = String(item.house_number || '').toLowerCase()
       const houseSuffix = String(item.house_number_suffix || '').toLowerCase()
-      const unitNumber = String(item.unit_number || '').toLowerCase()
+      const unitNumber  = String(item.unit_number || '').toLowerCase()
       const matchStreet = !selectedStreet || String(item.street_id) === String(selectedStreet)
       const matchStatus = !selectedStatus || String(item.census_status) === String(selectedStatus)
       const matchSearch =
@@ -1291,9 +1293,7 @@
     addressSelectEl.innerHTML = `
       <option value="">Izaberi adresu...</option>
       ${filtered.map(item => `
-        <option value="${item.id}">
-          ${item.full_address_label || 'Bez naziva'}
-        </option>
+        <option value="${item.id}">${item.full_address_label || 'Bez naziva'}</option>
       `).join('')}
     `
     const hasSelected = filtered.some(item => String(item.id) === String(selectedAddressId))
@@ -1311,11 +1311,15 @@
     return selected
   }
 
+  // ── Address detail render ──────────────────────────────────────────────────
   function renderSelectedAddressDetails(item) {
     if (!item) {
       selectedAddressDetailsEl.innerHTML = '<div class="empty">Nema adrese za prikaz.</div>'
       return
     }
+
+    const notesVal = item.notes ? item.notes.replace(/"/g, '&quot;') : ''
+
     selectedAddressDetailsEl.innerHTML = `
       <div class="address-detail-card">
         <div class="address-detail-header">
@@ -1331,55 +1335,129 @@
           <div class="addr-row"><span class="addr-label">Tip:</span> ${item.address_type ?? '-'}</div>
           <div class="addr-row"><span class="addr-label">Aktivna:</span> ${item.is_active ? 'Da' : 'Ne'}</div>
         </div>
+
         ${canEdit() ? `
-     <div class="status-editor">
-  <label for="status-${item.id}">Promeni status</label>
-  <select class="status-select" id="status-${item.id}" data-status-id="${item.id}">
-    <option value="students_win" ${item.censusstatus === 'students_win' ? 'selected' : ''}>✌️ Studenti pobedjuju</option>
-    <option value="sns" ${item.censusstatus === 'sns' ? 'selected' : ''}>💩 SNS</option>
-    <option value="not_visited" ${item.censusstatus === 'not_visited' ? 'selected' : ''}>Nije obidjeno</option>
-    <option value="visited" ${item.censusstatus === 'visited' ? 'selected' : ''}>Obidjeno</option>
-    <option value="not_found" ${item.censusstatus === 'not_found' ? 'selected' : ''}>Nije zatečen</option>
-    <option value="scheduled" ${item.censusstatus === 'scheduled' ? 'selected' : ''}>Zakazano</option>
-  </select>
-</div>
+          <div class="status-editor">
+            <div>
+              <label for="status-${item.id}">Promeni status</label>
+              <select class="status-select" id="status-${item.id}" data-status-id="${item.id}">
+                <option value="students_win" ${item.census_status === 'students_win' ? 'selected' : ''}>✌️ Studenti pobedjuju</option>
+                <option value="sns"          ${item.census_status === 'sns'          ? 'selected' : ''}>💩 SNS</option>
+                <option value="not_visited"  ${item.census_status === 'not_visited'  ? 'selected' : ''}>Nije obiđeno</option>
+                <option value="visited"      ${item.census_status === 'visited'      ? 'selected' : ''}>Obiđeno</option>
+                <option value="not_found"    ${item.census_status === 'not_found'    ? 'selected' : ''}>Nije zatečen</option>
+                <option value="scheduled"    ${item.census_status === 'scheduled'    ? 'selected' : ''}>Zakazano</option>
+              </select>
+            </div>
+            <div>
+              <label for="notes-${item.id}">Napomena</label>
+              <textarea
+                id="notes-${item.id}"
+                data-notes-id="${item.id}"
+                placeholder="Unesi napomenu o adresi..."
+                rows="3"
+              >${item.notes ?? ''}</textarea>
+              <div class="notes-save-row">
+                <button type="button" class="btn-dark" data-save-notes-id="${item.id}" style="font-size:0.8rem;padding:0.4rem 0.9rem;">💾 Sačuvaj napomenu</button>
+              </div>
+            </div>
+          </div>
+
           <div class="address-detail-actions">
-            <button type="button" class="btn-dark" data-edit-id="${item.id}">Izmeni</button>
+            <button type="button" class="btn-dark" data-edit-id="${item.id}">Izmeni adresu</button>
             <button
               type="button"
               class="btn-danger"
               data-delete-id="${item.id}"
               data-delete-label="${(item.full_address_label ?? 'Bez naziva').replace(/"/g, '&quot;')}"
-            >
-              Obriši
-            </button>
+            >Obriši</button>
           </div>
-        ` : ''}
+        ` : `
+          ${item.notes ? `<div class="addr-row" style="margin-top:1rem;"><span class="addr-label">Napomena:</span> ${item.notes}</div>` : ''}
+        `}
       </div>
     `
+
     if (canEdit()) {
       selectedAddressDetailsEl.querySelector('[data-edit-id]')?.addEventListener('click', () => {
         enterEditMode(item)
       })
+
       selectedAddressDetailsEl.querySelector('[data-delete-id]')?.addEventListener('click', () => {
         deleteAddress(item.id, item.full_address_label ?? 'Bez naziva')
       })
+
+      // Status change — auto-save
       selectedAddressDetailsEl.querySelector('[data-status-id]')?.addEventListener('change', (e) => {
         updateCensusStatus(e.target.dataset.statusId, e.target.value)
+      })
+
+      // Notes save button
+      selectedAddressDetailsEl.querySelector('[data-save-notes-id]')?.addEventListener('click', () => {
+        const textarea = selectedAddressDetailsEl.querySelector(`#notes-${item.id}`)
+        if (textarea) updateNotes(item.id, textarea.value)
       })
     }
   }
 
+  // ── Address list render ────────────────────────────────────────────────────
   function renderAddresses() {
-    const filtered = getFilteredAddresses()
-    addressSelectEl.innerHTML = '<option value="">Nema adresa</option>'
+    const filtered    = getFilteredAddresses()
     populateAddressSelect(filtered)
     const selectedItem = getSelectedAddress(filtered)
     pageInfoEl.textContent = `Ukupno pronađenih adresa: ${filtered.length}`
     renderSelectedAddressDetails(selectedItem)
   }
 
- function renderStreetStatsFromAddresses(addressRows) {
+  // ── Street stats render ────────────────────────────────────────────────────
+  // FIX: This function was incorrectly wrapping all helper functions inside it.
+  // It is now a standalone function that only renders street stats.
+  function renderStreetStatsFromAddresses(addressRows) {
+    if (!addressRows || !addressRows.length) {
+      streetStatsEl.innerHTML = '<div class="empty">Nema podataka za prikaz statistike.</div>'
+      return
+    }
+
+    const streetMap = new Map()
+    for (const row of addressRows) {
+      const streetName = cleanStreetName(row.streets?.name || 'Nepoznata ulica')
+      if (!streetMap.has(streetName)) {
+        streetMap.set(streetName, {
+          name: streetName,
+          total: 0, students_win: 0, sns: 0,
+          not_visited: 0, visited: 0, not_found: 0, scheduled: 0
+        })
+      }
+      const s      = streetMap.get(streetName)
+      // FIX: was row.censusstatus — correct field is row.census_status
+      const status = row.census_status || 'not_visited'
+      s.total++
+      if (s[status] !== undefined) s[status]++
+    }
+
+    const streets = Array.from(streetMap.values()).sort((a, b) =>
+      a.name.localeCompare(b.name, 'sr')
+    )
+
+    streetStatsEl.innerHTML = streets.map(s => `
+      <div class="street-stat-item">
+        <div class="street-stat-name">${s.name}</div>
+        <div class="street-stat-pills">
+          <span class="street-stat-pill pill-total">Ukupno: ${s.total}</span>
+          ${s.students_win ? `<span class="street-stat-pill pill-students_win">✌️ Pobeđujemo: ${s.students_win}</span>` : ''}
+          ${s.sns          ? `<span class="street-stat-pill pill-sns">💩 SNS: ${s.sns}</span>` : ''}
+          ${s.not_visited  ? `<span class="street-stat-pill pill-not_visited">Nije obiđeno: ${s.not_visited}</span>` : ''}
+          ${s.visited      ? `<span class="street-stat-pill pill-visited">Obiđeno: ${s.visited}</span>` : ''}
+          ${s.not_found    ? `<span class="street-stat-pill pill-not_found">Nije zatečen: ${s.not_found}</span>` : ''}
+          ${s.scheduled    ? `<span class="street-stat-pill pill-scheduled">Zakazano: ${s.scheduled}</span>` : ''}
+        </div>
+      </div>
+    `).join('')
+  }
+
+  // ── Export helpers ─────────────────────────────────────────────────────────
+  // FIX: These functions were trapped inside renderStreetStatsFromAddresses.
+  // They are now properly defined at module scope.
 
   function downloadCsv(filename, rows) {
     const csvContent = rows.map(row =>
@@ -1389,9 +1467,9 @@
       }).join(',')
     ).join('\n')
     const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' })
-    const url = URL.createObjectURL(blob)
+    const url  = URL.createObjectURL(blob)
     const link = document.createElement('a')
-    link.href = url
+    link.href  = url
     link.download = filename
     document.body.appendChild(link)
     link.click()
@@ -1402,7 +1480,7 @@
   function exportFilteredCsv() {
     const filtered = getFilteredAddresses()
     if (!filtered.length) { setStatus('❌ Nema podataka za CSV export.'); return }
-    const rows = [['Ulica', 'Naselje', 'Broj', 'Dodatak', 'Stan / jedinica', 'Puna adresa', 'Tip', 'Status', 'Aktivna']]
+    const rows = [['Ulica', 'Naselje', 'Broj', 'Dodatak', 'Stan / jedinica', 'Puna adresa', 'Tip', 'Status', 'Napomena', 'Aktivna']]
     filtered.forEach(item => {
       rows.push([
         cleanStreetName(item.streets?.name || ''),
@@ -1413,10 +1491,11 @@
         item.full_address_label || '',
         item.address_type || '',
         getStatusLabel(item.census_status),
+        item.notes || '',
         item.is_active ? 'Da' : 'Ne'
       ])
     })
-    const now = new Date()
+    const now   = new Date()
     const stamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
     downloadCsv(`adrese-export-${stamp}.csv`, rows)
     setStatus(`✅ CSV export uspešan. Izvezeno: ${filtered.length} redova.`)
@@ -1425,57 +1504,64 @@
   function exportFilteredExcel() {
     const filtered = getFilteredAddresses()
     if (!filtered.length) { setStatus('❌ Nema podataka za Excel export.'); return }
+
     const detailRows = filtered.map(item => ({
-      Ulica: cleanStreetName(item.streets?.name || ''),
-      Naselje: item.streets?.settlement_name || '',
-      Broj: item.house_number || '',
-      Dodatak: item.house_number_suffix || '',
+      Ulica:             cleanStreetName(item.streets?.name || ''),
+      Naselje:           item.streets?.settlement_name || '',
+      Broj:              item.house_number || '',
+      Dodatak:           item.house_number_suffix || '',
       'Stan / jedinica': item.unit_number || '',
-      'Puna adresa': item.full_address_label || '',
-      Tip: item.address_type || '',
-      Status: getStatusLabel(item.census_status),
-      Aktivna: item.is_active ? 'Da' : 'Ne'
+      'Puna adresa':     item.full_address_label || '',
+      Tip:               item.address_type || '',
+      Status:            getStatusLabel(item.census_status),
+      Napomena:          item.notes || '',
+      Aktivna:           item.is_active ? 'Da' : 'Ne'
     }))
+
     const summaryMap = new Map()
     filtered.forEach(item => {
       const street = cleanStreetName(item.streets?.name || '')
-     if (!summaryMap.has(street)) {
-  summaryMap.set(street, {
-    Ulica: street,
-    Ukupno: 0,
-    '✌️ Studenti pobedjuju': 0,
-    '💩 SNS': 0,
-    'Nije obidjeno': 0,
-    'Obidjeno': 0,
-    'Nije zatečen': 0,
-    'Zakazano': 0
-  });
-}
+      if (!summaryMap.has(street)) {
+        summaryMap.set(street, {
+          Ulica:                   street,
+          Ukupno:                  0,
+          '✌️ Studenti pobedjuju': 0,
+          '💩 SNS':                0,
+          'Nije obiđeno':          0,
+          'Obiđeno':               0,
+          'Nije zatečen':          0,
+          'Zakazano':              0
+        })
+      }
       const row = summaryMap.get(street)
-      if (item.censusstatus === 'students_win') row['✌️ Studenti pobedjuju']++;
-if (item.censusstatus === 'sns') row['💩 SNS']++;
-if (item.censusstatus === 'not_visited') row['Nije obidjeno']++;
-if (item.censusstatus === 'visited') row['Obidjeno']++;
-if (item.censusstatus === 'not_found') row['Nije zatečen']++;
-if (item.censusstatus === 'scheduled') row['Zakazano']++;
-row.Ukupno++;
+      row.Ukupno++
+      // FIX: was item.censusstatus — correct field is item.census_status
+      if (item.census_status === 'students_win') row['✌️ Studenti pobedjuju']++
+      if (item.census_status === 'sns')          row['💩 SNS']++
+      if (item.census_status === 'not_visited')  row['Nije obiđeno']++
+      if (item.census_status === 'visited')      row['Obiđeno']++
+      if (item.census_status === 'not_found')    row['Nije zatečen']++
+      if (item.census_status === 'scheduled')    row['Zakazano']++
     })
+
     const summaryRows = Array.from(summaryMap.values()).sort((a, b) =>
       String(a.Ulica).localeCompare(String(b.Ulica), 'sr')
     )
-    const wb = XLSX.utils.book_new()
+
+    const wb        = XLSX.utils.book_new()
     const wsDetails = XLSX.utils.json_to_sheet(detailRows)
     const wsSummary = XLSX.utils.json_to_sheet(summaryRows)
     XLSX.utils.book_append_sheet(wb, wsDetails, 'Adrese')
     XLSX.utils.book_append_sheet(wb, wsSummary, 'Sumarni pregled')
     wsDetails['!cols'] = [
       { wch: 24 }, { wch: 18 }, { wch: 10 }, { wch: 10 },
-      { wch: 16 }, { wch: 30 }, { wch: 12 }, { wch: 14 }, { wch: 10 }
+      { wch: 16 }, { wch: 30 }, { wch: 12 }, { wch: 14 }, { wch: 30 }, { wch: 10 }
     ]
     wsSummary['!cols'] = [
-      { wch: 24 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 10 }
+      { wch: 24 }, { wch: 12 }, { wch: 16 }, { wch: 12 },
+      { wch: 14 }, { wch: 14 }, { wch: 14 }, { wch: 12 }
     ]
-    const now = new Date()
+    const now   = new Date()
     const stamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
     XLSX.writeFile(wb, `adrese-export-${stamp}.xlsx`)
     setStatus(`✅ Excel export uspešan. Izvezeno: ${filtered.length} redova.`)
@@ -1496,6 +1582,7 @@ row.Ukupno++;
         <td>${item.full_address_label || ''}</td>
         <td>${item.address_type || ''}</td>
         <td>${getStatusLabel(item.census_status)}</td>
+        <td>${item.notes || ''}</td>
         <td>${item.is_active ? 'Da' : 'Ne'}</td>
       </tr>
     `).join('')
@@ -1521,7 +1608,8 @@ row.Ukupno++;
           <thead>
             <tr>
               <th>Ulica</th><th>Naselje</th><th>Broj</th><th>Dodatak</th>
-              <th>Stan / jedinica</th><th>Puna adresa</th><th>Tip</th><th>Status</th><th>Aktivna</th>
+              <th>Stan / jedinica</th><th>Puna adresa</th><th>Tip</th>
+              <th>Status</th><th>Napomena</th><th>Aktivna</th>
             </tr>
           </thead>
           <tbody>${rowsHtml}</tbody>
@@ -1535,6 +1623,7 @@ row.Ukupno++;
     setStatus(`✅ Print pregled spreman. Redova: ${filtered.length}`)
   }
 
+  // ── Auth ───────────────────────────────────────────────────────────────────
   async function signInWithMagicLink() {
     const email = emailInputEl.value.trim()
     if (!email) { setStatus('Unesi validnu email adresu.'); return }
@@ -1555,7 +1644,7 @@ row.Ukupno++;
   }
 
   async function signInWithPassword() {
-    const email = emailInputEl.value.trim()
+    const email    = emailInputEl.value.trim()
     const password = passwordInputEl.value.trim()
     if (!email || !password) { setStatus('Unesi email i lozinku.'); return }
     setStatus('Prijava lozinkom...')
@@ -1593,9 +1682,10 @@ row.Ukupno++;
     userBadgeEl.textContent = `Prijavljen: ${user.email}`
     roleBadgeEl.textContent = `Rola: ${profile?.role ?? 'nepoznata'}`
     infoEmailEl.textContent = user.email
-    infoRoleEl.textContent = profile?.role ?? '-'
+    infoRoleEl.textContent  = profile?.role ?? '-'
   }
 
+  // ── Data loaders ───────────────────────────────────────────────────────────
   async function loadCurrentUserAndProfile() {
     const { data: { user }, error } = await supabase.auth.getUser()
     if (error || !user) { renderLoggedOut(); return false }
@@ -1655,116 +1745,6 @@ row.Ukupno++;
     renderStreetCheckboxes()
   }
 
-  async function saveSelectedUserRole() {
-    if (!isAdmin()) { setStatus('Samo admin može menjati role.'); return }
-    const selectedUserId = adminUserSelectEl.value
-    const selectedRole = adminRoleSelectEl.value
-    if (!selectedUserId) { setStatus('Izaberi korisnika.'); return }
-    saveUserRoleBtn.disabled = true
-    saveUserRoleBtn.textContent = 'Čuvam rolu...'
-    try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({ role: selectedRole })
-        .eq('id', selectedUserId)
-      if (error) throw error
-      await loadAdminProfiles()
-      setStatus(`✅ Rola korisnika je sačuvana: ${selectedRole}`)
-    } catch (err) {
-      setStatus(`❌ Greška role: ${err.message}`)
-    } finally {
-      saveUserRoleBtn.disabled = false
-      saveUserRoleBtn.textContent = 'Sačuvaj rolu'
-    }
-  }
-
-  async function saveSelectedUserAssignments() {
-    if (!isAdmin()) { setStatus('Samo admin može menjati dodele ulica.'); return }
-    const selectedUserId = adminUserSelectEl.value
-    if (!selectedUserId) { setStatus('Izaberi korisnika.'); return }
-    const checkedStreetIds = Array.from(
-      adminStreetCheckboxesEl.querySelectorAll('input[type="checkbox"]:checked')
-    ).map(input => input.value)
-    saveAssignmentsBtn.disabled = true
-    saveAssignmentsBtn.textContent = 'Čuvam dodele...'
-    try {
-      const { data: existing, error: existingError } = await supabase
-        .from('user_street_assignments')
-        .select('id, street_id, is_active')
-        .eq('user_id', selectedUserId)
-      if (existingError) throw existingError
-      const existingRows = existing || []
-      const existingByStreet = new Map(existingRows.map(row => [String(row.street_id), row]))
-      const checkedSet = new Set(checkedStreetIds.map(String))
-      const idsToDeactivate = existingRows
-        .filter(row => row.is_active && !checkedSet.has(String(row.street_id)))
-        .map(row => row.id)
-      const idsToReactivate = existingRows
-        .filter(row => !row.is_active && checkedSet.has(String(row.street_id)))
-        .map(row => row.id)
-      const rowsToInsert = checkedStreetIds
-        .filter(streetId => !existingByStreet.has(String(streetId)))
-        .map(streetId => ({ user_id: selectedUserId, street_id: streetId, is_active: true }))
-      if (idsToDeactivate.length) {
-        const { error } = await supabase.from('user_street_assignments').update({ is_active: false }).in('id', idsToDeactivate)
-        if (error) throw error
-      }
-      if (idsToReactivate.length) {
-        const { error } = await supabase.from('user_street_assignments').update({ is_active: true }).in('id', idsToReactivate)
-        if (error) throw error
-      }
-      if (rowsToInsert.length) {
-        const { error } = await supabase.from('user_street_assignments').insert(rowsToInsert)
-        if (error) throw error
-      }
-      await loadSelectedUserAssignments()
-      await loadAllowedStreets()
-      setStatus(`✅ Sačuvane dodele ulica. Ukupno aktivnih: ${checkedStreetIds.length}`)
-    } catch (err) {
-      setStatus(`❌ Greška assignments save: ${err.message}`)
-    } finally {
-      saveAssignmentsBtn.disabled = false
-      saveAssignmentsBtn.textContent = 'Sačuvaj dodeljene ulice'
-    }
-  }
-
-  async function createNewUserProfile() {
-    if (!isAdmin()) { setStatus('Samo admin može dodavati novog korisnika.'); return }
-    const email = newUserEmailEl.value.trim().toLowerCase()
-    const fullname = newUserFullnameEl.value.trim()
-    const role = newUserRoleEl.value
-    const password = newUserPasswordEl.value.trim()
-    if (!email || !fullname || !role || !password) {
-      setStatus('Unesi email, ime i prezime, rolu i privremenu lozinku.')
-      return
-    }
-    createNewUserBtn.disabled = true
-    createNewUserBtn.textContent = 'Kreiram korisnika...'
-    setStatus('Kreiram korisnika...')
-    try {
-      const { data: sessionData, error: sessionError } = await supabase.auth.getSession()
-      if (sessionError) throw sessionError
-      const accessToken = sessionData?.session?.access_token
-      if (!accessToken) throw new Error('Nema aktivne sesije. Prijavi se ponovo.')
-      const { data, error } = await supabase.functions.invoke('create-user', {
-        body: { email, password, fullname, role },
-        headers: { Authorization: `Bearer ${accessToken}` }
-      })
-      if (error) throw error
-      setStatus(`✅ Korisnik uspešno dodat: ${data?.email ?? email}`)
-      newUserEmailEl.value = ''
-      newUserFullnameEl.value = ''
-      newUserPasswordEl.value = ''
-      newUserRoleEl.value = 'viewer'
-      await loadAdminProfiles()
-    } catch (err) {
-      setStatus(`❌ Greška: ${err.message}`)
-    } finally {
-      createNewUserBtn.disabled = false
-      createNewUserBtn.textContent = 'Dodaj / poveži usera'
-    }
-  }
-
   async function loadAllowedStreets() {
     if (!currentProfile) return
     let query = supabase.from('streets').select('id, name, settlement_name, is_active').eq('is_active', true)
@@ -1796,63 +1776,65 @@ row.Ukupno++;
     assignedStreetsEl.innerHTML = availableStreets.length
       ? availableStreets.map(s => `<li>${cleanStreetName(s.name)}</li>`).join('')
       : '<li>Nema dodeljenih ulica</li>'
-    const streetCount = availableStreets.length
-    assignedStreetsSummaryEl.textContent = streetCount
-      ? `Dozvoljene ulice (${streetCount})`
+    assignedStreetsSummaryEl.textContent = availableStreets.length
+      ? `Dozvoljene ulice (${availableStreets.length})`
       : 'Dozvoljene ulice (0)'
     populateStreetFilters()
   }
 
   async function loadDashboardStats() {
-  let addressQuery = supabase
-    .from('addresses')
-    .select(`id, street_id, census_status, streets ( id, name, settlement_name )`)
+    let addressQuery = supabase
+      .from('addresses')
+      .select(`id, street_id, census_status, streets ( id, name, settlement_name )`)
 
-  if (!isAdmin()) {
-    const allowedStreetIds = availableStreets.map(s => s.id).filter(Boolean)
-    if (!allowedStreetIds.length) {
-      statsCardsEl.innerHTML = `
-        <div class="stat-card"><h3>Ukupno adresa</h3><div class="stat-value">0</div></div>
-        <div class="stat-card"><h3>✌️ Studenti pobedjuju</h3><div class="stat-value">0</div></div>
-        <div class="stat-card"><h3>💩 SNS</h3><div class="stat-value">0</div></div>
-        <div class="stat-card"><h3>Nije obidjeno</h3><div class="stat-value">0</div></div>
-        <div class="stat-card"><h3>Obidjeno</h3><div class="stat-value">0</div></div>
-        <div class="stat-card"><h3>Nije zatečen</h3><div class="stat-value">0</div></div>
-        <div class="stat-card"><h3>Zakazano</h3><div class="stat-value">0</div></div>
-      `
-      streetStatsEl.innerHTML = '<div class="empty">Nema statistike po ulicama.</div>'
+    if (!isAdmin()) {
+      const allowedStreetIds = availableStreets.map(s => s.id).filter(Boolean)
+      if (!allowedStreetIds.length) {
+        statsCardsEl.innerHTML = `
+          <div class="stat-card"><h3>Ukupno adresa</h3><div class="stat-value">0</div></div>
+          <div class="stat-card"><h3>✌️ Studenti pobedjuju</h3><div class="stat-value">0</div></div>
+          <div class="stat-card"><h3>💩 SNS</h3><div class="stat-value">0</div></div>
+          <div class="stat-card"><h3>Nije obiđeno</h3><div class="stat-value">0</div></div>
+          <div class="stat-card"><h3>Obiđeno</h3><div class="stat-value">0</div></div>
+          <div class="stat-card"><h3>Nije zatečen</h3><div class="stat-value">0</div></div>
+          <div class="stat-card"><h3>Zakazano</h3><div class="stat-value">0</div></div>
+        `
+        streetStatsEl.innerHTML = '<div class="empty">Nema statistike po ulicama.</div>'
+        return
+      }
+      addressQuery = addressQuery.in('street_id', allowedStreetIds)
+    }
+
+    const { data: addresses, error: addrError } = await addressQuery
+    if (addrError) {
+      statsCardsEl.innerHTML = `<div class="empty">Greška statistika: ${addrError.message}</div>`
       return
     }
-    addressQuery = addressQuery.in('street_id', allowedStreetIds)
+
+    const rows = addresses || []
+    const total = rows.length
+    // FIX: was a.censusstatus — correct field is a.census_status
+    const studentsWin = rows.filter(a => a.census_status === 'students_win').length
+    const sns         = rows.filter(a => a.census_status === 'sns').length
+    const notVisited  = rows.filter(a => a.census_status === 'not_visited').length
+    const visited     = rows.filter(a => a.census_status === 'visited').length
+    const notFound    = rows.filter(a => a.census_status === 'not_found').length
+    const scheduled   = rows.filter(a => a.census_status === 'scheduled').length
+
+    statsCardsEl.innerHTML = `
+      <div class="stat-card"><h3>Ukupno adresa</h3><div class="stat-value">${total}</div></div>
+      <div class="stat-card"><h3>✌️ Studenti pobedjuju</h3><div class="stat-value">${studentsWin}</div></div>
+      <div class="stat-card"><h3>💩 SNS</h3><div class="stat-value">${sns}</div></div>
+      <div class="stat-card"><h3>Nije obiđeno</h3><div class="stat-value">${notVisited}</div></div>
+      <div class="stat-card"><h3>Obiđeno</h3><div class="stat-value">${visited}</div></div>
+      <div class="stat-card"><h3>Nije zatečen</h3><div class="stat-value">${notFound}</div></div>
+      <div class="stat-card"><h3>Zakazano</h3><div class="stat-value">${scheduled}</div></div>
+    `
+
+    renderStreetStatsFromAddresses(rows)
   }
 
-  const { data: addresses, error: addrError } = await addressQuery
-  if (addrError) {
-    statsCardsEl.innerHTML = `<div class="empty">Greška statistika: ${addrError.message}</div>`
-    return
-  }
-
-  const rows = addresses || []
-  const total = rows.length
-  const studentsWin = rows.filter(a => a.censusstatus === 'students_win').length
-  const sns = rows.filter(a => a.censusstatus === 'sns').length
-  const notVisited = rows.filter(a => a.censusstatus === 'not_visited').length
-  const visited = rows.filter(a => a.censusstatus === 'visited').length
-  const notFound = rows.filter(a => a.censusstatus === 'not_found').length
-  const scheduled = rows.filter(a => a.censusstatus === 'scheduled').length
-
-  statsCardsEl.innerHTML = `
-    <div class="stat-card"><h3>Ukupno adresa</h3><div class="stat-value">${total}</div></div>
-    <div class="stat-card"><h3>✌️ Studenti pobedjuju</h3><div class="stat-value">${studentsWin}</div></div>
-    <div class="stat-card"><h3>💩 SNS</h3><div class="stat-value">${sns}</div></div>
-    <div class="stat-card"><h3>Nije obidjeno</h3><div class="stat-value">${notVisited}</div></div>
-    <div class="stat-card"><h3>Obidjeno</h3><div class="stat-value">${visited}</div></div>
-    <div class="stat-card"><h3>Nije zatečen</h3><div class="stat-value">${notFound}</div></div>
-    <div class="stat-card"><h3>Zakazano</h3><div class="stat-value">${scheduled}</div></div>
-  `
-
-  renderStreetStatsFromAddresses(rows)
-}
+  // ── CRUD ───────────────────────────────────────────────────────────────────
   async function updateCensusStatus(addressId, newStatus) {
     if (!canEdit()) { setStatus('❌ Nemaš dozvolu za promenu statusa.'); return }
     setStatus('Čuvam status...')
@@ -1866,41 +1848,61 @@ row.Ukupno++;
     await loadDashboardStats()
   }
 
+  async function updateNotes(addressId, notesValue) {
+    if (!canEdit()) { setStatus('❌ Nemaš dozvolu za promenu napomene.'); return }
+    setStatus('Čuvam napomenu...')
+    const { error } = await supabase
+      .from('addresses')
+      .update({ notes: notesValue || null, updated_by: currentUser.id })
+      .eq('id', addressId)
+    if (error) { setStatus(`❌ Greška pri čuvanju napomene: ${error.message}`); return }
+    setStatus('✅ Napomena sačuvana.')
+    // Update in-memory so detail re-render shows the saved value
+    const idx = allAddresses.findIndex(a => String(a.id) === String(addressId))
+    if (idx !== -1) allAddresses[idx].notes = notesValue || null
+  }
+
   async function loadAddresses() {
     let query = supabase
       .from('addresses')
       .select(`
         id, street_id, house_number, house_number_suffix, unit_number,
         full_address_label, address_type, census_status, is_active,
-        created_by, updated_by,
+        notes, created_by, updated_by,
         streets ( id, name, settlement_name )
       `)
       .order('id', { ascending: false })
+
     if (!isAdmin()) {
       const allowedStreetIds = availableStreets.map(s => s.id).filter(Boolean)
       if (!allowedStreetIds.length) { allAddresses = []; renderAddresses(); return }
       query = query.in('street_id', allowedStreetIds)
     }
+
     const { data, error } = await query
-    if (error) { selectedAddressDetailsEl.innerHTML = `<div class="empty">Greška: ${error.message}</div>`; return }
+    if (error) {
+      selectedAddressDetailsEl.innerHTML = `<div class="empty">Greška: ${error.message}</div>`
+      return
+    }
     allAddresses = data || []
     renderAddresses()
   }
 
   async function saveAddress() {
     if (!canEdit()) { setStatus('❌ Nemaš dozvolu za unos adrese.'); return }
-    const street_id = streetSelectEl.value
-    const house_number = houseNumberEl.value.trim()
+    const street_id          = streetSelectEl.value
+    const house_number       = houseNumberEl.value.trim()
     const house_number_suffix = houseSuffixEl.value.trim()
-    const unit_number = unitNumberEl.value.trim()
-    const address_type = addressTypeEl.value
-    const street = availableStreets.find(s => String(s.id) === String(street_id))
-    const streetName = cleanStreetName(street?.name || '')
+    const unit_number        = unitNumberEl.value.trim()
+    const address_type       = addressTypeEl.value
+    const street             = availableStreets.find(s => String(s.id) === String(street_id))
+    const streetName         = cleanStreetName(street?.name || '')
     const full_address_label = formatFullAddress(streetName, house_number, house_number_suffix, unit_number)
     if (!street_id || !house_number || !address_type) { setStatus('❌ Popuni sva obavezna polja!'); return }
     if (!validateUnitNumber()) return
     if (!full_address_label) { setStatus('❌ Puna adresa nije ispravno formirana.'); return }
-    saveBtn.disabled = true
+
+    saveBtn.disabled    = true
     saveBtn.textContent = 'Čuvam...'
     try {
       const { data: existing, error: existingError } = await supabase
@@ -1927,7 +1929,7 @@ row.Ukupno++;
     } catch (err) {
       setStatus(`❌ Greška: ${err.message}`)
     } finally {
-      saveBtn.disabled = false
+      saveBtn.disabled    = false
       saveBtn.textContent = 'Sačuvaj adresu'
     }
   }
@@ -1935,18 +1937,19 @@ row.Ukupno++;
   async function updateAddress() {
     if (!canEdit()) { setStatus('❌ Nemaš dozvolu za izmenu adrese.'); return }
     if (!editingAddressId) { setStatus('❌ Nije izabrana adresa za izmenu.'); return }
-    const street_id = streetSelectEl.value
-    const house_number = houseNumberEl.value.trim()
+    const street_id           = streetSelectEl.value
+    const house_number        = houseNumberEl.value.trim()
     const house_number_suffix = houseSuffixEl.value.trim()
-    const unit_number = unitNumberEl.value.trim()
-    const address_type = addressTypeEl.value
-    const street = availableStreets.find(s => String(s.id) === String(street_id))
-    const streetName = cleanStreetName(street?.name || '')
-    const full_address_label = formatFullAddress(streetName, house_number, house_number_suffix, unit_number)
+    const unit_number         = unitNumberEl.value.trim()
+    const address_type        = addressTypeEl.value
+    const street              = availableStreets.find(s => String(s.id) === String(street_id))
+    const streetName          = cleanStreetName(street?.name || '')
+    const full_address_label  = formatFullAddress(streetName, house_number, house_number_suffix, unit_number)
     if (!street_id || !house_number || !address_type) { setStatus('❌ Popuni sva obavezna polja!'); return }
     if (!validateUnitNumber()) return
     if (!full_address_label) { setStatus('❌ Puna adresa nije ispravno formirana.'); return }
-    updateBtn.disabled = true
+
+    updateBtn.disabled    = true
     updateBtn.textContent = 'Čuvam izmene...'
     try {
       const { data: existing, error: checkError } = await supabase
@@ -1972,15 +1975,14 @@ row.Ukupno++;
     } catch (err) {
       setStatus(`❌ Greška pri izmeni: ${err.message}`)
     } finally {
-      updateBtn.disabled = false
+      updateBtn.disabled    = false
       updateBtn.textContent = 'Sačuvaj izmene'
     }
   }
 
   async function deleteAddress(id, label) {
     if (!canEdit()) { setStatus('❌ Nemaš dozvolu za brisanje adrese.'); return }
-    const confirmed = confirm(`Da li sigurno želiš da obrišeš adresu "${label}"?`)
-    if (!confirmed) return
+    if (!confirm(`Da li sigurno želiš da obrišeš adresu "${label}"?`)) return
     try {
       const { error } = await supabase.from('addresses').delete().eq('id', id)
       if (error) throw error
@@ -1996,14 +1998,14 @@ row.Ukupno++;
   async function deleteDuplicateAddresses() {
     if (!isAdmin()) { setStatus('❌ Samo admin može brisati duplikate.'); return }
     if (!confirm('Da li si siguran? Ovo će obrisati sve duplikate i ostaviti samo prvu adresu za isti street_id + full_address_label.')) return
-    deleteDuplicatesBtn.disabled = true
+    deleteDuplicatesBtn.disabled    = true
     deleteDuplicatesBtn.textContent = '⏳ Brišem...'
     setStatus('Tražim duplikate...')
     try {
       const { data: all, error } = await supabase
         .from('addresses').select('id, street_id, full_address_label').order('id', { ascending: true })
       if (error) throw error
-      const seen = new Map()
+      const seen     = new Map()
       const toDelete = []
       for (const row of all || []) {
         const key = `${row.street_id}||${(row.full_address_label || '').toLowerCase().trim()}`
@@ -2022,11 +2024,114 @@ row.Ukupno++;
     } catch (err) {
       setStatus(`❌ Greška pri brisanju: ${err.message}`)
     } finally {
-      deleteDuplicatesBtn.disabled = false
+      deleteDuplicatesBtn.disabled    = false
       deleteDuplicatesBtn.textContent = '🗑️ Obriši duplikate'
     }
   }
 
+  // ── Admin actions ──────────────────────────────────────────────────────────
+  async function saveSelectedUserRole() {
+    if (!isAdmin()) { setStatus('Samo admin može menjati role.'); return }
+    const selectedUserId = adminUserSelectEl.value
+    const selectedRole   = adminRoleSelectEl.value
+    if (!selectedUserId) { setStatus('Izaberi korisnika.'); return }
+    saveUserRoleBtn.disabled    = true
+    saveUserRoleBtn.textContent = 'Čuvam rolu...'
+    try {
+      const { error } = await supabase.from('profiles').update({ role: selectedRole }).eq('id', selectedUserId)
+      if (error) throw error
+      await loadAdminProfiles()
+      setStatus(`✅ Rola korisnika je sačuvana: ${selectedRole}`)
+    } catch (err) {
+      setStatus(`❌ Greška role: ${err.message}`)
+    } finally {
+      saveUserRoleBtn.disabled    = false
+      saveUserRoleBtn.textContent = 'Sačuvaj rolu'
+    }
+  }
+
+  async function saveSelectedUserAssignments() {
+    if (!isAdmin()) { setStatus('Samo admin može menjati dodele ulica.'); return }
+    const selectedUserId = adminUserSelectEl.value
+    if (!selectedUserId) { setStatus('Izaberi korisnika.'); return }
+    const checkedStreetIds = Array.from(
+      adminStreetCheckboxesEl.querySelectorAll('input[type="checkbox"]:checked')
+    ).map(input => input.value)
+    saveAssignmentsBtn.disabled    = true
+    saveAssignmentsBtn.textContent = 'Čuvam dodele...'
+    try {
+      const { data: existing, error: existingError } = await supabase
+        .from('user_street_assignments')
+        .select('id, street_id, is_active')
+        .eq('user_id', selectedUserId)
+      if (existingError) throw existingError
+      const existingRows    = existing || []
+      const existingByStreet = new Map(existingRows.map(row => [String(row.street_id), row]))
+      const checkedSet      = new Set(checkedStreetIds.map(String))
+      const idsToDeactivate = existingRows.filter(row => row.is_active && !checkedSet.has(String(row.street_id))).map(row => row.id)
+      const idsToReactivate = existingRows.filter(row => !row.is_active && checkedSet.has(String(row.street_id))).map(row => row.id)
+      const rowsToInsert    = checkedStreetIds.filter(streetId => !existingByStreet.has(String(streetId))).map(streetId => ({ user_id: selectedUserId, street_id: streetId, is_active: true }))
+      if (idsToDeactivate.length) {
+        const { error } = await supabase.from('user_street_assignments').update({ is_active: false }).in('id', idsToDeactivate)
+        if (error) throw error
+      }
+      if (idsToReactivate.length) {
+        const { error } = await supabase.from('user_street_assignments').update({ is_active: true }).in('id', idsToReactivate)
+        if (error) throw error
+      }
+      if (rowsToInsert.length) {
+        const { error } = await supabase.from('user_street_assignments').insert(rowsToInsert)
+        if (error) throw error
+      }
+      await loadSelectedUserAssignments()
+      await loadAllowedStreets()
+      setStatus(`✅ Sačuvane dodele ulica. Ukupno aktivnih: ${checkedStreetIds.length}`)
+    } catch (err) {
+      setStatus(`❌ Greška assignments save: ${err.message}`)
+    } finally {
+      saveAssignmentsBtn.disabled    = false
+      saveAssignmentsBtn.textContent = 'Sačuvaj dodeljene ulice'
+    }
+  }
+
+  async function createNewUserProfile() {
+    if (!isAdmin()) { setStatus('Samo admin može dodavati novog korisnika.'); return }
+    const email    = newUserEmailEl.value.trim().toLowerCase()
+    const fullname = newUserFullnameEl.value.trim()
+    const role     = newUserRoleEl.value
+    const password = newUserPasswordEl.value.trim()
+    if (!email || !fullname || !role || !password) {
+      setStatus('Unesi email, ime i prezime, rolu i privremenu lozinku.')
+      return
+    }
+    createNewUserBtn.disabled    = true
+    createNewUserBtn.textContent = 'Kreiram korisnika...'
+    setStatus('Kreiram korisnika...')
+    try {
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession()
+      if (sessionError) throw sessionError
+      const accessToken = sessionData?.session?.access_token
+      if (!accessToken) throw new Error('Nema aktivne sesije. Prijavi se ponovo.')
+      const { data, error } = await supabase.functions.invoke('create-user', {
+        body: { email, password, fullname, role },
+        headers: { Authorization: `Bearer ${accessToken}` }
+      })
+      if (error) throw error
+      setStatus(`✅ Korisnik uspešno dodat: ${data?.email ?? email}`)
+      newUserEmailEl.value    = ''
+      newUserFullnameEl.value = ''
+      newUserPasswordEl.value = ''
+      newUserRoleEl.value     = 'viewer'
+      await loadAdminProfiles()
+    } catch (err) {
+      setStatus(`❌ Greška: ${err.message}`)
+    } finally {
+      createNewUserBtn.disabled    = false
+      createNewUserBtn.textContent = 'Dodaj / poveži usera'
+    }
+  }
+
+  // ── Init ───────────────────────────────────────────────────────────────────
   async function initApp() {
     setStatus('Pokretanje...')
     const ok = await loadCurrentUserAndProfile()
@@ -2041,6 +2146,7 @@ row.Ukupno++;
     }
   }
 
+  // ── Event listeners ────────────────────────────────────────────────────────
   loginBtn.addEventListener('click', signInWithMagicLink)
   passwordLoginBtn.addEventListener('click', signInWithPassword)
 
@@ -2076,16 +2182,16 @@ row.Ukupno++;
 
   adminUserSelectEl.addEventListener('change', async () => {
     const selectedUserId = adminUserSelectEl.value
-    const selectedUser = allProfiles.find(p => String(p.id) === String(selectedUserId))
+    const selectedUser   = allProfiles.find(p => String(p.id) === String(selectedUserId))
     if (selectedUser) {
-      newUserEmailEl.value = selectedUser.email || ''
+      newUserEmailEl.value    = selectedUser.email || ''
       newUserFullnameEl.value = selectedUser.fullname || ''
-      newUserRoleEl.value = selectedUser.role || 'viewer'
+      newUserRoleEl.value     = selectedUser.role || 'viewer'
       adminRoleSelectEl.value = selectedUser.role || 'viewer'
     } else {
-      newUserEmailEl.value = ''
+      newUserEmailEl.value    = ''
       newUserFullnameEl.value = ''
-      newUserRoleEl.value = 'viewer'
+      newUserRoleEl.value     = 'viewer'
       adminRoleSelectEl.value = 'viewer'
     }
     await loadSelectedUserAssignments()
@@ -2101,10 +2207,10 @@ row.Ukupno++;
   })
 
   resetFiltersBtn.addEventListener('click', () => {
-    filterStreetEl.value = ''
-    filterStatusEl.value = ''
-    searchInputEl.value = ''
-    selectedAddressId = null
+    filterStreetEl.value  = ''
+    filterStatusEl.value  = ''
+    searchInputEl.value   = ''
+    selectedAddressId     = null
     renderAddresses()
     setStatus('✅ Filteri resetovani.')
   })
@@ -2130,14 +2236,14 @@ row.Ukupno++;
 
   updateUnitFieldState()
 
-supabase.auth.onAuthStateChange((event) => {
-  if (event === 'SIGNED_IN') {
-    setTimeout(() => initApp(), 0)
-  } else if (event === 'SIGNED_OUT') {
-    renderLoggedOut()
-    setStatus('Uspešno si odjavljen.')
-  }
-})
+  supabase.auth.onAuthStateChange((event) => {
+    if (event === 'SIGNED_IN') {
+      setTimeout(() => initApp(), 0)
+    } else if (event === 'SIGNED_OUT') {
+      renderLoggedOut()
+      setStatus('Uspešno si odjavljen.')
+    }
+  })
 
   initApp()
 </script>
