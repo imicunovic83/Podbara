@@ -1843,10 +1843,10 @@ statsCardsEl.innerHTML = `
   <div class="stat-card"><h3>Obidjeno</h3><div class="stat-value">${visited}</div></div>
   <div class="stat-card"><h3>Nije zatečen</h3><div class="stat-value">${notFound}</div></div>
   <div class="stat-card"><h3>Zakazano</h3><div class="stat-value">${scheduled}</div></div>
-`;
-    `
-    renderStreetStatsFromAddresses(rows)
-  }
+`
+
+renderStreetStatsFromAddresses(rows)
+}
 
   async function updateCensusStatus(addressId, newStatus) {
     if (!canEdit()) { setStatus('❌ Nemaš dozvolu za promenu statusa.'); return }
