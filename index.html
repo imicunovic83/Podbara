@@ -1804,50 +1804,55 @@ row.Ukupno++;
   }
 
   async function loadDashboardStats() {
-    let addressQuery = supabase
-      .from('addresses')
-      .select(`id, street_id, census_status, streets ( id, name, settlement_name )`)
-    if (!isAdmin()) {
-      const allowedStreetIds = availableStreets.map(s => s.id).filter(Boolean)
-      if (!allowedStreetIds.length) {
-        statsCardsEl.innerHTML = `
-          <div class="stat-card"><h3>Ukupno adresa</h3><div class="stat-value">0</div></div>
-          <div class="stat-card"><h3>Pending</h3><div class="stat-value">0</div></div>
-          <div class="stat-card"><h3>Visited</h3><div class="stat-value">0</div></div>
-          <div class="stat-card"><h3>Refused + Scheduled</h3><div class="stat-value">0</div></div>
-        `
-        streetStatsEl.innerHTML = '<div class="empty">Nema statistike po ulicama.</div>'
-        return
-      }
-      addressQuery = addressQuery.in('street_id', allowedStreetIds)
-    }
-    const { data: addresses, error: addrError } = await addressQuery
-    if (addrError) {
-      statsCardsEl.innerHTML = `<div class="empty">Greška statistika: ${addrError.message}</div>`
+  let addressQuery = supabase
+    .from('addresses')
+    .select(`id, street_id, census_status, streets ( id, name, settlement_name )`)
+
+  if (!isAdmin()) {
+    const allowedStreetIds = availableStreets.map(s => s.id).filter(Boolean)
+    if (!allowedStreetIds.length) {
+      statsCardsEl.innerHTML = `
+        <div class="stat-card"><h3>Ukupno adresa</h3><div class="stat-value">0</div></div>
+        <div class="stat-card"><h3>✌️ Studenti pobedjuju</h3><div class="stat-value">0</div></div>
+        <div class="stat-card"><h3>💩 SNS</h3><div class="stat-value">0</div></div>
+        <div class="stat-card"><h3>Nije obidjeno</h3><div class="stat-value">0</div></div>
+        <div class="stat-card"><h3>Obidjeno</h3><div class="stat-value">0</div></div>
+        <div class="stat-card"><h3>Nije zatečen</h3><div class="stat-value">0</div></div>
+        <div class="stat-card"><h3>Zakazano</h3><div class="stat-value">0</div></div>
+      `
+      streetStatsEl.innerHTML = '<div class="empty">Nema statistike po ulicama.</div>'
       return
     }
-    const rows = addresses || []
-   const total = rows.length;
-const studentsWin = rows.filter(a => a.censusstatus === 'students_win').length;
-const sns = rows.filter(a => a.censusstatus === 'sns').length;
-const notVisited = rows.filter(a => a.censusstatus === 'not_visited').length;
-const visited = rows.filter(a => a.censusstatus === 'visited').length;
-const notFound = rows.filter(a => a.censusstatus === 'not_found').length;
-const scheduled = rows.filter(a => a.censusstatus === 'scheduled').length;
+    addressQuery = addressQuery.in('street_id', allowedStreetIds)
+  }
 
-statsCardsEl.innerHTML = `
-  <div class="stat-card"><h3>Ukupno adresa</h3><div class="stat-value">${total}</div></div>
-  <div class="stat-card"><h3>✌️ Studenti pobedjuju</h3><div class="stat-value">${studentsWin}</div></div>
-  <div class="stat-card"><h3>💩 SNS</h3><div class="stat-value">${sns}</div></div>
-  <div class="stat-card"><h3>Nije obidjeno</h3><div class="stat-value">${notVisited}</div></div>
-  <div class="stat-card"><h3>Obidjeno</h3><div class="stat-value">${visited}</div></div>
-  <div class="stat-card"><h3>Nije zatečen</h3><div class="stat-value">${notFound}</div></div>
-  <div class="stat-card"><h3>Zakazano</h3><div class="stat-value">${scheduled}</div></div>
-`
+  const { data: addresses, error: addrError } = await addressQuery
+  if (addrError) {
+    statsCardsEl.innerHTML = `<div class="empty">Greška statistika: ${addrError.message}</div>`
+    return
+  }
 
-renderStreetStatsFromAddresses(rows)
+  const rows = addresses || []
+  const total = rows.length
+  const studentsWin = rows.filter(a => a.censusstatus === 'students_win').length
+  const sns = rows.filter(a => a.censusstatus === 'sns').length
+  const notVisited = rows.filter(a => a.censusstatus === 'not_visited').length
+  const visited = rows.filter(a => a.censusstatus === 'visited').length
+  const notFound = rows.filter(a => a.censusstatus === 'not_found').length
+  const scheduled = rows.filter(a => a.censusstatus === 'scheduled').length
+
+  statsCardsEl.innerHTML = `
+    <div class="stat-card"><h3>Ukupno adresa</h3><div class="stat-value">${total}</div></div>
+    <div class="stat-card"><h3>✌️ Studenti pobedjuju</h3><div class="stat-value">${studentsWin}</div></div>
+    <div class="stat-card"><h3>💩 SNS</h3><div class="stat-value">${sns}</div></div>
+    <div class="stat-card"><h3>Nije obidjeno</h3><div class="stat-value">${notVisited}</div></div>
+    <div class="stat-card"><h3>Obidjeno</h3><div class="stat-value">${visited}</div></div>
+    <div class="stat-card"><h3>Nije zatečen</h3><div class="stat-value">${notFound}</div></div>
+    <div class="stat-card"><h3>Zakazano</h3><div class="stat-value">${scheduled}</div></div>
+  `
+
+  renderStreetStatsFromAddresses(rows)
 }
-
   async function updateCensusStatus(addressId, newStatus) {
     if (!canEdit()) { setStatus('❌ Nemaš dozvolu za promenu statusa.'); return }
     setStatus('Čuvam status...')
