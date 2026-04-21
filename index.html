@@ -588,12 +588,12 @@
 
           <div class="field">
             <label for="newUserEmail">Novi user email</label>
-            <input id="newUserEmail" type="email" placeholder="npr. imicunovic83@gmail.com" />
+            <input id="newUserEmail" type="email" placeholder="npr. test@gmail.com" />
           </div>
 
           <div class="field">
             <label for="newUserFullname">Ime i prezime</label>
-            <input id="newUserFullname" type="text" placeholder="Ilija Mićunović" />
+            <input id="newUserFullname" type="text" placeholder="Petar Petrovic" />
           </div>
 
           <div class="field">
@@ -628,7 +628,7 @@
       </div>
 
       <div class="card-box">
-        <h2>Dashboard</h2>
+        <h2>Pregled</h2>
         <div id="statsCards" class="stats-grid">
           <div class="stat-card"><h3>Ukupno adresa</h3><div class="stat-value">0</div></div>
           <div class="stat-card"><h3>Pending</h3><div class="stat-value">0</div></div>
@@ -697,7 +697,7 @@
 </div>
 
       <div class="card-box">
-        <h2>Filteri</h2>
+        <h2>Pretraga evidencije</h2>
         <div class="filters-grid">
           <div class="field">
             <label for="filterStreet">Filter po ulici</label>
@@ -729,7 +729,7 @@
         </div>
       </div>
 
-      <h2 class="section-title">Lista adresa</h2>
+      <h2 class="section-title">Evidencija obilazaka</h2>
 
 <div class="card-box">
   <div class="address-picker-grid">
@@ -955,7 +955,7 @@ unitNumberEl.value = item.unit_number ?? ''
 addressLabelEl.value = item.full_address_label ?? ''
 addressTypeEl.value = item.address_type ?? 'Kuća'
 updateUnitFieldState()
-formTitleEl.textContent = 'Izmena adrese'
+formTitleEl.textContent = 'Unos nove adrese'
   saveBtn.classList.add('hidden')
   updateBtn.classList.remove('hidden')
   cancelEditBtn.classList.remove('hidden')
