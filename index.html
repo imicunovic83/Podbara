@@ -1332,7 +1332,6 @@
     wsDetails['!cols'] = [
       { wch: 24 }, { wch: 18 }, { wch: 10 }, { wch: 10 }, { wch: 16 }, { wch: 30 }, { wch: 12 }, { wch: 14 }, { wch: 10 }
     ]
-
     wsSummary['!cols'] = [
       { wch: 24 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 10 }
     ]
@@ -1549,7 +1548,10 @@
 
   async function loadAdminProfiles() {
     if (!isAdmin()) return
-    const { data, error } = await supabase.from('profiles').select('id, email, fullname, role, is_active').order('email', { ascending: true })
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('id, email, fullname, role, is_active')
+      .order('email', { ascending: true })
     if (error) {
       setStatus(`Greška profiles: ${error.message}`)
       return
@@ -1560,7 +1562,11 @@
 
   async function loadAllSystemStreets() {
     if (!isAdmin()) return
-    const { data, error } = await supabase.from('streets').select('id, name, settlement_name, is_active').eq('is_active', true).order('name', { ascending: true })
+    const { data, error } = await supabase
+      .from('streets')
+      .select('id, name, settlement_name, is_active')
+      .eq('is_active', true)
+      .order('name', { ascending: true })
     if (error) {
       setStatus(`Greška streets admin: ${error.message}`)
       return
@@ -1571,6 +1577,7 @@
 
   async function loadSelectedUserAssignments() {
     if (!isAdmin()) return
+
     const selectedUserId = adminUserSelectEl.value
     if (!selectedUserId) {
       selectedAdminUserAssignments = []
@@ -1590,8 +1597,10 @@
     }
 
     selectedAdminUserAssignments = data || []
+
     const selectedUser = allProfiles.find(p => String(p.id) === String(selectedUserId))
     if (selectedUser) adminRoleSelectEl.value = selectedUser.role || 'viewer'
+
     renderStreetCheckboxes()
   }
 
@@ -1613,8 +1622,13 @@
     saveUserRoleBtn.textContent = 'Čuvam rolu...'
 
     try {
-      const { error } = await supabase.from('profiles').update({ role: selectedRole }).eq('id', selectedUserId)
+      const { error } = await supabase
+        .from('profiles')
+        .update({ role: selectedRole })
+        .eq('id', selectedUserId)
+
       if (error) throw error
+
       await loadAdminProfiles()
       setStatus(`✅ Rola korisnika je sačuvana: ${selectedRole}`)
     } catch (err) {
@@ -1637,7 +1651,9 @@
       return
     }
 
-    const checkedStreetIds = Array.from(adminStreetCheckboxesEl.querySelectorAll('input[type="checkbox"]:checked')).map(input => input.value)
+    const checkedStreetIds = Array.from(
+      adminStreetCheckboxesEl.querySelectorAll('input[type="checkbox"]:checked')
+    ).map(input => input.value)
 
     saveAssignmentsBtn.disabled = true
     saveAssignmentsBtn.textContent = 'Čuvam dodele...'
@@ -1739,7 +1755,10 @@
   async function loadAllowedStreets() {
     if (!currentProfile) return
 
-    let query = supabase.from('streets').select('id, name, settlement_name, is_active').eq('is_active', true)
+    let query = supabase
+      .from('streets')
+      .select('id, name, settlement_name, is_active')
+      .eq('is_active', true)
 
     if (currentProfile.role !== 'admin') {
       const { data: assignments, error: assignmentError } = await supabase
@@ -1851,7 +1870,10 @@
     setStatus('Čuvam status...')
     const { error } = await supabase
       .from('addresses')
-      .update({ census_status: newStatus, updated_by: currentUser.id })
+      .update({
+        census_status: newStatus,
+        updated_by: currentUser.id
+      })
       .eq('id', addressId)
 
     if (error) {
@@ -1946,7 +1968,6 @@
         .maybeSingle()
 
       if (existingError) throw existingError
-
       if (existing) {
         setStatus('⚠️ Adresa već postoji!')
         return
@@ -2024,7 +2045,6 @@
         .maybeSingle()
 
       if (checkError) throw checkError
-
       if (existing) {
         setStatus('⚠️ Već postoji druga adresa sa istim nazivom na toj ulici.')
         return
@@ -2247,9 +2267,7 @@
 
   supabase.auth.onAuthStateChange((event) => {
     if (event === 'SIGNED_IN') {
-      setTimeout(() => {
-        initApp()
-      }, 0)
+      setTimeout(() => initApp(), 0)
     }
 
     if (event === 'SIGNED_OUT') {
