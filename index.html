@@ -5,749 +5,898 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Od vrata do vrata</title>
   <link rel="icon" type="image/png" href="./favicon.png">
- <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  :root {
-    --color-bg: #f5f3ef;
-    --color-surface: #ffffff;
-    --color-surface-2: #fbfaf8;
-    --color-border: #ddd8cf;
-    --color-text: #25231f;
-    --color-text-muted: #6f6b64;
-    --color-primary: #0a6b6f;
-    --color-primary-hover: #08585b;
-    --color-dark: #1f2937;
-    --color-dark-hover: #111827;
-    --color-danger: #dc2626;
-    --color-danger-hover: #b91c1c;
-    --color-warning-bg: #fef3c7;
-    --color-warning-text: #92400e;
-    --color-success-bg: #dcfce7;
-    --color-success-text: #166534;
-    --color-refused-bg: #fee2e2;
-    --color-refused-text: #991b1b;
-    --color-scheduled-bg: #dbeafe;
-    --color-scheduled-text: #1d4ed8;
-    --radius-md: 0.5rem;
-    --radius-lg: 0.85rem;
-    --radius-xl: 1.15rem;
-    --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
-    --shadow-md: 0 6px 18px rgba(0,0,0,0.08);
-    --shadow-lg: 0 10px 28px rgba(0,0,0,0.10);
-    --space-2: 0.5rem;
-    --space-3: 0.75rem;
-    --space-4: 1rem;
-    --space-6: 1.5rem;
-    --space-8: 2rem;
-    --text-sm: clamp(0.875rem, 0.8rem + 0.35vw, 1rem);
-    --text-base: clamp(1rem, 0.95rem + 0.25vw, 1.08rem);
-    --text-lg: clamp(1.125rem, 1rem + 0.65vw, 1.4rem);
-    --text-hero: clamp(2rem, 1rem + 3vw, 2.8rem);
-  }
-
-  body {
-    font-family: Arial, sans-serif;
-    background:
-      radial-gradient(circle at top left, rgba(10, 107, 111, 0.08), transparent 28%),
-      linear-gradient(180deg, #f9f8f5 0%, #f5f3ef 100%);
-    color: var(--color-text);
-    min-height: 100dvh;
-    font-size: var(--text-base);
-    line-height: 1.6;
-  }
-
-  .container {
-    max-width: 1320px;
-    margin: 0 auto;
-    padding: var(--space-8) var(--space-4);
-  }
-
-  h1 {
-    font-size: var(--text-hero);
-    font-weight: 800;
-    margin-bottom: var(--space-2);
-    line-height: 1.1;
-    letter-spacing: -0.02em;
-  }
-
-  h2 {
-    font-size: var(--text-lg);
-    font-weight: 700;
-    margin-bottom: var(--space-4);
-    letter-spacing: -0.01em;
-  }
-
-  .subtitle {
-    color: var(--color-text-muted);
-    margin-bottom: var(--space-6);
-    font-size: var(--text-sm);
-  }
-
-  .status {
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-left: 4px solid var(--color-primary);
-    padding: var(--space-3) var(--space-4);
-    border-radius: var(--radius-lg);
-    margin-bottom: var(--space-6);
-    box-shadow: var(--shadow-sm);
-    font-size: var(--text-sm);
-  }
-
-  .card-box {
-    background: var(--color-surface);
-    border-radius: var(--radius-xl);
-    padding: var(--space-6);
-    box-shadow: var(--shadow-md);
-    border: 1px solid rgba(0,0,0,0.04);
-    margin-bottom: var(--space-6);
-  }
-
-  .topbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: var(--space-4);
-    margin-bottom: var(--space-6);
-    flex-wrap: wrap;
-  }
-
-  .user-panel {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
-  }
-
-  .user-badge,
-  .role-badge {
-    background: var(--color-surface);
-    padding: var(--space-2) var(--space-3);
-    border-radius: 999px;
-    box-shadow: var(--shadow-sm);
-    font-size: var(--text-sm);
-    width: fit-content;
-    border: 1px solid var(--color-border);
-  }
-
-  .role-badge {
-    background: #eef6ff;
-    color: #1d4ed8;
-    font-weight: 700;
-    border-color: #cfe0ff;
-  }
-
-  .form-grid,
-  .stats-grid,
-  .filters-grid,
-  .admin-grid,
-  .address-detail-grid,
-  .checkbox-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: var(--space-4);
-  }
-
-  .address-form-grid {
-    display: grid;
-    grid-template-columns: 1.4fr 1fr 0.9fr 0.9fr 1fr 1.8fr;
-    gap: var(--space-4);
-    align-items: start;
-  }
-
-  .address-form-grid .field,
-  .admin-form-grid .field {
-    min-width: 0;
-  }
-
-  .address-form-grid .note {
-    margin-top: 8px;
-    font-size: 12px;
-    line-height: 1.4;
-  }
-
-  .admin-form-grid {
-    display: grid;
-    grid-template-columns: 1.15fr 0.85fr 1.15fr 1.15fr 1.1fr 0.85fr;
-    gap: var(--space-4);
-    align-items: start;
-  }
-
-  .address-picker-grid {
-    display: grid;
-    grid-template-columns: minmax(280px, 520px);
-    gap: var(--space-4);
-    margin-bottom: var(--space-4);
-  }
-
-  .address-detail-card {
-    background: var(--color-surface-2);
-    border-radius: var(--radius-xl);
-    padding: var(--space-6);
-    box-shadow: var(--shadow-md);
-    border: 1px solid rgba(0,0,0,0.06);
-  }
-
-  .address-detail-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: var(--space-4);
-    flex-wrap: wrap;
-    margin-bottom: var(--space-4);
-  }
-
-  .address-detail-title {
-    font-size: var(--text-lg);
-    font-weight: 800;
-    margin: 0;
-  }
-
-  .address-detail-actions {
-    display: flex;
-    gap: var(--space-3);
-    flex-wrap: wrap;
-    margin-top: var(--space-4);
-  }
-
-  .field label {
-    display: block;
-    font-size: var(--text-sm);
-    margin-bottom: var(--space-2);
-    font-weight: 700;
-  }
-
-  .field input,
-  .field select {
-    width: 100%;
-    padding: var(--space-3);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    font-size: var(--text-sm);
-    background: var(--color-surface);
-    color: var(--color-text);
-    transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
-  }
-
-  .field input:focus,
-  .field select:focus {
-    outline: none;
-    border-color: var(--color-primary);
-    box-shadow: 0 0 0 3px rgba(10, 107, 111, 0.12);
-  }
-
-  #addressLabel {
-    background: #f3f4f6;
-    font-weight: 600;
-    color: #374151;
-    cursor: not-allowed;
-    border-color: #d1d5db;
-  }
-
-  .actions {
-    display: flex;
-    gap: var(--space-3);
-    flex-wrap: wrap;
-    margin-top: var(--space-4);
-  }
-
-  button {
-    background: var(--color-primary);
-    color: white;
-    border: none;
-    border-radius: var(--radius-md);
-    padding: var(--space-3) var(--space-4);
-    font-size: var(--text-sm);
-    font-weight: 700;
-    cursor: pointer;
-    transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
-    box-shadow: var(--shadow-sm);
-  }
-
-  button:hover {
-    background: var(--color-primary-hover);
-    transform: translateY(-1px);
-  }
-
-  button:disabled {
-    background: #93c5fd;
-    cursor: not-allowed;
-    transform: none;
-  }
-
-  .btn-dark { background: var(--color-dark); }
-  .btn-dark:hover { background: var(--color-dark-hover); }
-
-  .btn-danger { background: var(--color-danger); }
-  .btn-danger:hover { background: var(--color-danger-hover); }
-
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr));
-    gap: var(--space-4);
-  }
-
-  .addr-card,
-  .stat-card,
-  .admin-user-card {
-    background: var(--color-surface);
-    border-radius: var(--radius-xl);
-    padding: var(--space-6);
-    box-shadow: var(--shadow-md);
-    border: 1px solid rgba(0,0,0,0.06);
-  }
-
-  .stat-card h3 {
-    font-size: var(--text-sm);
-    color: var(--color-text-muted);
-    margin-bottom: var(--space-2);
-    font-weight: 700;
-  }
-
-  .stat-value {
-    font-size: 2rem;
-    font-weight: 800;
-    line-height: 1.05;
-  }
-
-  .addr-card h3,
-  .admin-user-card h3 {
-    font-size: var(--text-lg);
-    font-weight: 800;
-    margin-bottom: var(--space-3);
-  }
-
-  .addr-row,
-  .street-stat-row,
-  .page-info,
-  .admin-row {
-    margin: var(--space-2) 0;
-    font-size: var(--text-sm);
-    color: #374151;
-    line-height: 1.5;
-  }
-
-  .addr-label {
-    font-weight: 700;
-    color: var(--color-text);
-  }
-
-  .status-badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.35rem 0.7rem;
-    border-radius: 999px;
-    font-size: 0.85rem;
-    font-weight: 700;
-    margin-top: var(--space-2);
-  }
-
-  .status-pending { background: var(--color-warning-bg); color: var(--color-warning-text); }
-  .status-visited { background: var(--color-success-bg); color: var(--color-success-text); }
-  .status-refused { background: var(--color-refused-bg); color: var(--color-refused-text); }
-  .status-scheduled { background: var(--color-scheduled-bg); color: var(--color-scheduled-text); }
-
-  .status-editor {
-    margin-top: var(--space-4);
-    padding-top: var(--space-4);
-    border-top: 1px solid rgba(0,0,0,0.08);
-  }
-
-  .status-editor label {
-    display: block;
-    font-size: var(--text-sm);
-    font-weight: 700;
-    margin-bottom: var(--space-2);
-  }
-
-  .status-editor select {
-    width: 100%;
-    padding: var(--space-3);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    background: white;
-    font-size: var(--text-sm);
-  }
-
-  .empty {
-    background: var(--color-surface);
-    padding: var(--space-6);
-    border-radius: var(--radius-xl);
-    color: var(--color-text-muted);
-    box-shadow: var(--shadow-sm);
-    text-align: center;
-    border: 1px dashed var(--color-border);
-  }
-
-  .note {
-    font-size: 13px;
-    color: var(--color-text-muted);
-    margin-top: var(--space-3);
-    line-height: 1.5;
-  }
-
-  .section-title {
-    font-size: var(--text-lg);
-    font-weight: 800;
-    margin: var(--space-8) 0 var(--space-4);
-    letter-spacing: -0.01em;
-  }
-
-  .hidden { display: none !important; }
-
-  .street-list {
-    margin: var(--space-2) 0 0 var(--space-4);
-    color: #374151;
-    line-height: 1.8;
-    font-size: var(--text-sm);
-  }
-
-  .streets-dropdown {
-    margin-top: var(--space-2);
-    background: #fcfcfa;
-    border: 1px solid rgba(0,0,0,0.08);
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-  }
-
-  .streets-dropdown summary {
-    cursor: pointer;
-    list-style: none;
-    padding: var(--space-3) var(--space-4);
-    font-size: var(--text-sm);
-    font-weight: 700;
-    color: var(--color-text);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .streets-dropdown summary::-webkit-details-marker { display: none; }
-
-  .streets-dropdown summary::after {
-    content: '▾';
-    font-size: 0.9rem;
-    color: var(--color-text-muted);
-    transition: transform 0.2s ease;
-  }
-
-  .streets-dropdown[open] summary::after {
-    transform: rotate(180deg);
-  }
-
-  .streets-dropdown summary:hover {
-    background: #f7f7f5;
-  }
-
-  .streets-dropdown .street-list {
-    margin: 0;
-    padding: 0 var(--space-4) var(--space-4) 2rem;
-    max-height: 260px;
-    overflow-y: auto;
-  }
-
-  .street-stats-box {
-    display: grid;
-    gap: var(--space-3);
-  }
-
-  .street-stat-item {
-    border: 1px solid rgba(0,0,0,0.06);
-    border-radius: var(--radius-lg);
-    padding: var(--space-4);
-    background: #fcfcfa;
-  }
-
-  .street-stat-name {
-    font-weight: 800;
-    margin-bottom: var(--space-2);
-  }
-
-  .assignments-box {
-    margin-top: var(--space-4);
-    border-top: 1px solid rgba(0,0,0,0.08);
-    padding-top: var(--space-4);
-  }
-
-  .checkbox-item {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    background: #fafaf8;
-    border: 1px solid rgba(0,0,0,0.06);
-    border-radius: var(--radius-md);
-    padding: var(--space-3);
-    font-size: var(--text-sm);
-  }
-
-  .checkbox-item input { width: auto; }
-
-  @media (max-width: 1200px) {
-    .address-form-grid,
-    .admin-form-grid {
-      grid-template-columns: repeat(3, minmax(220px, 1fr));
+    :root {
+      --color-bg: #f4f3ef;
+      --color-surface: #f9f8f5;
+      --color-surface-2: #ffffff;
+      --color-border: #e0ddd6;
+      --color-text: #1e1c17;
+      --color-text-muted: #7a7769;
+      --color-primary: #01696f;
+      --color-primary-light: #e6f4f4;
+      --color-primary-hover: #015459;
+      --color-dark: #1e1c17;
+      --color-dark-hover: #000000;
+      --color-danger: #dc2626;
+      --color-danger-hover: #b91c1c;
+      --color-warning-bg: #fef3c7;
+      --color-warning-text: #92400e;
+      --color-success-bg: #dcfce7;
+      --color-success-text: #166534;
+      --color-refused-bg: #fee2e2;
+      --color-refused-text: #991b1b;
+      --color-scheduled-bg: #dbeafe;
+      --color-scheduled-text: #1d4ed8;
+      --radius-md: 0.5rem;
+      --radius-lg: 0.75rem;
+      --radius-xl: 1rem;
+      --radius-2xl: 1.5rem;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.04);
+      --shadow-lg: 0 8px 24px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04);
+      --space-1: 0.25rem;
+      --space-2: 0.5rem;
+      --space-3: 0.75rem;
+      --space-4: 1rem;
+      --space-5: 1.25rem;
+      --space-6: 1.5rem;
+      --space-8: 2rem;
+      --space-10: 2.5rem;
+      --text-xs: 0.75rem;
+      --text-sm: clamp(0.875rem, 0.8rem + 0.35vw, 0.9375rem);
+      --text-base: clamp(0.9375rem, 0.9rem + 0.2vw, 1rem);
+      --text-lg: clamp(1.125rem, 1rem + 0.6vw, 1.375rem);
+      --text-xl: clamp(1.25rem, 1.1rem + 0.8vw, 1.625rem);
+      --text-hero: clamp(1.75rem, 1rem + 3vw, 2.75rem);
     }
-  }
 
-  @media (max-width: 768px) {
-    .address-form-grid,
-    .admin-form-grid,
+    body {
+      font-family: 'DM Sans', Arial, sans-serif;
+      background: var(--color-bg);
+      color: var(--color-text);
+      min-height: 100dvh;
+      font-size: var(--text-base);
+      line-height: 1.6;
+    }
+
+    /* ── Page header ── */
+    .page-header {
+      background: var(--color-surface-2);
+      border-bottom: 1px solid var(--color-border);
+      padding: var(--space-5) var(--space-6);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+    }
+
+    .page-header-brand {
+      display: flex;
+      align-items: baseline;
+      gap: var(--space-3);
+      flex: 1;
+    }
+
+    .page-header h1 {
+      font-size: var(--text-xl);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1;
+    }
+
+    .page-header .subtitle {
+      font-size: var(--text-sm);
+      color: var(--color-text-muted);
+      margin: 0;
+    }
+
+    /* ── Container ── */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: var(--space-6) var(--space-4) var(--space-10);
+    }
+
+    /* ── Legacy h1/h2 (for auth, fallback) ── */
+    h1 {
+      font-size: var(--text-hero);
+      font-weight: 700;
+      margin-bottom: var(--space-2);
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+    }
+
+    h2 {
+      font-size: var(--text-lg);
+      font-weight: 700;
+      margin-bottom: var(--space-4);
+      letter-spacing: -0.01em;
+    }
+
+    .subtitle {
+      color: var(--color-text-muted);
+      margin-bottom: var(--space-6);
+      font-size: var(--text-sm);
+    }
+
+    /* ── Status bar ── */
+    .status {
+      background: var(--color-surface-2);
+      border: 1px solid var(--color-border);
+      border-left: 3px solid var(--color-primary);
+      padding: var(--space-3) var(--space-4);
+      border-radius: var(--radius-lg);
+      margin-bottom: var(--space-5);
+      font-size: var(--text-sm);
+      font-weight: 500;
+      color: var(--color-text);
+      transition: border-color 0.2s;
+    }
+
+    /* ── Cards ── */
+    .card-box {
+      background: var(--color-surface-2);
+      border-radius: var(--radius-xl);
+      padding: var(--space-6);
+      box-shadow: var(--shadow-md);
+      margin-bottom: var(--space-5);
+      border: 1px solid rgba(0,0,0,0.04);
+      transition: box-shadow 0.2s;
+    }
+
+    .card-box:hover {
+      box-shadow: var(--shadow-lg);
+    }
+
+    /* ── Section headings ── */
+    .section-title {
+      font-size: var(--text-lg);
+      font-weight: 700;
+      margin: var(--space-8) 0 var(--space-4);
+      letter-spacing: -0.01em;
+      color: var(--color-text);
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .section-title::before {
+      content: '';
+      display: block;
+      width: 4px;
+      height: 1.25em;
+      background: var(--color-primary);
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    /* ── Topbar / user panel ── */
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-4);
+      margin-bottom: var(--space-5);
+      flex-wrap: wrap;
+      padding: var(--space-4) var(--space-5);
+      background: var(--color-surface-2);
+      border-radius: var(--radius-xl);
+      border: 1px solid var(--color-border);
+    }
+
+    .user-panel {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      flex-wrap: wrap;
+    }
+
+    .user-badge,
+    .role-badge {
+      padding: var(--space-2) var(--space-3);
+      border-radius: var(--radius-lg);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .user-badge {
+      background: var(--color-bg);
+      color: var(--color-text-muted);
+      border: 1px solid var(--color-border);
+    }
+
+    .role-badge {
+      background: var(--color-primary-light);
+      color: var(--color-primary);
+      border: 1px solid rgba(1,105,111,0.15);
+    }
+
+    /* ── Auth section ── */
+    #authSection {
+      max-width: 480px;
+      margin: var(--space-10) auto;
+    }
+
+    /* ── Stat cards ── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: var(--space-4);
+    }
+
+    .stat-card {
+      background: var(--color-surface-2);
+      border-radius: var(--radius-xl);
+      padding: var(--space-5) var(--space-6);
+      border: 1px solid rgba(0,0,0,0.06);
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+    }
+
+    .stat-card:nth-child(1)::before { background: var(--color-primary); }
+    .stat-card:nth-child(2)::before { background: #f59e0b; }
+    .stat-card:nth-child(3)::before { background: #22c55e; }
+    .stat-card:nth-child(4)::before { background: #3b82f6; }
+
+    .stat-card h3 {
+      font-size: var(--text-xs);
+      color: var(--color-text-muted);
+      margin-bottom: var(--space-2);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .stat-value {
+      font-size: 2.25rem;
+      font-weight: 700;
+      line-height: 1;
+      font-family: 'DM Mono', monospace;
+      letter-spacing: -0.02em;
+    }
+
+    .stat-card:nth-child(1) .stat-value { color: var(--color-primary); }
+    .stat-card:nth-child(2) .stat-value { color: #d97706; }
+    .stat-card:nth-child(3) .stat-value { color: #16a34a; }
+    .stat-card:nth-child(4) .stat-value { color: #2563eb; }
+
+    /* ── Form grids ── */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: var(--space-4);
+    }
+
+    .filters-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: var(--space-4);
+    }
+
+    .admin-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: var(--space-4);
+    }
+
+    .address-form-grid {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr 0.85fr 0.85fr 1fr 1.9fr;
+      gap: var(--space-4);
+      align-items: start;
+    }
+
+    .address-form-grid .field { min-width: 0; }
+    .address-form-grid .note { margin-top: 8px; font-size: 12px; line-height: 1.4; }
+
+    @media (max-width: 1200px) {
+      .address-form-grid { grid-template-columns: repeat(3, minmax(180px, 1fr)); }
+    }
+    @media (max-width: 768px) {
+      .address-form-grid { grid-template-columns: 1fr; }
+    }
+
+    .admin-form-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.9fr 1.2fr 1.2fr 1.15fr 0.85fr;
+      gap: var(--space-4);
+      align-items: start;
+    }
+
+    .admin-form-grid .field { min-width: 0; }
+
+    @media (max-width: 1200px) {
+      .admin-form-grid { grid-template-columns: repeat(3, minmax(180px, 1fr)); }
+    }
+    @media (max-width: 768px) {
+      .admin-form-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ── Address picker ── */
     .address-picker-grid {
-      grid-template-columns: 1fr;
+      display: grid;
+      grid-template-columns: minmax(280px, 520px);
+      gap: var(--space-4);
+      margin-bottom: var(--space-4);
+    }
+
+    .address-detail-card {
+      background: var(--color-bg);
+      border-radius: var(--radius-xl);
+      padding: var(--space-6);
+      border: 1px solid var(--color-border);
+    }
+
+    .address-detail-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: var(--space-4);
+      flex-wrap: wrap;
+      margin-bottom: var(--space-4);
+    }
+
+    .address-detail-title {
+      font-size: var(--text-lg);
+      font-weight: 700;
+      margin: 0;
+      letter-spacing: -0.01em;
     }
 
     .address-detail-grid {
-      grid-template-columns: 1fr;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: var(--space-3) var(--space-4);
+      margin-bottom: var(--space-4);
     }
-  }
 
-  @media (max-width: 600px) {
-    h1 { font-size: 2rem; }
-    .topbar { flex-direction: column; }
-    .actions { flex-direction: column; }
-    button { width: 100%; }
-  }
-</style>
+    .address-detail-actions {
+      display: flex;
+      gap: var(--space-3);
+      flex-wrap: wrap;
+      margin-top: var(--space-4);
+    }
+
+    @media (max-width: 768px) {
+      .address-picker-grid { grid-template-columns: 1fr; }
+      .address-detail-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ── Fields ── */
+    .field label {
+      display: block;
+      font-size: var(--text-sm);
+      margin-bottom: var(--space-2);
+      font-weight: 600;
+      color: var(--color-text);
+    }
+
+    .field input,
+    .field select {
+      width: 100%;
+      padding: var(--space-3) var(--space-3);
+      border: 1.5px solid var(--color-border);
+      border-radius: var(--radius-md);
+      font-size: var(--text-sm);
+      font-family: 'DM Sans', Arial, sans-serif;
+      background: var(--color-surface-2);
+      color: var(--color-text);
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    #addressLabel {
+      background: #f3f4f6;
+      font-weight: 600;
+      color: #374151;
+      cursor: not-allowed;
+      border-color: #d1d5db;
+    }
+
+    .field input:focus,
+    .field select:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(1, 105, 111, 0.1);
+    }
+
+    /* ── Buttons ── */
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-3);
+      margin-top: var(--space-4);
+    }
+
+    button {
+      background: var(--color-primary);
+      color: white;
+      border: none;
+      border-radius: var(--radius-md);
+      padding: var(--space-3) var(--space-5);
+      font-size: var(--text-sm);
+      font-family: 'DM Sans', Arial, sans-serif;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+      white-space: nowrap;
+    }
+
+    button:hover {
+      background: var(--color-primary-hover);
+      box-shadow: 0 4px 12px rgba(1,105,111,0.25);
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    button:disabled {
+      background: #93c5fd;
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
+    }
+
+    .btn-dark { background: var(--color-dark); }
+    .btn-dark:hover { background: var(--color-dark-hover); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+
+    .btn-danger { background: var(--color-danger); }
+    .btn-danger:hover { background: var(--color-danger-hover); box-shadow: 0 4px 12px rgba(220,38,38,0.25); }
+
+    /* ── Cards (addr, admin) ── */
+    .addr-card,
+    .admin-user-card {
+      background: var(--color-surface-2);
+      border-radius: var(--radius-xl);
+      padding: var(--space-6);
+      box-shadow: var(--shadow-md);
+      border: 1px solid rgba(0,0,0,0.06);
+    }
+
+    .addr-card h3,
+    .admin-user-card h3 {
+      font-size: var(--text-lg);
+      font-weight: 700;
+      margin-bottom: var(--space-3);
+    }
+
+    .addr-row,
+    .street-stat-row,
+    .page-info,
+    .admin-row {
+      margin: var(--space-2) 0;
+      font-size: var(--text-sm);
+      color: #374151;
+      line-height: 1.5;
+    }
+
+    .page-info {
+      font-weight: 600;
+      color: var(--color-text-muted);
+      font-size: var(--text-sm);
+      margin-bottom: var(--space-4);
+      padding: var(--space-2) 0;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .addr-label {
+      font-weight: 700;
+      color: var(--color-text);
+    }
+
+    /* ── Status badges ── */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.3rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .status-pending { background: var(--color-warning-bg); color: var(--color-warning-text); }
+    .status-visited { background: var(--color-success-bg); color: var(--color-success-text); }
+    .status-refused { background: var(--color-refused-bg); color: var(--color-refused-text); }
+    .status-scheduled { background: var(--color-scheduled-bg); color: var(--color-scheduled-text); }
+
+    /* ── Status editor ── */
+    .status-editor {
+      margin-top: var(--space-4);
+      padding-top: var(--space-4);
+      border-top: 1px solid var(--color-border);
+    }
+
+    .status-editor label {
+      display: block;
+      font-size: var(--text-sm);
+      font-weight: 700;
+      margin-bottom: var(--space-2);
+    }
+
+    .status-editor select {
+      width: 100%;
+      max-width: 260px;
+      padding: var(--space-3);
+      border: 1.5px solid var(--color-border);
+      border-radius: var(--radius-md);
+      background: white;
+      font-size: var(--text-sm);
+      font-family: 'DM Sans', Arial, sans-serif;
+    }
+
+    /* ── Empty state ── */
+    .empty {
+      background: var(--color-surface-2);
+      padding: var(--space-8) var(--space-6);
+      border-radius: var(--radius-xl);
+      color: var(--color-text-muted);
+      border: 1px dashed var(--color-border);
+      text-align: center;
+      font-weight: 500;
+    }
+
+    /* ── Notes ── */
+    .note {
+      font-size: 0.8125rem;
+      color: var(--color-text-muted);
+      margin-top: var(--space-3);
+      line-height: 1.5;
+    }
+
+    /* ── Permissions / "Tvoje dozvole" ── */
+    .info-row {
+      display: flex;
+      align-items: baseline;
+      gap: var(--space-2);
+      padding: var(--space-2) 0;
+      font-size: var(--text-sm);
+      border-bottom: 1px solid var(--color-bg);
+    }
+
+    .info-row:last-of-type { border-bottom: none; }
+
+    /* ── Streets dropdown ── */
+    .streets-dropdown {
+      margin-top: var(--space-3);
+      background: var(--color-bg);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+
+    .streets-dropdown summary {
+      cursor: pointer;
+      list-style: none;
+      padding: var(--space-3) var(--space-4);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-text);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      user-select: none;
+    }
+
+    .streets-dropdown summary::-webkit-details-marker { display: none; }
+
+    .streets-dropdown summary::after {
+      content: '▾';
+      font-size: 0.9rem;
+      color: var(--color-text-muted);
+      transition: transform 0.2s ease;
+    }
+
+    .streets-dropdown[open] summary::after { transform: rotate(180deg); }
+    .streets-dropdown summary:hover { background: var(--color-border); }
+
+    .streets-dropdown .street-list {
+      margin: 0;
+      padding: 0 var(--space-4) var(--space-4) 2rem;
+      max-height: 260px;
+      overflow-y: auto;
+    }
+
+    .street-list {
+      margin: var(--space-2) 0 0 var(--space-4);
+      color: #374151;
+      line-height: 1.8;
+      font-size: var(--text-sm);
+    }
+
+    /* ── Street stats ── */
+    .street-stats-box { display: grid; gap: var(--space-3); }
+
+    .street-stat-item {
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4) var(--space-5);
+      background: var(--color-bg);
+      transition: border-color 0.15s;
+    }
+
+    .street-stat-item:hover { border-color: var(--color-primary); }
+
+    .street-stat-name {
+      font-weight: 700;
+      margin-bottom: var(--space-3);
+      font-size: var(--text-sm);
+    }
+
+    .street-stat-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+    }
+
+    .street-stat-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 10px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+
+    .pill-total { background: var(--color-primary-light); color: var(--color-primary); }
+    .pill-pending { background: #fef3c7; color: #92400e; }
+    .pill-visited { background: #dcfce7; color: #166534; }
+    .pill-refused { background: #fee2e2; color: #991b1b; }
+    .pill-scheduled { background: #dbeafe; color: #1d4ed8; }
+
+    /* ── Admin panel ── */
+    .assignments-box {
+      margin-top: var(--space-5);
+      border-top: 1px solid var(--color-border);
+      padding-top: var(--space-5);
+    }
+
+    .checkbox-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: var(--space-3);
+      margin-top: var(--space-3);
+    }
+
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      background: var(--color-bg);
+      border: 1.5px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--space-3);
+      font-size: var(--text-sm);
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+    }
+
+    .checkbox-item:hover { border-color: var(--color-primary); background: var(--color-primary-light); }
+    .checkbox-item input { width: auto; accent-color: var(--color-primary); }
+
+    /* ── Utilities ── */
+    .hidden { display: none !important; }
+
+    @media (max-width: 600px) {
+      .topbar { flex-direction: column; align-items: flex-start; }
+      .page-header { flex-wrap: wrap; }
+      .page-header .subtitle { display: none; }
+    }
+  </style>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 <body>
+
+  <!-- ── Sticky header ── -->
+  <header class="page-header">
+    <div class="page-header-brand">
+      <h1>Od vrata do vrata</h1>
+      <span class="subtitle">Pregled i unos adresa · Podbara</span>
+    </div>
+  </header>
+
   <div class="container">
-    <h1>Od vrata do vrata</h1>
-    <p class="subtitle">Pregled i unos adresa iz Supabase baze</p>
 
     <div id="status" class="status">Učitavanje...</div>
 
-  <div id="authSection" class="card-box">
-  <h2>Prijava</h2>
-  <div class="form-grid">
-    <div class="field">
-      <label for="emailInput">Email adresa</label>
-      <input id="emailInput" type="email" placeholder="npr. ime@email.com" />
-    </div>
-  </div>
-  <div class="actions">
-    <button id="loginBtn" type="button">Pošalji magic link</button>
-    <button id="passwordLoginBtn" type="button" class="btn-dark">Login lozinkom</button>
-  </div>
-  <div class="form-grid" style="margin-top: 1rem;">
-    <div class="field">
-      <label for="passwordInput">Lozinka</label>
-      <input id="passwordInput" type="password" placeholder="Unesi lozinku za test login" />
-    </div>
-  </div>
-  <p class="note">Na email će stići link za prijavu. Klikni ga i vratiće te nazad na ovu stranicu.</p>
-</div>
-
-<div id="appSection" class="hidden">
-  <div class="topbar">
-    <div class="user-panel">
-      <div id="userBadge" class="user-badge">Nije prijavljen</div>
-      <div id="roleBadge" class="role-badge">Rola: -</div>
-    </div>
-    <button id="logoutBtn" type="button" class="btn-dark">Logout</button>
-  </div>
-
-  <div class="card-box">
-    <h2>Tvoje dozvole</h2>
-    <div class="addr-row"><span class="addr-label">Korisnik:</span> <span id="infoEmail">-</span></div>
-    <div class="addr-row"><span class="addr-label">Rola:</span> <span id="infoRole">-</span></div>
-    <div class="addr-row"><span class="addr-label">Dozvoljene ulice:</span></div>
-
-    <details class="streets-dropdown">
-      <summary id="assignedStreetsSummary">Dozvoljene ulice (0)</summary>
-      <ul id="assignedStreets" class="street-list">
-        <li>Učitavanje...</li>
-      </ul>
-    </details>
-  </div>
-
-  <div class="card-box">
-    <h2>Pregled</h2>
-    <div id="statsCards" class="stats-grid">
-      <div class="stat-card"><h3>Ukupno adresa</h3><div class="stat-value">0</div></div>
-      <div class="stat-card"><h3>Pending</h3><div class="stat-value">0</div></div>
-      <div class="stat-card"><h3>Visited</h3><div class="stat-value">0</div></div>
-      <div class="stat-card"><h3>Refused + Scheduled</h3><div class="stat-value">0</div></div>
-    </div>
-  </div>
-
-  <div class="card-box">
-    <h2>Statistika po ulicama</h2>
-    <div id="streetStats" class="street-stats-box">
-      <div class="empty">Učitavanje statistike...</div>
-    </div>
-  </div>
-
-  <div id="editorSection" class="card-box">
-    <h2 id="formTitle">Unos nove adrese</h2>
-
-    <div class="address-form-grid">
-      <div class="field">
-        <label for="streetSelect">Ulica</label>
-        <select id="streetSelect">
-          <option value="">Izaberi ulicu...</option>
-        </select>
+    <!-- ── Auth ── -->
+    <div id="authSection" class="card-box">
+      <h2>Prijava</h2>
+      <div class="form-grid">
+        <div class="field">
+          <label for="emailInput">Email adresa</label>
+          <input id="emailInput" type="email" placeholder="npr. ime@email.com" />
+        </div>
       </div>
-
-      <div class="field">
-        <label for="addressType">Tip adrese</label>
-        <select id="addressType">
-          <option value="Kuća">Kuća</option>
-          <option value="Zgrada">Zgrada</option>
-        </select>
-      </div>
-
-      <div class="field">
-        <label for="KućaNumber">Broj kuće/zgrade</label>
-        <input id="KućaNumber" type="text" placeholder="npr. 15" />
-      </div>
-
-      <div class="field">
-        <label for="houseSuffix">Dodatak broju</label>
-        <input id="houseSuffix" type="text" placeholder="npr. A" />
-      </div>
-
-      <div class="field">
-        <label for="unitNumber" id="unitNumberLabel">Stan / jedinica</label>
-        <input id="unitNumber" type="text" placeholder="npr. 3 ili A2" />
-        <div id="unitNumberHelp" class="note">Za kuću opciono, za zgradu obavezno.</div>
-      </div>
-
-      <div class="field">
-        <label for="addressLabel">Puna adresa</label>
-        <input id="addressLabel" type="text" placeholder="npr. Bele njive 15 / 3" readonly />
-      </div>
-    </div>
-
-    <div class="actions">
-      <button id="saveBtn" type="button">Sačuvaj adresu</button>
-      <button id="updateBtn" type="button" class="btn-dark hidden">Sačuvaj izmene</button>
-      <button id="cancelEditBtn" type="button" class="btn-dark hidden">Otkaži izmenu</button>
-      <button id="refreshStreetsBtn" type="button" class="btn-dark admin-only">🔄 Osveži ulice</button>
-      <button id="deleteDuplicatesBtn" type="button" class="btn-danger admin-only">🗑️ Obriši duplikate</button>
-    </div>
-
-    <p class="note">Admin vidi sve aktivne ulice, ostali korisnici samo dodeljene.</p>
-  </div>
-
-  <div id="adminPanelSection" class="card-box hidden">
-    <h2>Admin panel</h2>
-
-    <div class="admin-form-grid">
-      <div class="field">
-        <label for="adminUserSelect">Izaberi korisnika</label>
-        <select id="adminUserSelect">
-          <option value="">Izaberi korisnika...</option>
-        </select>
-      </div>
-
-      <div class="field">
-        <label for="adminRoleSelect">Rola korisnika</label>
-        <select id="adminRoleSelect">
-          <option value="viewer">viewer</option>
-          <option value="editor">editor</option>
-          <option value="admin">admin</option>
-        </select>
-      </div>
-
-      <div class="field">
-        <label for="newUserEmail">Novi user email</label>
-        <input id="newUserEmail" type="email" placeholder="npr. test@gmail.com" />
-      </div>
-
-      <div class="field">
-        <label for="newUserFullname">Ime i prezime</label>
-        <input id="newUserFullname" type="text" placeholder="Petar Petrovic" />
-      </div>
-
-      <div class="field">
-        <label for="newUserPassword">Privremena lozinka</label>
-        <input id="newUserPassword" type="password" placeholder="Unesi privremenu lozinku" />
-      </div>
-
-      <div class="field">
-        <label for="newUserRole">Rola</label>
-        <select id="newUserRole">
-          <option value="viewer">Viewer</option>
-          <option value="editor">Editor</option>
-          <option value="admin">Admin</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="actions">
-      <button id="saveUserRoleBtn" type="button">Sačuvaj rolu</button>
-      <button id="refreshAdminPanelBtn" type="button" class="btn-dark">Osveži korisnike</button>
-      <button id="createNewUserBtn" type="button">➕ Dodaj / poveži usera</button>
-    </div>
-
-    <div class="assignments-box">
-      <h2>Dodela ulica korisniku</h2>
-      <div id="adminAssignmentsInfo" class="note">Izaberi korisnika da vidi i menja dodeljene ulice.</div>
-      <div id="adminStreetCheckboxes" class="checkbox-grid"></div>
       <div class="actions">
-        <button id="saveAssignmentsBtn" type="button">Sačuvaj dodeljene ulice</button>
+        <button id="loginBtn" type="button">Pošalji magic link</button>
+        <button id="passwordLoginBtn" type="button" class="btn-dark">Login lozinkom</button>
       </div>
-    </div>
-  </div>
-
-  <div class="card-box">
-    <h2>Pretraga evidencije</h2>
-    <div class="filters-grid">
-      <div class="field">
-        <label for="filterStreet">Filter po ulici</label>
-        <select id="filterStreet">
-          <option value="">Sve ulice</option>
-        </select>
+      <div class="form-grid" style="margin-top: 1rem;">
+        <div class="field">
+          <label for="passwordInput">Lozinka</label>
+          <input id="passwordInput" type="password" placeholder="Unesi lozinku za test login" />
+        </div>
       </div>
-      <div class="field">
-        <label for="filterStatus">Filter po statusu</label>
-        <select id="filterStatus">
-          <option value="">Svi statusi</option>
-          <option value="pending">Pending</option>
-          <option value="visited">Visited</option>
-          <option value="refused">Refused</option>
-          <option value="scheduled">Scheduled</option>
-        </select>
-      </div>
-      <div class="field">
-        <label for="searchInput">Pretraga</label>
-        <input id="searchInput" type="text" placeholder="Ulica, broj ili puna adresa" />
-      </div>
+      <p class="note">Na email će stići link za prijavu. Klikni ga i vratiće te nazad na ovu stranicu.</p>
     </div>
 
-    <div class="actions">
-      <button id="applyFiltersBtn" type="button">Primeni filtere</button>
-      <button id="resetFiltersBtn" type="button" class="btn-dark">Reset filtera</button>
-      <button id="exportCsvBtn" type="button" class="btn-dark">Export CSV</button>
-      <button id="exportExcelBtn" type="button" class="btn-dark">Export Excel</button>
-      <button id="printBtn" type="button" class="btn-dark">Print pregled</button>
-    </div>
-  </div>
+    <!-- ══════════════════════════════════════════
+         APP SECTION (visible after login)
+    ══════════════════════════════════════════ -->
+    <div id="appSection" class="hidden">
 
-  <h2 class="section-title">Evidencija obilazaka</h2>
-
-  <div class="card-box">
-    <div class="address-picker-grid">
-      <div class="field">
-        <label for="addressSelect">Izaberi adresu</label>
-        <select id="addressSelect">
-          <option value="">Izaberi adresu...</option>
-        </select>
+      <!-- Topbar -->
+      <div class="topbar">
+        <div class="user-panel">
+          <div id="userBadge" class="user-badge">Nije prijavljen</div>
+          <div id="roleBadge" class="role-badge">Rola: -</div>
+        </div>
+        <button id="logoutBtn" type="button" class="btn-dark">Logout</button>
       </div>
-    </div>
 
-    <div id="pageInfo" class="page-info"></div>
-    <div id="selectedAddressDetails"></div>
-  </div>
-</div>
+      <!-- ── 1. PREGLED ── -->
+      <div class="card-box">
+        <h2>Pregled</h2>
+        <div id="statsCards" class="stats-grid">
+          <div class="stat-card"><h3>Ukupno adresa</h3><div class="stat-value">0</div></div>
+          <div class="stat-card"><h3>Pending</h3><div class="stat-value">0</div></div>
+          <div class="stat-card"><h3>Visited</h3><div class="stat-value">0</div></div>
+          <div class="stat-card"><h3>Refused + Scheduled</h3><div class="stat-value">0</div></div>
+        </div>
+      </div>
+
+      <!-- ── 2. TVOJE DOZVOLE ── -->
+      <div class="card-box">
+        <h2>Tvoje dozvole</h2>
+        <div class="addr-row"><span class="addr-label">Korisnik:</span> <span id="infoEmail">-</span></div>
+        <div class="addr-row"><span class="addr-label">Rola:</span> <span id="infoRole">-</span></div>
+        <div class="addr-row"><span class="addr-label">Dozvoljene ulice:</span></div>
+        <details class="streets-dropdown">
+          <summary id="assignedStreetsSummary">Dozvoljene ulice (0)</summary>
+          <ul id="assignedStreets" class="street-list">
+            <li>Učitavanje...</li>
+          </ul>
+        </details>
+      </div>
+
+      <!-- ── 3. UNOS NOVE ADRESE ── -->
+      <div id="editorSection" class="card-box">
+        <h2 id="formTitle">Unos nove adrese</h2>
+
+        <div class="address-form-grid">
+          <div class="field">
+            <label for="streetSelect">Ulica</label>
+            <select id="streetSelect">
+              <option value="">Izaberi ulicu...</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="addressType">Tip adrese</label>
+            <select id="addressType">
+              <option value="Kuća">Kuća</option>
+              <option value="Zgrada">Zgrada</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="KućaNumber">Broj kuće/zgrade</label>
+            <input id="KućaNumber" type="text" placeholder="npr. 15" />
+          </div>
+
+          <div class="field">
+            <label for="houseSuffix">Dodatak broju</label>
+            <input id="houseSuffix" type="text" placeholder="npr. A" />
+          </div>
+
+          <div class="field">
+            <label for="unitNumber" id="unitNumberLabel">Stan / jedinica</label>
+            <input id="unitNumber" type="text" placeholder="npr. 3 ili A2" />
+            <div id="unitNumberHelp" class="note">Za kuću opciono, za zgradu obavezno.</div>
+          </div>
+
+          <div class="field">
+            <label for="addressLabel">Puna adresa</label>
+            <input id="addressLabel" type="text" placeholder="npr. Bele njive 15 / 3" readonly />
+          </div>
+        </div>
+
+        <div class="actions">
+          <button id="saveBtn" type="button">Sačuvaj adresu</button>
+          <button id="updateBtn" type="button" class="btn-dark hidden">Sačuvaj izmene</button>
+          <button id="cancelEditBtn" type="button" class="btn-dark hidden">Otkaži izmenu</button>
+          <button id="refreshStreetsBtn" type="button" class="btn-dark admin-only">🔄 Osveži ulice</button>
+          <button id="deleteDuplicatesBtn" type="button" class="btn-danger admin-only">🗑️ Obriši duplikate</button>
+        </div>
+
+        <p class="note">Admin vidi sve aktivne ulice, ostali korisnici samo dodeljene.</p>
+      </div>
+
+      <!-- ── 4. PRETRAGA EVIDENCIJE ── -->
+      <div class="card-box">
+        <h2>Pretraga evidencije</h2>
+        <div class="filters-grid">
+          <div class="field">
+            <label for="filterStreet">Filter po ulici</label>
+            <select id="filterStreet">
+              <option value="">Sve ulice</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="filterStatus">Filter po statusu</label>
+            <select id="filterStatus">
+              <option value="">Svi statusi</option>
+              <option value="pending">Pending</option>
+              <option value="visited">Visited</option>
+              <option value="refused">Refused</option>
+              <option value="scheduled">Scheduled</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="searchInput">Pretraga</label>
+            <input id="searchInput" type="text" placeholder="Ulica, broj ili puna adresa" />
+          </div>
+        </div>
+        <div class="actions">
+          <button id="applyFiltersBtn" type="button">Primeni filtere</button>
+          <button id="resetFiltersBtn" type="button" class="btn-dark">Reset filtera</button>
+          <button id="exportCsvBtn" type="button" class="btn-dark">Export CSV</button>
+          <button id="exportExcelBtn" type="button" class="btn-dark">Export Excel</button>
+          <button id="printBtn" type="button" class="btn-dark">Print pregled</button>
+        </div>
+      </div>
+
+      <!-- ── 5. EVIDENCIJA OBILAZAKA ── -->
+      <h2 class="section-title">Evidencija obilazaka</h2>
+
+      <div class="card-box">
+        <div class="address-picker-grid">
+          <div class="field">
+            <label for="addressSelect">Izaberi adresu</label>
+            <select id="addressSelect">
+              <option value="">Izaberi adresu...</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="pageInfo" class="page-info"></div>
+        <div id="selectedAddressDetails"></div>
+      </div>
+
+      <!-- ── 6. STATISTIKA PO ULICAMA ── -->
+      <div class="card-box">
         <h2>Statistika po ulicama</h2>
         <div id="streetStats" class="street-stats-box">
           <div class="empty">Učitavanje statistike...</div>
         </div>
       </div>
 
-     <div id="adminPanelSection" class="card-box hidden">
+      <!-- ── 7. ADMIN PANEL ── -->
+      <div id="adminPanelSection" class="card-box hidden">
         <h2>Admin panel</h2>
 
         <div class="admin-form-grid">
@@ -808,8 +957,8 @@
         </div>
       </div>
 
-      
-    </div>
+    </div><!-- /appSection -->
+  </div><!-- /container -->
 
 <script type="module">
   import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
@@ -972,13 +1121,11 @@
   function validateUnitNumber() {
     const isBuilding = addressTypeEl.value === 'Zgrada'
     const unitNumber = unitNumberEl.value.trim()
-
     if (isBuilding && !unitNumber) {
       setStatus('❌ Za tip adrese "Zgrada" polje Stan / jedinica je obavezno.')
       unitNumberEl.focus()
       return false
     }
-
     return true
   }
 
@@ -1004,7 +1151,6 @@
       setStatus('❌ Nemaš dozvolu za izmenu.')
       return
     }
-
     editingAddressId = item.id
     streetSelectEl.value = item.street_id ?? ''
     houseNumberEl.value = item.house_number ?? ''
@@ -1066,22 +1212,18 @@
 
   function renderStreetCheckboxes() {
     if (!isAdmin()) return
-
     if (!adminUserSelectEl.value) {
       adminStreetCheckboxesEl.innerHTML = ''
       adminAssignmentsInfoEl.textContent = 'Izaberi korisnika da vidi i menja dodeljene ulice.'
       return
     }
-
     const selectedSet = new Set(selectedAdminUserAssignments.map(item => String(item.street_id)))
-
     adminStreetCheckboxesEl.innerHTML = allSystemStreets.map(street => `
       <label class="checkbox-item">
         <input type="checkbox" value="${street.id}" ${selectedSet.has(String(street.id)) ? 'checked' : ''}>
         <span>${cleanStreetName(street.name)}</span>
       </label>
     `).join('')
-
     const selectedUser = allProfiles.find(p => String(p.id) === String(adminUserSelectEl.value))
     adminAssignmentsInfoEl.textContent = selectedUser
       ? `Menjaš dodeljene ulice za: ${selectedUser.fullname || selectedUser.email}`
@@ -1092,17 +1234,14 @@
     const selectedStreet = filterStreetEl.value
     const selectedStatus = filterStatusEl.value
     const search = searchInputEl.value.trim().toLowerCase()
-
     return allAddresses.filter(item => {
       const streetName = cleanStreetName(item.streets?.name || '').toLowerCase()
       const fullLabel = String(item.full_address_label || '').toLowerCase()
       const houseNumber = String(item.house_number || '').toLowerCase()
       const houseSuffix = String(item.house_number_suffix || '').toLowerCase()
       const unitNumber = String(item.unit_number || '').toLowerCase()
-
       const matchStreet = !selectedStreet || String(item.street_id) === String(selectedStreet)
       const matchStatus = !selectedStatus || String(item.census_status) === String(selectedStatus)
-
       const matchSearch =
         !search ||
         streetName.includes(search) ||
@@ -1110,14 +1249,12 @@
         houseNumber.includes(search) ||
         houseSuffix.includes(search) ||
         unitNumber.includes(search)
-
       return matchStreet && matchStatus && matchSearch
     })
   }
 
   function populateAddressSelect(filtered) {
     if (!addressSelectEl) return
-
     addressSelectEl.innerHTML = `
       <option value="">Izaberi adresu...</option>
       ${filtered.map(item => `
@@ -1126,9 +1263,10 @@
         </option>
       `).join('')}
     `
-
     const hasSelected = filtered.some(item => String(item.id) === String(selectedAddressId))
-    if (!hasSelected) selectedAddressId = filtered.length ? String(filtered[0].id) : null
+    if (!hasSelected) {
+      selectedAddressId = filtered.length ? String(filtered[0].id) : null
+    }
     addressSelectEl.value = selectedAddressId || ''
   }
 
@@ -1145,14 +1283,12 @@
       selectedAddressDetailsEl.innerHTML = '<div class="empty">Nema adrese za prikaz.</div>'
       return
     }
-
     selectedAddressDetailsEl.innerHTML = `
       <div class="address-detail-card">
         <div class="address-detail-header">
           <h3 class="address-detail-title">${item.full_address_label ?? 'Bez naziva'}</h3>
           <span class="status-badge ${getStatusClass(item.census_status)}">${getStatusLabel(item.census_status)}</span>
         </div>
-
         <div class="address-detail-grid">
           <div class="addr-row"><span class="addr-label">Ulica:</span> ${cleanStreetName(item.streets?.name) || '-'}</div>
           <div class="addr-row"><span class="addr-label">Naselje:</span> ${item.streets?.settlement_name ?? '-'}</div>
@@ -1162,7 +1298,6 @@
           <div class="addr-row"><span class="addr-label">Tip:</span> ${item.address_type ?? '-'}</div>
           <div class="addr-row"><span class="addr-label">Aktivna:</span> ${item.is_active ? 'Da' : 'Ne'}</div>
         </div>
-
         ${canEdit() ? `
           <div class="status-editor">
             <label for="status-${item.id}">Promeni status</label>
@@ -1173,17 +1308,24 @@
               <option value="scheduled" ${item.census_status === 'scheduled' ? 'selected' : ''}>Scheduled</option>
             </select>
           </div>
-
           <div class="address-detail-actions">
             <button type="button" class="btn-dark" data-edit-id="${item.id}">Izmeni</button>
-            <button type="button" class="btn-danger" data-delete-id="${item.id}" data-delete-label="${(item.full_address_label ?? 'Bez naziva').replace(/"/g, '&quot;')}">Obriši</button>
+            <button
+              type="button"
+              class="btn-danger"
+              data-delete-id="${item.id}"
+              data-delete-label="${(item.full_address_label ?? 'Bez naziva').replace(/"/g, '&quot;')}"
+            >
+              Obriši
+            </button>
           </div>
         ` : ''}
       </div>
     `
-
     if (canEdit()) {
-      selectedAddressDetailsEl.querySelector('[data-edit-id]')?.addEventListener('click', () => enterEditMode(item))
+      selectedAddressDetailsEl.querySelector('[data-edit-id]')?.addEventListener('click', () => {
+        enterEditMode(item)
+      })
       selectedAddressDetailsEl.querySelector('[data-delete-id]')?.addEventListener('click', () => {
         deleteAddress(item.id, item.full_address_label ?? 'Bez naziva')
       })
@@ -1207,25 +1349,27 @@
       streetStatsEl.innerHTML = '<div class="empty">Nema statistike po ulicama.</div>'
       return
     }
-
     const grouped = {}
     for (const row of addressRows) {
       const street = cleanStreetName(row.streets?.name || 'Nepoznata ulica')
       const status = row.census_status || 'pending'
-      if (!grouped[street]) grouped[street] = { pending: 0, visited: 0, refused: 0, scheduled: 0, total: 0 }
+      if (!grouped[street]) {
+        grouped[street] = { pending: 0, visited: 0, refused: 0, scheduled: 0, total: 0 }
+      }
       grouped[street][status] = (grouped[street][status] || 0) + 1
       grouped[street].total += 1
     }
-
     const sortedEntries = Object.entries(grouped).sort((a, b) => a[0].localeCompare(b[0], 'sr'))
     streetStatsEl.innerHTML = sortedEntries.map(([street, values]) => `
       <div class="street-stat-item">
         <div class="street-stat-name">${street}</div>
-        <div class="street-stat-row">Ukupno: ${values.total || 0}</div>
-        <div class="street-stat-row">Pending: ${values.pending || 0}</div>
-        <div class="street-stat-row">Visited: ${values.visited || 0}</div>
-        <div class="street-stat-row">Refused: ${values.refused || 0}</div>
-        <div class="street-stat-row">Scheduled: ${values.scheduled || 0}</div>
+        <div class="street-stat-pills">
+          <span class="street-stat-pill pill-total">Ukupno: ${values.total || 0}</span>
+          <span class="street-stat-pill pill-pending">Pending: ${values.pending || 0}</span>
+          <span class="street-stat-pill pill-visited">Visited: ${values.visited || 0}</span>
+          <span class="street-stat-pill pill-refused">Refused: ${values.refused || 0}</span>
+          <span class="street-stat-pill pill-scheduled">Scheduled: ${values.scheduled || 0}</span>
+        </div>
       </div>
     `).join('')
   }
@@ -1237,7 +1381,6 @@
         return `"${safe}"`
       }).join(',')
     ).join('\n')
-
     const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' })
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
@@ -1251,15 +1394,8 @@
 
   function exportFilteredCsv() {
     const filtered = getFilteredAddresses()
-    if (!filtered.length) {
-      setStatus('❌ Nema podataka za CSV export.')
-      return
-    }
-
-    const rows = [
-      ['Ulica', 'Naselje', 'Broj', 'Dodatak', 'Stan / jedinica', 'Puna adresa', 'Tip', 'Status', 'Aktivna']
-    ]
-
+    if (!filtered.length) { setStatus('❌ Nema podataka za CSV export.'); return }
+    const rows = [['Ulica', 'Naselje', 'Broj', 'Dodatak', 'Stan / jedinica', 'Puna adresa', 'Tip', 'Status', 'Aktivna']]
     filtered.forEach(item => {
       rows.push([
         cleanStreetName(item.streets?.name || ''),
@@ -1273,7 +1409,6 @@
         item.is_active ? 'Da' : 'Ne'
       ])
     })
-
     const now = new Date()
     const stamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
     downloadCsv(`adrese-export-${stamp}.csv`, rows)
@@ -1282,11 +1417,7 @@
 
   function exportFilteredExcel() {
     const filtered = getFilteredAddresses()
-    if (!filtered.length) {
-      setStatus('❌ Nema podataka za Excel export.')
-      return
-    }
-
+    if (!filtered.length) { setStatus('❌ Nema podataka za Excel export.'); return }
     const detailRows = filtered.map(item => ({
       Ulica: cleanStreetName(item.streets?.name || ''),
       Naselje: item.streets?.settlement_name || '',
@@ -1298,21 +1429,12 @@
       Status: getStatusLabel(item.census_status),
       Aktivna: item.is_active ? 'Da' : 'Ne'
     }))
-
     const summaryMap = new Map()
     filtered.forEach(item => {
       const street = cleanStreetName(item.streets?.name || '')
       if (!summaryMap.has(street)) {
-        summaryMap.set(street, {
-          Ulica: street,
-          Pending: 0,
-          Visited: 0,
-          Refused: 0,
-          Scheduled: 0,
-          Ukupno: 0
-        })
+        summaryMap.set(street, { Ulica: street, Pending: 0, Visited: 0, Refused: 0, Scheduled: 0, Ukupno: 0 })
       }
-
       const row = summaryMap.get(street)
       if (item.census_status === 'pending') row.Pending++
       if (item.census_status === 'visited') row.Visited++
@@ -1320,22 +1442,21 @@
       if (item.census_status === 'scheduled') row.Scheduled++
       row.Ukupno++
     })
-
-    const summaryRows = Array.from(summaryMap.values()).sort((a, b) => String(a.Ulica).localeCompare(String(b.Ulica), 'sr'))
+    const summaryRows = Array.from(summaryMap.values()).sort((a, b) =>
+      String(a.Ulica).localeCompare(String(b.Ulica), 'sr')
+    )
     const wb = XLSX.utils.book_new()
     const wsDetails = XLSX.utils.json_to_sheet(detailRows)
     const wsSummary = XLSX.utils.json_to_sheet(summaryRows)
-
     XLSX.utils.book_append_sheet(wb, wsDetails, 'Adrese')
     XLSX.utils.book_append_sheet(wb, wsSummary, 'Sumarni pregled')
-
     wsDetails['!cols'] = [
-      { wch: 24 }, { wch: 18 }, { wch: 10 }, { wch: 10 }, { wch: 16 }, { wch: 30 }, { wch: 12 }, { wch: 14 }, { wch: 10 }
+      { wch: 24 }, { wch: 18 }, { wch: 10 }, { wch: 10 },
+      { wch: 16 }, { wch: 30 }, { wch: 12 }, { wch: 14 }, { wch: 10 }
     ]
     wsSummary['!cols'] = [
       { wch: 24 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 10 }
     ]
-
     const now = new Date()
     const stamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
     XLSX.writeFile(wb, `adrese-export-${stamp}.xlsx`)
@@ -1344,17 +1465,9 @@
 
   function printFilteredView() {
     const filtered = getFilteredAddresses()
-    if (!filtered.length) {
-      setStatus('❌ Nema podataka za štampu.')
-      return
-    }
-
+    if (!filtered.length) { setStatus('❌ Nema podataka za štampu.'); return }
     const printWindow = window.open('', '_blank', 'width=1200,height=800')
-    if (!printWindow) {
-      setStatus('❌ Browser je blokirao print prozor.')
-      return
-    }
-
+    if (!printWindow) { setStatus('❌ Browser je blokirao print prozor.'); return }
     const rowsHtml = filtered.map(item => `
       <tr>
         <td>${cleanStreetName(item.streets?.name || '')}</td>
@@ -1368,7 +1481,6 @@
         <td>${item.is_active ? 'Da' : 'Ne'}</td>
       </tr>
     `).join('')
-
     printWindow.document.write(`
       <!DOCTYPE html>
       <html lang="sr">
@@ -1390,54 +1502,32 @@
         <table>
           <thead>
             <tr>
-              <th>Ulica</th>
-              <th>Naselje</th>
-              <th>Broj</th>
-              <th>Dodatak</th>
-              <th>Stan / jedinica</th>
-              <th>Puna adresa</th>
-              <th>Tip</th>
-              <th>Status</th>
-              <th>Aktivna</th>
+              <th>Ulica</th><th>Naselje</th><th>Broj</th><th>Dodatak</th>
+              <th>Stan / jedinica</th><th>Puna adresa</th><th>Tip</th><th>Status</th><th>Aktivna</th>
             </tr>
           </thead>
-          <tbody>
-            ${rowsHtml}
-          </tbody>
+          <tbody>${rowsHtml}</tbody>
         </table>
       </body>
       </html>
     `)
-
     printWindow.document.close()
     printWindow.focus()
-    setTimeout(() => printWindow.print(), 300)
+    setTimeout(() => { printWindow.print() }, 300)
     setStatus(`✅ Print pregled spreman. Redova: ${filtered.length}`)
   }
 
   async function signInWithMagicLink() {
     const email = emailInputEl.value.trim()
-    if (!email) {
-      setStatus('Unesi validnu email adresu.')
-      return
-    }
-
+    if (!email) { setStatus('Unesi validnu email adresu.'); return }
     setStatus('Šaljem magic link...')
     loginBtn.disabled = true
-
     try {
       const { error } = await supabase.auth.signInWithOtp({
         email,
-        options: {
-          emailRedirectTo: window.location.origin + window.location.pathname
-        }
+        options: { emailRedirectTo: window.location.origin + window.location.pathname }
       })
-
-      if (error) {
-        setStatus(`Greška: ${error.message}`)
-        return
-      }
-
+      if (error) { setStatus(`Greška: ${error.message}`); return }
       setStatus('✅ Magic link poslat! Proveri email.')
     } catch (err) {
       setStatus(`Greška: ${err.message}`)
@@ -1449,46 +1539,19 @@
   async function signInWithPassword() {
     const email = emailInputEl.value.trim()
     const password = passwordInputEl.value.trim()
-
-    if (!email || !password) {
-      setStatus('Unesi email i lozinku.')
-      return
-    }
-
+    if (!email || !password) { setStatus('Unesi email i lozinku.'); return }
     setStatus('Prijava lozinkom...')
     passwordLoginBtn.disabled = true
-
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      })
-
-      if (error) {
-        setStatus(`Greška: ${error.message}`)
-        return
-      }
-
-      if (!data?.user) {
-        setStatus('Greška: korisnik nije vraćen posle prijave.')
-        return
-      }
-
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+      if (error) { setStatus(`Greška: ${error.message}`); return }
+      if (!data?.user) { setStatus('Greška: korisnik nije vraćen posle prijave.'); return }
       const ok = await loadCurrentUserAndProfile()
-      if (!ok) {
-        setStatus('Prijava je prošla, ali profil nije učitan.')
-        return
-      }
-
+      if (!ok) { setStatus('Prijava je prošla, ali profil nije učitan.'); return }
       await loadAllowedStreets()
       await loadAddresses()
       await loadDashboardStats()
-
-      if (isAdmin()) {
-        await loadAdminProfiles()
-        await loadAllSystemStreets()
-      }
-
+      if (isAdmin()) { await loadAdminProfiles(); await loadAllSystemStreets() }
       setStatus('✅ Uspešna prijava lozinkom.')
     } catch (err) {
       setStatus(`Greška: ${err.message}`)
@@ -1500,14 +1563,9 @@
   function renderLoggedOut() {
     authSectionEl.classList.remove('hidden')
     appSectionEl.classList.add('hidden')
-    currentUser = null
-    currentProfile = null
-    availableStreets = []
-    allSystemStreets = []
-    allProfiles = []
-    selectedAdminUserAssignments = []
-    editingAddressId = null
-    allAddresses = []
+    currentUser = null; currentProfile = null; availableStreets = []
+    allSystemStreets = []; allProfiles = []; selectedAdminUserAssignments = []
+    editingAddressId = null; allAddresses = []
     resetForm()
   }
 
@@ -1522,24 +1580,14 @@
 
   async function loadCurrentUserAndProfile() {
     const { data: { user }, error } = await supabase.auth.getUser()
-    if (error || !user) {
-      renderLoggedOut()
-      return false
-    }
-
+    if (error || !user) { renderLoggedOut(); return false }
     currentUser = user
-
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('id, email, fullname, role, is_active')
       .eq('id', user.id)
       .single()
-
-    if (profileError || !profile) {
-      setStatus('Profil nije pronađen.')
-      return false
-    }
-
+    if (profileError || !profile) { setStatus('Profil nije pronađen.'); return false }
     currentProfile = profile
     renderLoggedIn(user, profile)
     applyRolePermissions()
@@ -1552,10 +1600,7 @@
       .from('profiles')
       .select('id, email, fullname, role, is_active')
       .order('email', { ascending: true })
-    if (error) {
-      setStatus(`Greška profiles: ${error.message}`)
-      return
-    }
+    if (error) { setStatus(`Greška profiles: ${error.message}`); return }
     allProfiles = data || []
     renderAdminUsers()
   }
@@ -1567,68 +1612,44 @@
       .select('id, name, settlement_name, is_active')
       .eq('is_active', true)
       .order('name', { ascending: true })
-    if (error) {
-      setStatus(`Greška streets admin: ${error.message}`)
-      return
-    }
+    if (error) { setStatus(`Greška streets admin: ${error.message}`); return }
     allSystemStreets = dedupeStreets(data || [])
     renderStreetCheckboxes()
   }
 
   async function loadSelectedUserAssignments() {
     if (!isAdmin()) return
-
     const selectedUserId = adminUserSelectEl.value
     if (!selectedUserId) {
       selectedAdminUserAssignments = []
       renderStreetCheckboxes()
       return
     }
-
     const { data, error } = await supabase
       .from('user_street_assignments')
       .select('id, user_id, street_id, is_active')
       .eq('user_id', selectedUserId)
       .eq('is_active', true)
-
-    if (error) {
-      setStatus(`Greška assignments: ${error.message}`)
-      return
-    }
-
+    if (error) { setStatus(`Greška assignments: ${error.message}`); return }
     selectedAdminUserAssignments = data || []
-
     const selectedUser = allProfiles.find(p => String(p.id) === String(selectedUserId))
     if (selectedUser) adminRoleSelectEl.value = selectedUser.role || 'viewer'
-
     renderStreetCheckboxes()
   }
 
   async function saveSelectedUserRole() {
-    if (!isAdmin()) {
-      setStatus('Samo admin može menjati role.')
-      return
-    }
-
+    if (!isAdmin()) { setStatus('Samo admin može menjati role.'); return }
     const selectedUserId = adminUserSelectEl.value
     const selectedRole = adminRoleSelectEl.value
-
-    if (!selectedUserId) {
-      setStatus('Izaberi korisnika.')
-      return
-    }
-
+    if (!selectedUserId) { setStatus('Izaberi korisnika.'); return }
     saveUserRoleBtn.disabled = true
     saveUserRoleBtn.textContent = 'Čuvam rolu...'
-
     try {
       const { error } = await supabase
         .from('profiles')
         .update({ role: selectedRole })
         .eq('id', selectedUserId)
-
       if (error) throw error
-
       await loadAdminProfiles()
       setStatus(`✅ Rola korisnika je sačuvana: ${selectedRole}`)
     } catch (err) {
@@ -1640,59 +1661,44 @@
   }
 
   async function saveSelectedUserAssignments() {
-    if (!isAdmin()) {
-      setStatus('Samo admin može menjati dodele ulica.')
-      return
-    }
-
+    if (!isAdmin()) { setStatus('Samo admin može menjati dodele ulica.'); return }
     const selectedUserId = adminUserSelectEl.value
-    if (!selectedUserId) {
-      setStatus('Izaberi korisnika.')
-      return
-    }
-
+    if (!selectedUserId) { setStatus('Izaberi korisnika.'); return }
     const checkedStreetIds = Array.from(
       adminStreetCheckboxesEl.querySelectorAll('input[type="checkbox"]:checked')
     ).map(input => input.value)
-
     saveAssignmentsBtn.disabled = true
     saveAssignmentsBtn.textContent = 'Čuvam dodele...'
-
     try {
       const { data: existing, error: existingError } = await supabase
         .from('user_street_assignments')
         .select('id, street_id, is_active')
         .eq('user_id', selectedUserId)
-
       if (existingError) throw existingError
-
       const existingRows = existing || []
       const existingByStreet = new Map(existingRows.map(row => [String(row.street_id), row]))
       const checkedSet = new Set(checkedStreetIds.map(String))
-
-      const idsToDeactivate = existingRows.filter(row => row.is_active && !checkedSet.has(String(row.street_id))).map(row => row.id)
-      const idsToReactivate = existingRows.filter(row => !row.is_active && checkedSet.has(String(row.street_id))).map(row => row.id)
-      const rowsToInsert = checkedStreetIds.filter(streetId => !existingByStreet.has(String(streetId))).map(streetId => ({
-        user_id: selectedUserId,
-        street_id: streetId,
-        is_active: true
-      }))
-
+      const idsToDeactivate = existingRows
+        .filter(row => row.is_active && !checkedSet.has(String(row.street_id)))
+        .map(row => row.id)
+      const idsToReactivate = existingRows
+        .filter(row => !row.is_active && checkedSet.has(String(row.street_id)))
+        .map(row => row.id)
+      const rowsToInsert = checkedStreetIds
+        .filter(streetId => !existingByStreet.has(String(streetId)))
+        .map(streetId => ({ user_id: selectedUserId, street_id: streetId, is_active: true }))
       if (idsToDeactivate.length) {
         const { error } = await supabase.from('user_street_assignments').update({ is_active: false }).in('id', idsToDeactivate)
         if (error) throw error
       }
-
       if (idsToReactivate.length) {
         const { error } = await supabase.from('user_street_assignments').update({ is_active: true }).in('id', idsToReactivate)
         if (error) throw error
       }
-
       if (rowsToInsert.length) {
         const { error } = await supabase.from('user_street_assignments').insert(rowsToInsert)
         if (error) throw error
       }
-
       await loadSelectedUserAssignments()
       await loadAllowedStreets()
       setStatus(`✅ Sačuvane dodele ulica. Ukupno aktivnih: ${checkedStreetIds.length}`)
@@ -1705,39 +1711,28 @@
   }
 
   async function createNewUserProfile() {
-    if (!isAdmin()) {
-      setStatus('Samo admin može dodavati novog korisnika.')
-      return
-    }
-
+    if (!isAdmin()) { setStatus('Samo admin može dodavati novog korisnika.'); return }
     const email = newUserEmailEl.value.trim().toLowerCase()
     const fullname = newUserFullnameEl.value.trim()
     const role = newUserRoleEl.value
     const password = newUserPasswordEl.value.trim()
-
     if (!email || !fullname || !role || !password) {
       setStatus('Unesi email, ime i prezime, rolu i privremenu lozinku.')
       return
     }
-
     createNewUserBtn.disabled = true
     createNewUserBtn.textContent = 'Kreiram korisnika...'
     setStatus('Kreiram korisnika...')
-
     try {
       const { data: sessionData, error: sessionError } = await supabase.auth.getSession()
       if (sessionError) throw sessionError
-
       const accessToken = sessionData?.session?.access_token
       if (!accessToken) throw new Error('Nema aktivne sesije. Prijavi se ponovo.')
-
       const { data, error } = await supabase.functions.invoke('create-user', {
         body: { email, password, fullname, role },
         headers: { Authorization: `Bearer ${accessToken}` }
       })
-
       if (error) throw error
-
       setStatus(`✅ Korisnik uspešno dodat: ${data?.email ?? email}`)
       newUserEmailEl.value = ''
       newUserFullnameEl.value = ''
@@ -1754,26 +1749,15 @@
 
   async function loadAllowedStreets() {
     if (!currentProfile) return
-
-    let query = supabase
-      .from('streets')
-      .select('id, name, settlement_name, is_active')
-      .eq('is_active', true)
-
+    let query = supabase.from('streets').select('id, name, settlement_name, is_active').eq('is_active', true)
     if (currentProfile.role !== 'admin') {
       const { data: assignments, error: assignmentError } = await supabase
         .from('user_street_assignments')
         .select('street_id')
         .eq('user_id', currentUser.id)
         .eq('is_active', true)
-
-      if (assignmentError) {
-        setStatus(`Greška assignments: ${assignmentError.message}`)
-        return
-      }
-
+      if (assignmentError) { setStatus(`Greška assignments: ${assignmentError.message}`); return }
       const uniqueIds = [...new Set((assignments || []).map(a => a.street_id).filter(Boolean))]
-
       if (uniqueIds.length === 0) {
         streetSelectEl.innerHTML = '<option value="">Nema dozvoljenih ulica</option>'
         assignedStreetsEl.innerHTML = '<li>Nema dodeljenih ulica</li>'
@@ -1782,47 +1766,29 @@
         populateStreetFilters()
         return
       }
-
       query = query.in('id', uniqueIds)
     }
-
     const { data, error } = await query.order('name', { ascending: true })
-
-    if (error) {
-      setStatus(`Greška ulice: ${error.message}`)
-      return
-    }
-
+    if (error) { setStatus(`Greška ulice: ${error.message}`); return }
     availableStreets = dedupeStreets(data || [])
-
     streetSelectEl.innerHTML = `
       <option value="">Izaberi ulicu</option>
       ${availableStreets.map(s => `<option value="${s.id}">${cleanStreetName(s.name)}</option>`).join('')}
     `
-
     assignedStreetsEl.innerHTML = availableStreets.length
       ? availableStreets.map(s => `<li>${cleanStreetName(s.name)}</li>`).join('')
       : '<li>Nema dodeljenih ulica</li>'
-
     const streetCount = availableStreets.length
-    assignedStreetsSummaryEl.textContent = streetCount ? `Dozvoljene ulice (${streetCount})` : 'Dozvoljene ulice (0)'
+    assignedStreetsSummaryEl.textContent = streetCount
+      ? `Dozvoljene ulice (${streetCount})`
+      : 'Dozvoljene ulice (0)'
     populateStreetFilters()
   }
 
   async function loadDashboardStats() {
     let addressQuery = supabase
       .from('addresses')
-      .select(`
-        id,
-        street_id,
-        census_status,
-        streets (
-          id,
-          name,
-          settlement_name
-        )
-      `)
-
+      .select(`id, street_id, census_status, streets ( id, name, settlement_name )`)
     if (!isAdmin()) {
       const allowedStreetIds = availableStreets.map(s => s.id).filter(Boolean)
       if (!allowedStreetIds.length) {
@@ -1837,50 +1803,33 @@
       }
       addressQuery = addressQuery.in('street_id', allowedStreetIds)
     }
-
     const { data: addresses, error: addrError } = await addressQuery
-
     if (addrError) {
       statsCardsEl.innerHTML = `<div class="empty">Greška statistika: ${addrError.message}</div>`
       return
     }
-
     const rows = addresses || []
     const total = rows.length
     const pending = rows.filter(a => a.census_status === 'pending').length
     const visited = rows.filter(a => a.census_status === 'visited').length
     const other = rows.filter(a => a.census_status === 'refused' || a.census_status === 'scheduled').length
-
     statsCardsEl.innerHTML = `
       <div class="stat-card"><h3>Ukupno adresa</h3><div class="stat-value">${total}</div></div>
       <div class="stat-card"><h3>Pending</h3><div class="stat-value">${pending}</div></div>
       <div class="stat-card"><h3>Visited</h3><div class="stat-value">${visited}</div></div>
       <div class="stat-card"><h3>Refused + Scheduled</h3><div class="stat-value">${other}</div></div>
     `
-
     renderStreetStatsFromAddresses(rows)
   }
 
   async function updateCensusStatus(addressId, newStatus) {
-    if (!canEdit()) {
-      setStatus('❌ Nemaš dozvolu za promenu statusa.')
-      return
-    }
-
+    if (!canEdit()) { setStatus('❌ Nemaš dozvolu za promenu statusa.'); return }
     setStatus('Čuvam status...')
     const { error } = await supabase
       .from('addresses')
-      .update({
-        census_status: newStatus,
-        updated_by: currentUser.id
-      })
+      .update({ census_status: newStatus, updated_by: currentUser.id })
       .eq('id', addressId)
-
-    if (error) {
-      setStatus(`❌ Greška pri promeni statusa: ${error.message}`)
-      return
-    }
-
+    if (error) { setStatus(`❌ Greška pri promeni statusa: ${error.message}`); return }
     setStatus('✅ Status uspešno ažuriran.')
     await loadAddresses()
     await loadDashboardStats()
@@ -1890,75 +1839,38 @@
     let query = supabase
       .from('addresses')
       .select(`
-        id,
-        street_id,
-        house_number,
-        house_number_suffix,
-        unit_number,
-        full_address_label,
-        address_type,
-        census_status,
-        is_active,
-        created_by,
-        updated_by,
-        streets (
-          id,
-          name,
-          settlement_name
-        )
+        id, street_id, house_number, house_number_suffix, unit_number,
+        full_address_label, address_type, census_status, is_active,
+        created_by, updated_by,
+        streets ( id, name, settlement_name )
       `)
       .order('id', { ascending: false })
-
     if (!isAdmin()) {
       const allowedStreetIds = availableStreets.map(s => s.id).filter(Boolean)
-      if (!allowedStreetIds.length) {
-        allAddresses = []
-        renderAddresses()
-        return
-      }
+      if (!allowedStreetIds.length) { allAddresses = []; renderAddresses(); return }
       query = query.in('street_id', allowedStreetIds)
     }
-
     const { data, error } = await query
-    if (error) {
-      selectedAddressDetailsEl.innerHTML = `<div class="empty">Greška: ${error.message}</div>`
-      return
-    }
-
+    if (error) { selectedAddressDetailsEl.innerHTML = `<div class="empty">Greška: ${error.message}</div>`; return }
     allAddresses = data || []
     renderAddresses()
   }
 
   async function saveAddress() {
-    if (!canEdit()) {
-      setStatus('❌ Nemaš dozvolu za unos adrese.')
-      return
-    }
-
+    if (!canEdit()) { setStatus('❌ Nemaš dozvolu za unos adrese.'); return }
     const street_id = streetSelectEl.value
     const house_number = houseNumberEl.value.trim()
     const house_number_suffix = houseSuffixEl.value.trim()
     const unit_number = unitNumberEl.value.trim()
     const address_type = addressTypeEl.value
-
     const street = availableStreets.find(s => String(s.id) === String(street_id))
     const streetName = cleanStreetName(street?.name || '')
     const full_address_label = formatFullAddress(streetName, house_number, house_number_suffix, unit_number)
-
-    if (!street_id || !house_number || !address_type) {
-      setStatus('❌ Popuni sva obavezna polja!')
-      return
-    }
-
+    if (!street_id || !house_number || !address_type) { setStatus('❌ Popuni sva obavezna polja!'); return }
     if (!validateUnitNumber()) return
-    if (!full_address_label) {
-      setStatus('❌ Puna adresa nije ispravno formirana.')
-      return
-    }
-
+    if (!full_address_label) { setStatus('❌ Puna adresa nije ispravno formirana.'); return }
     saveBtn.disabled = true
     saveBtn.textContent = 'Čuvam...'
-
     try {
       const { data: existing, error: existingError } = await supabase
         .from('addresses')
@@ -1966,28 +1878,17 @@
         .eq('street_id', street_id)
         .eq('full_address_label', full_address_label)
         .maybeSingle()
-
       if (existingError) throw existingError
-      if (existing) {
-        setStatus('⚠️ Adresa već postoji!')
-        return
-      }
-
+      if (existing) { setStatus('⚠️ Adresa već postoji!'); return }
       const { error } = await supabase.from('addresses').insert([{
-        street_id,
-        house_number,
+        street_id, house_number,
         house_number_suffix: house_number_suffix || null,
         unit_number: unit_number || null,
-        full_address_label,
-        address_type,
-        census_status: 'pending',
-        is_active: true,
-        created_by: currentUser.id,
-        updated_by: currentUser.id
+        full_address_label, address_type,
+        census_status: 'pending', is_active: true,
+        created_by: currentUser.id, updated_by: currentUser.id
       }])
-
       if (error) throw error
-
       resetForm()
       setStatus('✅ Adresa sačuvana!')
       await loadAddresses()
@@ -2001,70 +1902,38 @@
   }
 
   async function updateAddress() {
-    if (!canEdit()) {
-      setStatus('❌ Nemaš dozvolu za izmenu adrese.')
-      return
-    }
-
-    if (!editingAddressId) {
-      setStatus('❌ Nije izabrana adresa za izmenu.')
-      return
-    }
-
+    if (!canEdit()) { setStatus('❌ Nemaš dozvolu za izmenu adrese.'); return }
+    if (!editingAddressId) { setStatus('❌ Nije izabrana adresa za izmenu.'); return }
     const street_id = streetSelectEl.value
     const house_number = houseNumberEl.value.trim()
     const house_number_suffix = houseSuffixEl.value.trim()
     const unit_number = unitNumberEl.value.trim()
     const address_type = addressTypeEl.value
-
     const street = availableStreets.find(s => String(s.id) === String(street_id))
     const streetName = cleanStreetName(street?.name || '')
     const full_address_label = formatFullAddress(streetName, house_number, house_number_suffix, unit_number)
-
-    if (!street_id || !house_number || !address_type) {
-      setStatus('❌ Popuni sva obavezna polja!')
-      return
-    }
-
+    if (!street_id || !house_number || !address_type) { setStatus('❌ Popuni sva obavezna polja!'); return }
     if (!validateUnitNumber()) return
-    if (!full_address_label) {
-      setStatus('❌ Puna adresa nije ispravno formirana.')
-      return
-    }
-
+    if (!full_address_label) { setStatus('❌ Puna adresa nije ispravno formirana.'); return }
     updateBtn.disabled = true
     updateBtn.textContent = 'Čuvam izmene...'
-
     try {
       const { data: existing, error: checkError } = await supabase
-        .from('addresses')
-        .select('id')
+        .from('addresses').select('id')
         .eq('street_id', street_id)
         .eq('full_address_label', full_address_label)
         .neq('id', editingAddressId)
         .maybeSingle()
-
       if (checkError) throw checkError
-      if (existing) {
-        setStatus('⚠️ Već postoji druga adresa sa istim nazivom na toj ulici.')
-        return
-      }
-
-      const { error } = await supabase
-        .from('addresses')
-        .update({
-          street_id,
-          house_number,
-          house_number_suffix: house_number_suffix || null,
-          unit_number: unit_number || null,
-          full_address_label,
-          address_type,
-          updated_by: currentUser.id
-        })
-        .eq('id', editingAddressId)
-
+      if (existing) { setStatus('⚠️ Već postoji druga adresa sa istim nazivom na toj ulici.'); return }
+      const { error } = await supabase.from('addresses').update({
+        street_id, house_number,
+        house_number_suffix: house_number_suffix || null,
+        unit_number: unit_number || null,
+        full_address_label, address_type,
+        updated_by: currentUser.id
+      }).eq('id', editingAddressId)
       if (error) throw error
-
       setStatus('✅ Adresa uspešno izmenjena.')
       exitEditMode()
       await loadAddresses()
@@ -2078,18 +1947,12 @@
   }
 
   async function deleteAddress(id, label) {
-    if (!canEdit()) {
-      setStatus('❌ Nemaš dozvolu za brisanje adrese.')
-      return
-    }
-
+    if (!canEdit()) { setStatus('❌ Nemaš dozvolu za brisanje adrese.'); return }
     const confirmed = confirm(`Da li sigurno želiš da obrišeš adresu "${label}"?`)
     if (!confirmed) return
-
     try {
       const { error } = await supabase.from('addresses').delete().eq('id', id)
       if (error) throw error
-
       if (String(editingAddressId) === String(id)) exitEditMode()
       setStatus(`🗑️ Adresa "${label}" je obrisana.`)
       await loadAddresses()
@@ -2100,46 +1963,28 @@
   }
 
   async function deleteDuplicateAddresses() {
-    if (!isAdmin()) {
-      setStatus('❌ Samo admin može brisati duplikate.')
-      return
-    }
-
+    if (!isAdmin()) { setStatus('❌ Samo admin može brisati duplikate.'); return }
     if (!confirm('Da li si siguran? Ovo će obrisati sve duplikate i ostaviti samo prvu adresu za isti street_id + full_address_label.')) return
-
     deleteDuplicatesBtn.disabled = true
     deleteDuplicatesBtn.textContent = '⏳ Brišem...'
     setStatus('Tražim duplikate...')
-
     try {
       const { data: all, error } = await supabase
-        .from('addresses')
-        .select('id, street_id, full_address_label')
-        .order('id', { ascending: true })
-
+        .from('addresses').select('id, street_id, full_address_label').order('id', { ascending: true })
       if (error) throw error
-
       const seen = new Map()
       const toDelete = []
-
       for (const row of all || []) {
         const key = `${row.street_id}||${(row.full_address_label || '').toLowerCase().trim()}`
-        if (seen.has(key)) toDelete.push(row.id)
-        else seen.set(key, row.id)
+        if (seen.has(key)) { toDelete.push(row.id) } else { seen.set(key, row.id) }
       }
-
-      if (toDelete.length === 0) {
-        setStatus('✅ Nema duplikata za brisanje!')
-        return
-      }
-
+      if (toDelete.length === 0) { setStatus('✅ Nema duplikata za brisanje!'); return }
       const batchSize = 50
       for (let i = 0; i < toDelete.length; i += batchSize) {
         const batch = toDelete.slice(i, i + batchSize)
         const { error: delErr } = await supabase.from('addresses').delete().in('id', batch)
         if (delErr) throw delErr
       }
-
       setStatus(`🗑️ Obrišeno ${toDelete.length} duplikata! Lista je osvežena.`)
       await loadAddresses()
       await loadDashboardStats()
@@ -2154,17 +1999,11 @@
   async function initApp() {
     setStatus('Pokretanje...')
     const ok = await loadCurrentUserAndProfile()
-
     if (ok) {
       await loadAllowedStreets()
       await loadAddresses()
       await loadDashboardStats()
-
-      if (isAdmin()) {
-        await loadAdminProfiles()
-        await loadAllSystemStreets()
-      }
-
+      if (isAdmin()) { await loadAdminProfiles(); await loadAllSystemStreets() }
       setStatus(`✅ Spreman za rad! Aktivna rola: ${getRole()}`)
     } else {
       setStatus('Nisi prijavljen. Pošalji magic link za pristup.')
@@ -2186,10 +2025,7 @@
   deleteDuplicatesBtn.addEventListener('click', deleteDuplicateAddresses)
 
   refreshStreetsBtn.addEventListener('click', async () => {
-    if (!isAdmin()) {
-      setStatus('❌ Samo admin može osvežavati ulice ručno.')
-      return
-    }
+    if (!isAdmin()) { setStatus('❌ Samo admin može osvežavati ulice ručno.'); return }
     setStatus('Osvežavam ulice...')
     await loadAllowedStreets()
     await loadAllSystemStreets()
@@ -2210,7 +2046,6 @@
   adminUserSelectEl.addEventListener('change', async () => {
     const selectedUserId = adminUserSelectEl.value
     const selectedUser = allProfiles.find(p => String(p.id) === String(selectedUserId))
-
     if (selectedUser) {
       newUserEmailEl.value = selectedUser.email || ''
       newUserFullnameEl.value = selectedUser.fullname || ''
@@ -2222,7 +2057,6 @@
       newUserRoleEl.value = 'viewer'
       adminRoleSelectEl.value = 'viewer'
     }
-
     await loadSelectedUserAssignments()
   })
 
@@ -2267,9 +2101,8 @@
 
   supabase.auth.onAuthStateChange((event) => {
     if (event === 'SIGNED_IN') {
-      setTimeout(() => initApp(), 0)
+      setTimeout(() => { initApp() }, 0)
     }
-
     if (event === 'SIGNED_OUT') {
       renderLoggedOut()
       setStatus('Uspešno si odjavljen.')
