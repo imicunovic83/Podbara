@@ -517,28 +517,28 @@
 
     <div id="status" class="status">Učitavanje...</div>
 
-    <div id="authSection" class="card-box">
-      <h2>Prijava</h2>
-      <div class="form-grid">
-        <div class="field">
-          <label for="emailInput">Email adresa</label>
-          <input id="emailInput" type="email" placeholder="npr. ime@email.com" />
-        </div>
-      </div>
-      <div class="actions">
-        <button id="loginBtn" type="button">Pošalji magic link</button>
-        <button id="passwordLoginBtn" type="button" class="btn-dark">Login lozinkom</button>
-      </div>
-      <div class="form-grid" style="margin-top: 1rem;">
-        <div class="field">
-          <label for="passwordInput">Lozinka</label>
-          <input id="passwordInput" type="password" placeholder="Unesi lozinku za test login" />
-        </div>
-      </div>
-      <p class="note">Na email će stići link za prijavu. Klikni ga i vratiće te nazad na ovu stranicu.</p>
+  <div id="authSection" class="card-box">
+  <h2>Prijava</h2>
+  <div class="form-grid">
+    <div class="field">
+      <label for="emailInput">Email adresa</label>
+      <input id="emailInput" type="email" placeholder="npr. ime@email.com" />
     </div>
+  </div>
+  <div class="actions">
+    <button id="loginBtn" type="button">Pošalji magic link</button>
+    <button id="passwordLoginBtn" type="button" class="btn-dark">Login lozinkom</button>
+  </div>
+  <div class="form-grid" style="margin-top: 1rem;">
+    <div class="field">
+      <label for="passwordInput">Lozinka</label>
+      <input id="passwordInput" type="password" placeholder="Unesi lozinku za test login" />
+    </div>
+  </div>
+  <p class="note">Na email će stići link za prijavu. Klikni ga i vratiće te nazad na ovu stranicu.</p>
+</div>
 
-  <div id="appSection" class="hidden">
+<div id="appSection" class="hidden">
   <div class="topbar">
     <div class="user-panel">
       <div id="userBadge" class="user-badge">Nije prijavljen</div>
@@ -559,67 +559,6 @@
         <li>Učitavanje...</li>
       </ul>
     </details>
-  </div>
-
-  <div id="adminPanelSection" class="card-box hidden">
-    <h2>Admin panel</h2>
-
-    <div class="admin-form-grid">
-      <div class="field">
-        <label for="adminUserSelect">Izaberi korisnika</label>
-        <select id="adminUserSelect">
-          <option value="">Izaberi korisnika...</option>
-        </select>
-      </div>
-
-      <div class="field">
-        <label for="adminRoleSelect">Rola korisnika</label>
-        <select id="adminRoleSelect">
-          <option value="viewer">viewer</option>
-          <option value="editor">editor</option>
-          <option value="admin">admin</option>
-        </select>
-      </div>
-
-      <div class="field">
-        <label for="newUserEmail">Novi user email</label>
-        <input id="newUserEmail" type="email" placeholder="npr. test@gmail.com" />
-      </div>
-
-      <div class="field">
-        <label for="newUserFullname">Ime i prezime</label>
-        <input id="newUserFullname" type="text" placeholder="Petar Petrovic" />
-      </div>
-
-      <div class="field">
-        <label for="newUserPassword">Privremena lozinka</label>
-        <input id="newUserPassword" type="password" placeholder="Unesi privremenu lozinku" />
-      </div>
-
-      <div class="field">
-        <label for="newUserRole">Rola</label>
-        <select id="newUserRole">
-          <option value="viewer">Viewer</option>
-          <option value="editor">Editor</option>
-          <option value="admin">Admin</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="actions">
-      <button id="saveUserRoleBtn" type="button">Sačuvaj rolu</button>
-      <button id="refreshAdminPanelBtn" type="button" class="btn-dark">Osveži korisnike</button>
-      <button id="createNewUserBtn" type="button">➕ Dodaj / poveži usera</button>
-    </div>
-
-    <div class="assignments-box">
-      <h2>Dodela ulica korisniku</h2>
-      <div id="adminAssignmentsInfo" class="note">Izaberi korisnika da vidi i menja dodeljene ulice.</div>
-      <div id="adminStreetCheckboxes" class="checkbox-grid"></div>
-      <div class="actions">
-        <button id="saveAssignmentsBtn" type="button">Sačuvaj dodeljene ulice</button>
-      </div>
-    </div>
   </div>
 
   <div class="card-box">
@@ -689,6 +628,67 @@
     </div>
 
     <p class="note">Admin vidi sve aktivne ulice, ostali korisnici samo dodeljene.</p>
+  </div>
+
+  <div id="adminPanelSection" class="card-box hidden">
+    <h2>Admin panel</h2>
+
+    <div class="admin-form-grid">
+      <div class="field">
+        <label for="adminUserSelect">Izaberi korisnika</label>
+        <select id="adminUserSelect">
+          <option value="">Izaberi korisnika...</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="adminRoleSelect">Rola korisnika</label>
+        <select id="adminRoleSelect">
+          <option value="viewer">viewer</option>
+          <option value="editor">editor</option>
+          <option value="admin">admin</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="newUserEmail">Novi user email</label>
+        <input id="newUserEmail" type="email" placeholder="npr. test@gmail.com" />
+      </div>
+
+      <div class="field">
+        <label for="newUserFullname">Ime i prezime</label>
+        <input id="newUserFullname" type="text" placeholder="Petar Petrovic" />
+      </div>
+
+      <div class="field">
+        <label for="newUserPassword">Privremena lozinka</label>
+        <input id="newUserPassword" type="password" placeholder="Unesi privremenu lozinku" />
+      </div>
+
+      <div class="field">
+        <label for="newUserRole">Rola</label>
+        <select id="newUserRole">
+          <option value="viewer">Viewer</option>
+          <option value="editor">Editor</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button id="saveUserRoleBtn" type="button">Sačuvaj rolu</button>
+      <button id="refreshAdminPanelBtn" type="button" class="btn-dark">Osveži korisnike</button>
+      <button id="createNewUserBtn" type="button">➕ Dodaj / poveži usera</button>
+    </div>
+
+    <div class="assignments-box">
+      <h2>Dodela ulica korisniku</h2>
+      <div id="adminAssignmentsInfo" class="note">Izaberi korisnika da vidi i menja dodeljene ulice.</div>
+      <div id="adminStreetCheckboxes" class="checkbox-grid"></div>
+      <div class="actions">
+        <button id="saveAssignmentsBtn" type="button">Sačuvaj dodeljene ulice</button>
+      </div>
+    </div>
   </div>
 
   <div class="card-box">
