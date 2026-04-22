@@ -846,6 +846,159 @@
       box-shadow: 0 0 0 3px rgba(245,158,11,0.15);
     }
 
+/* ── Address search picker ── */
+    .addr-search-wrap { position: relative; max-width: 540px; margin-bottom: var(--space-4); }
+    .addr-search-field {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .addr-search-field input {
+      width: 100%;
+      padding: var(--space-3) 2.5rem var(--space-3) var(--space-3);
+      border: 1.5px solid var(--color-border);
+      border-radius: var(--radius-md);
+      font-size: var(--text-sm);
+      font-family: 'DM Sans', Arial, sans-serif;
+      background: var(--color-surface-2);
+      color: var(--color-text);
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .addr-search-field input:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(1,105,111,0.1);
+      border-radius: var(--radius-md) var(--radius-md) 0 0;
+    }
+    .addr-clear-btn {
+      position: absolute;
+      right: 0.6rem;
+      background: none;
+      border: none;
+      color: var(--color-text-muted);
+      font-size: 0.9rem;
+      padding: 0.2rem 0.4rem;
+      cursor: pointer;
+      border-radius: var(--radius-md);
+    }
+    .addr-clear-btn:hover { background: var(--color-bg); box-shadow: none; color: var(--color-text); }
+    .addr-search-dropdown {
+      position: absolute;
+      top: 100%; left: 0; right: 0;
+      background: var(--color-surface-2);
+      border: 1.5px solid var(--color-primary);
+      border-top: none;
+      border-radius: 0 0 var(--radius-md) var(--radius-md);
+      max-height: 300px;
+      overflow-y: auto;
+      z-index: 30;
+      box-shadow: var(--shadow-lg);
+    }
+    .addr-search-item {
+      padding: var(--space-2) var(--space-4);
+      cursor: pointer;
+      font-size: var(--text-sm);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-3);
+      border-bottom: 1px solid var(--color-border);
+      transition: background 0.1s;
+    }
+    .addr-search-item:last-child { border-bottom: none; }
+    .addr-search-item:hover { background: var(--color-primary-light); }
+    .addr-search-item.is-selected { background: var(--color-primary-light); font-weight: 700; }
+    .addr-search-label { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .addr-search-badge { font-size: 0.7rem; flex-shrink: 0; }
+    .addr-search-empty {
+      padding: var(--space-4);
+      text-align: center;
+      color: var(--color-text-muted);
+      font-size: var(--text-sm);
+    }
+    .addr-search-count {
+      padding: var(--space-2) var(--space-4);
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--color-text-muted);
+      background: var(--color-bg);
+      border-bottom: 1px solid var(--color-border);
+      letter-spacing: 0.03em;
+    }
+
+    /* ── Badge flash animation ── */
+    @keyframes badgeFlash {
+      0%   { transform: scale(1); }
+      35%  { transform: scale(1.18); box-shadow: 0 0 0 5px rgba(22,163,74,0.25); }
+      100% { transform: scale(1); }
+    }
+    .badge-flash { animation: badgeFlash 0.5s ease forwards; }
+
+    /* ── Updated-at info ── */
+    .updated-at-info {
+      margin-top: var(--space-3);
+      padding: var(--space-2) var(--space-3);
+      background: var(--color-bg);
+      border-radius: var(--radius-md);
+      font-size: 0.78rem;
+      color: var(--color-text-muted);
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+    .updated-at-info strong { color: var(--color-text); }
+
+    /* ── Moje ulice ── */
+    .my-streets-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-4);
+      flex-wrap: wrap;
+      gap: var(--space-2);
+    }
+    .my-streets-header h2 { margin-bottom: 0; }
+    .my-streets-meta {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      flex-wrap: wrap;
+    }
+    .my-streets-user {
+      font-size: var(--text-sm);
+      color: var(--color-text-muted);
+      font-weight: 500;
+    }
+    .my-streets-count-badge {
+      background: var(--color-primary-light);
+      color: var(--color-primary);
+      border: 1px solid rgba(1,105,111,0.2);
+      border-radius: 999px;
+      padding: 0.2rem 0.75rem;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+    .my-streets-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+    }
+    .my-street-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-2) var(--space-3);
+      background: var(--color-bg);
+      border: 1.5px solid var(--color-border);
+      border-radius: 999px;
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-text);
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .my-street-chip:hover { border-color: var(--color-primary); background: var(--color-primary-light); color: var(--color-primary); }
+    .my-street-chip::before { content: '🗺️'; font-size: 0.85rem; }
+
     /* ── Loading spinner ── */
     .loading-overlay {
       position: fixed;
@@ -890,7 +1043,7 @@
       <button class="mobile-nav-close" id="mobileNavClose">✕</button>
     </div>
     <a href="#sectionPregled"><span class="nav-icon">📊</span>Pregled</a>
-    <a href="#sectionDozvole"><span class="nav-icon">🔑</span>Tvoje dozvole</a>
+    <a href="#sectionDozvole"><span class="nav-icon">🗺️</span>Moje ulice</a>
     <a href="#editorSection"><span class="nav-icon">➕</span>Unos adrese</a>
     <a href="#sectionPretraga"><span class="nav-icon">🔍</span>Pretraga evidencije</a>
     <a href="#sectionEvidencija"><span class="nav-icon">📋</span>Evidencija obilazaka</a>
@@ -970,18 +1123,21 @@
         </div>
       </div>
 
-      <!-- ── 2. TVOJE DOZVOLE ── -->
+      <!-- ── 2. MOJE ULICE ── -->
       <div class="card-box" id="sectionDozvole">
-        <h2>Tvoje dozvole</h2>
-        <div class="addr-row"><span class="addr-label">Korisnik:</span> <span id="infoEmail">-</span></div>
-        <div class="addr-row"><span class="addr-label">Rola:</span> <span id="infoRole">-</span></div>
-        <div class="addr-row"><span class="addr-label">Dozvoljene ulice:</span></div>
-        <details class="streets-dropdown">
-          <summary id="assignedStreetsSummary">Dozvoljene ulice (0)</summary>
-          <ul id="assignedStreets" class="street-list">
-            <li>Učitavanje...</li>
-          </ul>
-        </details>
+        <div class="my-streets-header">
+          <h2>Moje ulice</h2>
+          <div class="my-streets-meta">
+            <span id="infoEmail" class="my-streets-user">-</span>
+            <span id="assignedStreetsSummary" class="my-streets-count-badge">0 ulica</span>
+          </div>
+        </div>
+        <div id="myStreetsGrid" class="my-streets-grid">
+          <div class="empty" style="width:100%">Učitavanje ulica...</div>
+        </div>
+        <!-- Hidden for JS compat -->
+        <span id="infoRole" style="display:none">-</span>
+        <ul id="assignedStreets" style="display:none"><li></li></ul>
       </div>
 
       <!-- ── 3. UNOS NOVE ADRESE ── -->
@@ -1077,14 +1233,16 @@
       <h2 class="section-title" id="sectionEvidencija">Evidencija obilazaka</h2>
 
       <div class="card-box">
-        <div class="address-picker-grid">
-          <div class="field">
-            <label for="addressSelect">Izaberi adresu</label>
-            <select id="addressSelect">
-              <option value="">Izaberi adresu...</option>
-            </select>
+        <div class="addr-search-wrap">
+          <label style="display:block;font-size:var(--text-sm);font-weight:600;margin-bottom:var(--space-2);">Pretraži adresu</label>
+          <div class="addr-search-field">
+            <input id="addrSearchInput" type="text" placeholder="Ukucaj ulicu ili broj..." autocomplete="off" />
+            <button id="addrSearchClear" class="addr-clear-btn" type="button" title="Obriši pretragu">✕</button>
           </div>
+          <div id="addrSearchDropdown" class="addr-search-dropdown hidden"></div>
         </div>
+        <!-- Hidden select kept for JS compat -->
+        <select id="addressSelect" style="display:none"></select>
 
         <div id="pageInfo" class="page-info"></div>
         <div id="selectedAddressDetails"></div>
@@ -1221,6 +1379,9 @@
   const printBtn                  = document.getElementById('printBtn')
   const pageInfoEl                = document.getElementById('pageInfo')
   const addressSelectEl           = document.getElementById('addressSelect')
+  const addrSearchInputEl         = document.getElementById('addrSearchInput')
+  const addrSearchDropdownEl      = document.getElementById('addrSearchDropdown')
+  const addrSearchClearEl         = document.getElementById('addrSearchClear')
   const selectedAddressDetailsEl  = document.getElementById('selectedAddressDetails')
   const adminUserSelectEl         = document.getElementById('adminUserSelect')
   const adminRoleSelectEl         = document.getElementById('adminRoleSelect')
@@ -1283,6 +1444,38 @@
 
   function canEdit() {
     return getRole() === 'admin' || getRole() === 'editor'
+  }
+
+
+  // ── Relative time ──────────────────────────────────────────────────────────
+  function formatRelativeTime(dateStr) {
+    if (!dateStr) return '-'
+    const date    = new Date(dateStr)
+    const now     = new Date()
+    const diffMs  = now - date
+    const diffMin = Math.floor(diffMs / 60000)
+    const diffH   = Math.floor(diffMin / 60)
+    const diffD   = Math.floor(diffH / 24)
+    if (diffMin < 1)  return 'Upravo'
+    if (diffMin < 60) return `pre ${diffMin} min`
+    if (diffH   < 24) return `pre ${diffH}h`
+    if (diffD   === 1) return 'juče'
+    if (diffD   < 7)  return `pre ${diffD} dana`
+    return date.toLocaleDateString('sr-Latn', { day: 'numeric', month: 'short' })
+  }
+
+  // ── Updater profiles cache ─────────────────────────────────────────────────
+  let updaterProfiles = {}
+
+  async function loadUpdaterProfiles(ids) {
+    const uniqueIds = [...new Set(ids.filter(Boolean))]
+    const toFetch   = uniqueIds.filter(id => !updaterProfiles[id])
+    if (!toFetch.length) return
+    const { data } = await supabase
+      .from('profiles')
+      .select('id, fullname, email')
+      .in('id', toFetch)
+    ;(data || []).forEach(p => { updaterProfiles[p.id] = p })
   }
 
   // ── Status helpers ─────────────────────────────────────────────────────────
@@ -1464,19 +1657,64 @@
     })
   }
 
+  // ── Address search picker ─────────────────────────────────────────────────
+  let pickerSearchText = ''
+
+  function getPickerFiltered() {
+    const base = getFilteredAddresses()
+    if (!pickerSearchText) return base
+    const q = pickerSearchText.toLowerCase()
+    return base.filter(item => {
+      const label  = (item.full_address_label || '').toLowerCase()
+      const street = cleanStreetName(item.streets?.name || '').toLowerCase()
+      return label.includes(q) || street.includes(q)
+    })
+  }
+
+  function renderSearchDropdown(addresses) {
+    if (!addrSearchDropdownEl) return
+    if (!addresses.length) {
+      addrSearchDropdownEl.innerHTML = '<div class="addr-search-empty">Nema rezultata</div>'
+      addrSearchDropdownEl.classList.remove('hidden')
+      return
+    }
+    const shown = addresses.slice(0, 80)
+    addrSearchDropdownEl.innerHTML =
+      `<div class="addr-search-count">${addresses.length} adresa</div>` +
+      shown.map(item => `
+        <div class="addr-search-item ${String(item.id) === String(selectedAddressId) ? 'is-selected' : ''}"
+             data-search-id="${item.id}">
+          <span class="addr-search-label">${item.full_address_label || 'Bez naziva'}</span>
+          <span class="status-badge addr-search-badge ${getStatusClass(item.census_status)}">${getStatusLabel(item.census_status)}</span>
+        </div>
+      `).join('')
+    addrSearchDropdownEl.classList.remove('hidden')
+    addrSearchDropdownEl.querySelectorAll('[data-search-id]').forEach(el => {
+      el.addEventListener('click', () => {
+        selectedAddressId = el.dataset.searchId
+        const item = allAddresses.find(a => String(a.id) === String(selectedAddressId))
+        if (item && addrSearchInputEl) addrSearchInputEl.value = item.full_address_label || ''
+        addrSearchDropdownEl.classList.add('hidden')
+        renderAddresses()
+      })
+    })
+  }
+
   function populateAddressSelect(filtered) {
-    if (!addressSelectEl) return
-    addressSelectEl.innerHTML = `
-      <option value="">Izaberi adresu...</option>
-      ${filtered.map(item => `
-        <option value="${item.id}">${item.full_address_label || 'Bez naziva'}</option>
-      `).join('')}
-    `
+    // Sync hidden select (kept for compat)
+    if (addressSelectEl) {
+      addressSelectEl.innerHTML = filtered.map(item =>
+        `<option value="${item.id}">${item.full_address_label || ''}</option>`
+      ).join('')
+    }
     const hasSelected = filtered.some(item => String(item.id) === String(selectedAddressId))
     if (!hasSelected) {
       selectedAddressId = filtered.length ? String(filtered[0].id) : null
+      const first = filtered[0]
+      if (first && addrSearchInputEl && !pickerSearchText) {
+        addrSearchInputEl.value = first.full_address_label || ''
+      }
     }
-    addressSelectEl.value = selectedAddressId || ''
   }
 
   function getSelectedAddress(filtered) {
@@ -1495,12 +1733,15 @@
     }
 
     const notesVal = item.notes ? item.notes.replace(/"/g, '&quot;') : ''
+    const updater   = updaterProfiles[item.updated_by]
+    const updaterName = updater?.fullname || updater?.email || 'Nepoznat'
+    const updatedAt = item.updated_at ? formatRelativeTime(item.updated_at) : '-'
 
     selectedAddressDetailsEl.innerHTML = `
       <div class="address-detail-card">
         <div class="address-detail-header">
           <h3 class="address-detail-title">${item.full_address_label ?? 'Bez naziva'}</h3>
-          <span class="status-badge ${getStatusClass(item.census_status)}">${getStatusLabel(item.census_status)}</span>
+          <span class="status-badge ${getStatusClass(item.census_status)}" id="statusBadge-${item.id}">${getStatusLabel(item.census_status)}</span>
         </div>
         <div class="address-detail-grid">
           <div class="addr-row"><span class="addr-label">Ulica:</span> ${cleanStreetName(item.streets?.name) || '-'}</div>
@@ -1511,6 +1752,7 @@
           <div class="addr-row"><span class="addr-label">Tip:</span> ${item.address_type ?? '-'}</div>
           <div class="addr-row"><span class="addr-label">Aktivna:</span> ${item.is_active ? 'Da' : 'Ne'}</div>
         </div>
+        <div class="updated-at-info">🕐 Izmenjeno <strong>${updatedAt}</strong> · <strong>${updaterName}</strong></div>
 
         ${canEdit() ? `
           <div class="status-editor">
@@ -1607,6 +1849,10 @@
     const selectedItem = getSelectedAddress(filtered)
     pageInfoEl.textContent = `Ukupno pronađenih adresa: ${filtered.length}`
     renderSelectedAddressDetails(selectedItem)
+    // Sync search input with selected item label if no active search
+    if (!pickerSearchText && selectedItem && addrSearchInputEl) {
+      addrSearchInputEl.value = selectedItem.full_address_label || ''
+    }
   }
 
   // ── Street stats render ────────────────────────────────────────────────────
@@ -1977,8 +2223,15 @@
       ? availableStreets.map(s => `<li>${cleanStreetName(s.name)}</li>`).join('')
       : '<li>Nema dodeljenih ulica</li>'
     assignedStreetsSummaryEl.textContent = availableStreets.length
-      ? `Dozvoljene ulice (${availableStreets.length})`
-      : 'Dozvoljene ulice (0)'
+      ? `${availableStreets.length} ulica`
+      : '0 ulica'
+    // Render chips in "Moje ulice"
+    const myStreetsGridEl = document.getElementById('myStreetsGrid')
+    if (myStreetsGridEl) {
+      myStreetsGridEl.innerHTML = availableStreets.length
+        ? availableStreets.map(s => `<span class="my-street-chip">${cleanStreetName(s.name)}</span>`).join('')
+        : '<div class="empty" style="width:100%">Nema dodeljenih ulica.</div>'
+    }
     populateStreetFilters()
   }
 
@@ -2049,6 +2302,16 @@
     setStatus('✅ Status uspešno ažuriran.')
     await loadAddresses()
     await loadDashboardStats()
+    // Flash the badge after re-render
+    setTimeout(() => {
+      const badge = selectedAddressDetailsEl.querySelector('.status-badge')
+      if (badge) {
+        badge.classList.remove('badge-flash')
+        void badge.offsetWidth
+        badge.classList.add('badge-flash')
+        badge.addEventListener('animationend', () => badge.classList.remove('badge-flash'), { once: true })
+      }
+    }, 60)
   }
 
   async function updateNotes(addressId, notesValue) {
@@ -2072,7 +2335,7 @@
       .select(`
         id, street_id, house_number, house_number_suffix, unit_number,
         full_address_label, address_type, census_status, is_active,
-        notes, created_by, updated_by,
+        notes, created_by, updated_by, updated_at,
         streets ( id, name, settlement_name )
       `)
       .order('id', { ascending: false })
@@ -2090,6 +2353,7 @@
       return
     }
     allAddresses = data || []
+    await loadUpdaterProfiles((data || []).map(a => a.updated_by))
     renderAddresses()
     hideLoading()
   }
@@ -2474,9 +2738,40 @@
   houseSuffixEl.addEventListener('input', updateAddressLabel)
   unitNumberEl.addEventListener('input', updateAddressLabel)
 
-  addressSelectEl.addEventListener('change', () => {
-    selectedAddressId = addressSelectEl.value || null
-    renderAddresses()
+  // Address search input events
+  if (addrSearchInputEl) {
+    addrSearchInputEl.addEventListener('input', (e) => {
+      pickerSearchText = e.target.value.trim()
+      const filtered = getPickerFiltered()
+      renderSearchDropdown(filtered)
+    })
+    addrSearchInputEl.addEventListener('focus', () => {
+      const filtered = getPickerFiltered()
+      renderSearchDropdown(filtered)
+    })
+    addrSearchInputEl.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        addrSearchDropdownEl?.classList.add('hidden')
+      }
+      if (e.key === 'Enter') {
+        const first = addrSearchDropdownEl?.querySelector('[data-search-id]')
+        if (first) first.click()
+      }
+    })
+  }
+  if (addrSearchClearEl) {
+    addrSearchClearEl.addEventListener('click', () => {
+      if (addrSearchInputEl) addrSearchInputEl.value = ''
+      pickerSearchText = ''
+      addrSearchDropdownEl?.classList.add('hidden')
+      renderAddresses()
+    })
+  }
+  // Close dropdown on outside click
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.addr-search-wrap')) {
+      addrSearchDropdownEl?.classList.add('hidden')
+    }
   })
 
   addressTypeEl.addEventListener('change', () => {
