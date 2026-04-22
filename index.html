@@ -1272,6 +1272,171 @@
     }
     .map-loading.loaded { opacity: 0; }
 
+/* ── Import section ── */
+    .import-box {
+      margin-top: var(--space-5);
+      border-top: 1px solid var(--color-border);
+      padding-top: var(--space-5);
+    }
+    .import-box h2 { margin-bottom: var(--space-2); }
+    .import-desc {
+      font-size: var(--text-sm);
+      color: var(--color-text-muted);
+      margin-bottom: var(--space-4);
+      line-height: 1.6;
+    }
+    .import-steps {
+      display: flex;
+      gap: var(--space-3);
+      margin-bottom: var(--space-5);
+      flex-wrap: wrap;
+    }
+    .import-step {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      background: var(--color-bg);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-2) var(--space-4);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-text-muted);
+    }
+    .import-step-num {
+      width: 22px; height: 22px;
+      background: var(--color-primary);
+      color: white;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.72rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .import-drop-zone {
+      border: 2px dashed var(--color-border);
+      border-radius: var(--radius-xl);
+      padding: var(--space-8) var(--space-6);
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      background: var(--color-bg);
+      position: relative;
+    }
+    .import-drop-zone:hover,
+    .import-drop-zone.drag-over {
+      border-color: var(--color-primary);
+      background: var(--color-primary-light);
+    }
+    .import-drop-zone input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+    .import-drop-icon { font-size: 2rem; margin-bottom: var(--space-2); }
+    .import-drop-label {
+      font-weight: 600;
+      font-size: var(--text-base);
+      color: var(--color-text);
+      margin-bottom: var(--space-1);
+    }
+    .import-drop-sub {
+      font-size: var(--text-sm);
+      color: var(--color-text-muted);
+    }
+
+    /* Preview table */
+    .import-preview {
+      margin-top: var(--space-5);
+      border-top: 1px solid var(--color-border);
+      padding-top: var(--space-4);
+    }
+    .import-preview-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: var(--space-3);
+      margin-bottom: var(--space-3);
+    }
+    .import-preview-title {
+      font-size: var(--text-base);
+      font-weight: 700;
+    }
+    .import-stats {
+      display: flex;
+      gap: var(--space-2);
+      flex-wrap: wrap;
+    }
+    .import-stat-pill {
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+    .pill-ok      { background: #dcfce7; color: #166534; }
+    .pill-warn    { background: #fef3c7; color: #92400e; }
+    .pill-err     { background: #fee2e2; color: #991b1b; }
+    .import-table-wrap {
+      overflow-x: auto;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--color-border);
+      max-height: 360px;
+      overflow-y: auto;
+    }
+    .import-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+    }
+    .import-table th {
+      background: var(--color-bg);
+      font-weight: 700;
+      text-align: left;
+      padding: var(--space-2) var(--space-3);
+      border-bottom: 2px solid var(--color-border);
+      white-space: nowrap;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+    .import-table td {
+      padding: var(--space-2) var(--space-3);
+      border-bottom: 1px solid var(--color-border);
+      vertical-align: middle;
+      max-width: 200px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .import-row-ok   { background: #f0fdf4; }
+    .import-row-warn { background: #fffbeb; }
+    .import-row-err  { background: #fef2f2; }
+    .import-row-status {
+      font-size: 0.75rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .import-actions {
+      display: flex;
+      gap: var(--space-3);
+      margin-top: var(--space-4);
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .import-result-msg {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      padding: var(--space-2) var(--space-4);
+      border-radius: var(--radius-md);
+      background: var(--color-primary-light);
+      color: var(--color-primary);
+      border: 1px solid rgba(1,105,111,0.2);
+    }
+
     /* ── Loading spinner ── */
     .loading-overlay {
       position: fixed;
@@ -1647,6 +1812,65 @@
             <button id="saveAssignmentsBtn" type="button">Sačuvaj dodeljene ulice</button>
           </div>
         </div>
+
+        <!-- ── IMPORT SECTION ── -->
+        <div class="import-box">
+          <h2>📥 Import adresa iz Excela</h2>
+          <p class="import-desc">
+            Preuzmi template, popuni ga offline, i importuj nazad. Sistem će validirati svaki red pre unosa.
+            Samo redovi sa zelenom oznakom biće upisani u bazu.
+          </p>
+
+          <div class="import-steps">
+            <div class="import-step"><span class="import-step-num">1</span> Preuzmi template</div>
+            <div class="import-step"><span class="import-step-num">2</span> Popuni offline</div>
+            <div class="import-step"><span class="import-step-num">3</span> Uploaduj fajl</div>
+            <div class="import-step"><span class="import-step-num">4</span> Pregledaj i potvrdi</div>
+          </div>
+
+          <div class="actions" style="margin-top:0;margin-bottom:var(--space-4);">
+            <button id="downloadTemplateBtn" type="button" class="btn-dark">⬇️ Preuzmi template</button>
+          </div>
+
+          <div class="import-drop-zone" id="importDropZone">
+            <input type="file" id="importFileInput" accept=".xlsx,.xls" />
+            <div class="import-drop-icon">📂</div>
+            <div class="import-drop-label">Prevuci Excel fajl ovde</div>
+            <div class="import-drop-sub">ili klikni da izabereš fajl (.xlsx, .xls)</div>
+          </div>
+
+          <div id="importPreview" class="import-preview hidden">
+            <div class="import-preview-header">
+              <span class="import-preview-title">Preview podataka</span>
+              <div class="import-stats" id="importStats"></div>
+            </div>
+            <div class="import-table-wrap">
+              <table class="import-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Status</th>
+                    <th>Ulica</th>
+                    <th>Broj</th>
+                    <th>Dodatak</th>
+                    <th>Stan</th>
+                    <th>Tip</th>
+                    <th>Cenzus status</th>
+                    <th>Napomena</th>
+                    <th>Info</th>
+                  </tr>
+                </thead>
+                <tbody id="importTableBody"></tbody>
+              </table>
+            </div>
+            <div class="import-actions">
+              <button id="confirmImportBtn" type="button" class="btn-success">✅ Potvrdi import</button>
+              <button id="cancelImportBtn" type="button" class="btn-dark">Otkaži</button>
+              <span id="importResultMsg" class="import-result-msg hidden"></span>
+            </div>
+          </div>
+        </div>
+
       </div>
 
     </div><!-- /appSection -->
@@ -3140,6 +3364,334 @@
       inlineSaveStatusBtn.textContent = '💾 Sačuvaj i zatvori'
     }
   }
+
+
+  // ── Import system ──────────────────────────────────────────────────────────
+  const downloadTemplateBtnEl = document.getElementById('downloadTemplateBtn')
+  const importFileInputEl     = document.getElementById('importFileInput')
+  const importDropZoneEl      = document.getElementById('importDropZone')
+  const importPreviewEl       = document.getElementById('importPreview')
+  const importStatsEl         = document.getElementById('importStats')
+  const importTableBodyEl     = document.getElementById('importTableBody')
+  const confirmImportBtnEl    = document.getElementById('confirmImportBtn')
+  const cancelImportBtnEl     = document.getElementById('cancelImportBtn')
+  const importResultMsgEl     = document.getElementById('importResultMsg')
+
+  // Parsed rows ready for preview/confirm
+  let importRows = []
+
+  // Status label → DB value map
+  const statusLabelToDb = {
+    'nije obiđeno':           'not_visited',
+    'nije obidjeno':          'not_visited',
+    'obiđeno':                'visited',
+    'obidjeno':               'visited',
+    'nije zatečen':           'not_found',
+    'nije zatecen':           'not_found',
+    'zakazano':               'scheduled',
+    'studenti pobedjuju':     'students_win',
+    '✌️ studenti pobedjuju':  'students_win',
+    'sns':                    'sns',
+    '💩 sns':                 'sns',
+  }
+
+  function parseStatusLabel(raw) {
+    if (!raw) return 'not_visited'
+    const normalized = String(raw).toLowerCase().trim()
+    return statusLabelToDb[normalized] || 'not_visited'
+  }
+
+  // Normalize address type
+  function parseAddressType(raw) {
+    const s = String(raw || '').trim().toLowerCase()
+    if (s === 'zgrada') return 'Zgrada'
+    return 'Kuća'
+  }
+
+  // Download template
+  function downloadTemplate() {
+    const wb = XLSX.utils.book_new()
+
+    // Header row + one example row
+    const templateRows = [
+      {
+        Ulica:             'Bele njive',
+        Broj:              '15',
+        Dodatak:           '',
+        'Stan / jedinica': '3',
+        Tip:               'Zgrada',
+        Status:            'Nije obiđeno',
+        Napomena:          'Primer napomene'
+      },
+      {
+        Ulica:             'Bele njive',
+        Broj:              '20',
+        Dodatak:           'A',
+        'Stan / jedinica': '',
+        Tip:               'Kuća',
+        Status:            '✌️ Studenti pobedjuju',
+        Napomena:          ''
+      }
+    ]
+
+    const ws = XLSX.utils.json_to_sheet(templateRows)
+    ws['!cols'] = [
+      { wch: 28 }, { wch: 10 }, { wch: 10 }, { wch: 16 },
+      { wch: 10 }, { wch: 24 }, { wch: 30 }
+    ]
+
+    // Add instruction sheet
+    const instrRows = [
+      { Kolona: 'Ulica',            Opis: 'Tačan naziv ulice — mora postojati u sistemu',       Primer: 'Bele njive' },
+      { Kolona: 'Broj',             Opis: 'Kućni/zgradni broj (obavezno)',                       Primer: '15' },
+      { Kolona: 'Dodatak',          Opis: 'Slovo uz broj (opciono)',                             Primer: 'A' },
+      { Kolona: 'Stan / jedinica',  Opis: 'Broj stana — obavezno za Zgradu',                    Primer: '3' },
+      { Kolona: 'Tip',              Opis: 'Kuća ili Zgrada',                                     Primer: 'Zgrada' },
+      { Kolona: 'Status',           Opis: 'Nije obiđeno / Obiđeno / Nije zatečen / Zakazano / Studenti pobedjuju / SNS', Primer: 'Obiđeno' },
+      { Kolona: 'Napomena',         Opis: 'Slobodan tekst (opciono)',                            Primer: 'Nije bio kod kuće' },
+    ]
+    const wsInstr = XLSX.utils.json_to_sheet(instrRows)
+    wsInstr['!cols'] = [{ wch: 18 }, { wch: 60 }, { wch: 22 }]
+
+    XLSX.utils.book_append_sheet(wb, ws,      'Adrese')
+    XLSX.utils.book_append_sheet(wb, wsInstr, 'Uputstvo')
+    XLSX.writeFile(wb, 'import-template.xlsx')
+    setStatus('✅ Template preuzet — popuni sheet "Adrese" i importuj.')
+  }
+
+  // Parse uploaded Excel file
+  async function parseImportFile(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        try {
+          const data = new Uint8Array(e.target.result)
+          const wb   = XLSX.read(data, { type: 'array' })
+          // Use first sheet named "Adrese", fallback to first sheet
+          const sheetName = wb.SheetNames.includes('Adrese') ? 'Adrese' : wb.SheetNames[0]
+          const ws  = wb.Sheets[sheetName]
+          const rows = XLSX.utils.sheet_to_json(ws, { defval: '' })
+          resolve(rows)
+        } catch (err) {
+          reject(err)
+        }
+      }
+      reader.onerror = reject
+      reader.readAsArrayBuffer(file)
+    })
+  }
+
+  // Validate rows against streets in memory
+  async function validateImportRows(rawRows) {
+    // Build street name → street object map (lowercase for matching)
+    const streetMap = new Map()
+    allSystemStreets.forEach(s => {
+      const key = cleanStreetName(s.name).toLowerCase().trim()
+      streetMap.set(key, s)
+    })
+
+    // Build existing addresses set for duplicate detection
+    const existingSet = new Set(
+      allAddresses.map(a => `${a.street_id}||${(a.full_address_label || '').toLowerCase().trim()}`)
+    )
+
+    const validated = []
+
+    for (let i = 0; i < rawRows.length; i++) {
+      const raw = rawRows[i]
+
+      // Extract columns (flexible header matching)
+      const ulica   = String(raw['Ulica']            || raw['ulica']            || '').trim()
+      const broj    = String(raw['Broj']             || raw['broj']             || '').trim()
+      const dodatak = String(raw['Dodatak']          || raw['dodatak']          || '').trim()
+      const stan    = String(raw['Stan / jedinica']  || raw['Stan/jedinica']    || raw['Stan'] || raw['stan'] || '').trim()
+      const tip     = parseAddressType(raw['Tip']    || raw['tip']              || 'Kuća')
+      const status  = parseStatusLabel(raw['Status'] || raw['status']           || '')
+      const notes   = String(raw['Napomena']         || raw['napomena']         || '').trim()
+
+      // Validations
+      const errors = []
+      const warnings = []
+
+      if (!ulica) { errors.push('Ulica je prazna') }
+      if (!broj)  { errors.push('Broj je prazan') }
+
+      // Match street
+      const streetObj = streetMap.get(ulica.toLowerCase())
+      if (ulica && !streetObj) errors.push(`Ulica "${ulica}" ne postoji u sistemu`)
+
+      // Building requires unit number
+      if (tip === 'Zgrada' && !stan) errors.push('Stan / jedinica obavezan za Zgradu')
+
+      // Compute full label
+      const streetName = streetObj ? cleanStreetName(streetObj.name) : ulica
+      const numberPart = `${broj}${dodatak}`.trim()
+      const fullLabel  = stan
+        ? `${streetName} ${numberPart} / ${stan}`.trim()
+        : `${streetName} ${numberPart}`.trim()
+
+      // Duplicate check
+      if (streetObj && !errors.length) {
+        const dupKey = `${streetObj.id}||${fullLabel.toLowerCase().trim()}`
+        if (existingSet.has(dupKey)) warnings.push('Duplikat — adresa već postoji')
+      }
+
+      validated.push({
+        rowNum:    i + 2,  // Excel row number (1=header, so data starts at 2)
+        ulica, broj, dodatak, stan, tip, status, notes,
+        streetObj, fullLabel,
+        errors, warnings,
+        state: errors.length ? 'err' : warnings.length ? 'warn' : 'ok'
+      })
+    }
+
+    return validated
+  }
+
+  // Render preview table
+  function renderImportPreview(rows) {
+    const okCount   = rows.filter(r => r.state === 'ok').length
+    const warnCount = rows.filter(r => r.state === 'warn').length
+    const errCount  = rows.filter(r => r.state === 'err').length
+
+    importStatsEl.innerHTML = `
+      <span class="import-stat-pill pill-ok">✅ OK: ${okCount}</span>
+      ${warnCount ? `<span class="import-stat-pill pill-warn">⚠️ Duplikati: ${warnCount}</span>` : ''}
+      ${errCount  ? `<span class="import-stat-pill pill-err">❌ Greške: ${errCount}</span>`       : ''}
+    `
+
+    importTableBodyEl.innerHTML = rows.map(r => `
+      <tr class="import-row-${r.state}">
+        <td>${r.rowNum}</td>
+        <td class="import-row-status">
+          ${r.state === 'ok'   ? '✅ OK'          : ''}
+          ${r.state === 'warn' ? '⚠️ Duplikat'    : ''}
+          ${r.state === 'err'  ? '❌ Greška'       : ''}
+        </td>
+        <td>${r.ulica}</td>
+        <td>${r.broj}</td>
+        <td>${r.dodatak}</td>
+        <td>${r.stan}</td>
+        <td>${r.tip}</td>
+        <td>${getStatusLabel(r.status)}</td>
+        <td title="${r.notes}">${r.notes.length > 30 ? r.notes.slice(0,28)+'…' : r.notes}</td>
+        <td style="color:${r.state==='err'?'#dc2626':r.state==='warn'?'#d97706':'#16a34a'};font-size:0.72rem;">
+          ${[...r.errors, ...r.warnings].join(' · ') || '—'}
+        </td>
+      </tr>
+    `).join('')
+
+    importPreviewEl.classList.remove('hidden')
+    importResultMsgEl.classList.add('hidden')
+
+    // Disable confirm if no OK rows
+    confirmImportBtnEl.disabled = okCount === 0
+    confirmImportBtnEl.title    = okCount === 0 ? 'Nema validnih redova za import' : ''
+  }
+
+  // Confirm import — write OK rows to Supabase
+  async function confirmImport() {
+    const okRows = importRows.filter(r => r.state === 'ok')
+    if (!okRows.length) { setStatus('❌ Nema validnih redova.'); return }
+
+    confirmImportBtnEl.disabled    = true
+    confirmImportBtnEl.textContent = '⏳ Uvozim...'
+    setStatus(`Uvozim ${okRows.length} adresa...`)
+
+    const toInsert = okRows.map(r => ({
+      street_id:          r.streetObj.id,
+      house_number:       r.broj,
+      house_number_suffix: r.dodatak || null,
+      unit_number:        r.stan     || null,
+      full_address_label: r.fullLabel,
+      address_type:       r.tip,
+      census_status:      r.status,
+      notes:              r.notes    || null,
+      is_active:          true,
+      created_by:         currentUser.id,
+      updated_by:         currentUser.id
+    }))
+
+    // Insert in batches of 50
+    let inserted = 0
+    let failed   = 0
+    const batchSize = 50
+    for (let i = 0; i < toInsert.length; i += batchSize) {
+      const batch = toInsert.slice(i, i + batchSize)
+      const { error } = await supabase.from('addresses').insert(batch)
+      if (error) {
+        console.error('Import batch error:', error)
+        failed += batch.length
+      } else {
+        inserted += batch.length
+      }
+    }
+
+    const msg = `Uvezeno: ${inserted} · Neuspešno: ${failed} · Preskočeni duplikati: ${importRows.filter(r=>r.state==='warn').length}`
+    importResultMsgEl.textContent = msg
+    importResultMsgEl.classList.remove('hidden')
+    setStatus(`✅ Import završen — ${msg}`)
+
+    // Refresh data
+    await loadAddresses()
+    await loadDashboardStats()
+
+    confirmImportBtnEl.disabled    = false
+    confirmImportBtnEl.textContent = '✅ Potvrdi import'
+
+    // Reset import state
+    importRows = []
+    importFileInputEl.value = ''
+  }
+
+  // Handle file selection
+  async function handleImportFile(file) {
+    if (!file) return
+    if (!file.name.match(/\.xlsx?$/i)) {
+      setStatus('❌ Samo .xlsx i .xls fajlovi su podržani.')
+      return
+    }
+    setStatus('Čitam Excel fajl...')
+    try {
+      const rawRows    = await parseImportFile(file)
+      if (!rawRows.length) { setStatus('❌ Fajl je prazan ili nema prepoznatih redova.'); return }
+      importRows       = await validateImportRows(rawRows)
+      renderImportPreview(importRows)
+      setStatus(`✅ Fajl učitan — ${rawRows.length} redova pronađeno. Pregledaj i potvrdi import.`)
+      importPreviewEl.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    } catch (err) {
+      setStatus(`❌ Greška pri čitanju fajla: ${err.message}`)
+    }
+  }
+
+  // Events
+  downloadTemplateBtnEl?.addEventListener('click', downloadTemplate)
+
+  importFileInputEl?.addEventListener('change', (e) => {
+    handleImportFile(e.target.files[0])
+  })
+
+  importDropZoneEl?.addEventListener('dragover', (e) => {
+    e.preventDefault()
+    importDropZoneEl.classList.add('drag-over')
+  })
+  importDropZoneEl?.addEventListener('dragleave', () => {
+    importDropZoneEl.classList.remove('drag-over')
+  })
+  importDropZoneEl?.addEventListener('drop', (e) => {
+    e.preventDefault()
+    importDropZoneEl.classList.remove('drag-over')
+    handleImportFile(e.dataTransfer.files[0])
+  })
+
+  confirmImportBtnEl?.addEventListener('click', confirmImport)
+
+  cancelImportBtnEl?.addEventListener('click', () => {
+    importRows = []
+    importFileInputEl.value = ''
+    importPreviewEl.classList.add('hidden')
+    setStatus('Import otkazan.')
+  })
 
   // ── Init ───────────────────────────────────────────────────────────────────
   async function initApp() {
