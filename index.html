@@ -3056,8 +3056,10 @@
   async function loadDashboardStats() {
     showLoading('Učitavanje statistike...')
     let addressQuery = supabase
-      .from('addresses')
-      .select(`id, street_id, census_status, streets ( id, name, settlement_name )`)
+  .from('addresses')
+  .select(`id, street_id, house_number, house_number_suffix, census_status, full_address_label, streets ( id, name, settlement_name )`)
+  .order('house_number', { ascending: true })
+  .order('house_number_suffix', { ascending: true });
 
     if (!isAdmin()) {
       const allowedStreetIds = availableStreets.map(s => s.id).filter(Boolean)
