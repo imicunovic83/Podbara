@@ -3155,6 +3155,7 @@ let addressQuery = supabase
 
 async function loadAddresses() {
   showLoading('Učitavanje adresa...')
+
   let query = supabase
     .from('addresses')
     .select(`
@@ -3171,7 +3172,11 @@ async function loadAddresses() {
       created_by,
       updated_by,
       updated_at,
-      streets ( id, name, settlement_name )
+      streets!inner (
+        id,
+        name,
+        settlement_name
+      )
     `)
     .order('name', { referencedTable: 'streets', ascending: true })
     .order('house_number', { ascending: true })
