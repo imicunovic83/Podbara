@@ -3153,36 +3153,34 @@ let addressQuery = supabase
     if (idx !== -1) allAddresses[idx].notes = notesValue || null
   }
 
- async function loadAddresses() {
+async function loadAddresses() {
   showLoading('Učitavanje adresa...')
   let query = supabase
-    .from('addresses')
-    .select(`
-      id, street_id, house_number, house_number_suffix, unit_number,
-      full_address_label, address_type, census_status, is_active,
-      notes, created_by, updated_by, updated_at,
-      streets ( id, name, settlement_name )
-    `)
-    .order('house_number', { ascending: true })
-    .order('house_number_suffix', { ascending: true, nullsFirst: true })
+    .from('addresses_sorted')
+    .select('*')
 
-    if (!isAdmin()) {
-      const allowedStreetIds = availableStreets.map(s => s.id).filter(Boolean)
-      if (!allowedStreetIds.length) { allAddresses = []; renderAddresses(); hideLoading(); return }
-      query = query.in('street_id', allowedStreetIds)
-    }
-
-    const { data, error } = await query
-    if (error) {
-      selectedAddressDetailsEl.innerHTML = `<div class="empty">Greška: ${error.message}</div>`
+  if (!isAdmin()) {
+    const allowedStreetIds = availableStreets.map(s => s.id).filter(Boolean)
+    if (!allowedStreetIds.length) {
+      allAddresses = []
+      renderAddresses()
       hideLoading()
       return
     }
-    allAddresses = data || []
-    await loadUpdaterProfiles((data || []).map(a => a.updated_by))
-    renderAddresses()
-    hideLoading()
+    query = query.in('street_id', allowedStreetIds)
   }
+
+  const { data, error } = await query
+  if (error) {
+    showError(error.message)
+    hideLoading()
+    return
+  }
+
+  allAddresses = data ?? []
+  renderAddresses()
+  hideLoading()
+}
 
   async function saveAddress() {
     if (!canEdit()) { setStatus('❌ Nemaš dozvolu za unos adrese.'); return }
