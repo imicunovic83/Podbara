@@ -1535,6 +1535,185 @@
       border-top: 1px solid var(--color-border);
     }
 
+/* ── Merged evidencija section ── */
+    .evidencija-card {
+      background: var(--color-surface-2);
+      border-radius: var(--radius-xl);
+      padding: var(--space-6);
+      box-shadow: var(--shadow-md);
+      margin-bottom: var(--space-5);
+      border: 1px solid rgba(0,0,0,0.04);
+    }
+    .evidencija-top {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr auto;
+      gap: var(--space-3);
+      align-items: end;
+      margin-bottom: var(--space-4);
+    }
+    @media (max-width: 900px) {
+      .evidencija-top { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) {
+      .evidencija-top { grid-template-columns: 1fr; }
+    }
+    .evidencija-top .field label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--color-text-muted);
+      margin-bottom: var(--space-1);
+    }
+    .evidencija-top .field select,
+    .evidencija-top .field input {
+      padding: var(--space-2) var(--space-3);
+      font-size: var(--text-sm);
+    }
+    .evidencija-search-clear {
+      background: var(--color-bg);
+      color: var(--color-text-muted);
+      border: 1.5px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--space-2) var(--space-3);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      align-self: end;
+      height: 38px;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .evidencija-search-clear:hover {
+      border-color: var(--color-primary);
+      background: var(--color-primary-light);
+      color: var(--color-primary);
+      box-shadow: none;
+    }
+    .evidencija-divider {
+      height: 1px;
+      background: var(--color-border);
+      margin: var(--space-4) 0;
+    }
+    .evidencija-picker-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-4);
+      align-items: end;
+      margin-bottom: var(--space-3);
+    }
+    @media (max-width: 540px) {
+      .evidencija-picker-row { grid-template-columns: 1fr; }
+    }
+    .evidencija-export-row {
+      display: flex;
+      gap: var(--space-2);
+      flex-wrap: wrap;
+      margin-top: var(--space-3);
+      padding-top: var(--space-3);
+      border-top: 1px solid var(--color-border);
+    }
+    .evidencija-export-row button {
+      font-size: 0.78rem;
+      padding: var(--space-2) var(--space-3);
+    }
+
+    /* ── Leaderboard ── */
+    .leaderboard-collapsible {
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      background: var(--color-surface-2);
+      box-shadow: var(--shadow-md);
+      margin-bottom: var(--space-5);
+    }
+    .leaderboard-collapsible summary {
+      list-style: none;
+      cursor: pointer;
+      padding: var(--space-5) var(--space-6);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      user-select: none;
+      font-size: var(--text-lg);
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      background: var(--color-surface-2);
+      transition: background 0.15s;
+      gap: var(--space-4);
+    }
+    .leaderboard-collapsible summary::-webkit-details-marker { display: none; }
+    .leaderboard-collapsible summary:hover { background: var(--color-bg); }
+    .leaderboard-collapsible[open] .stats-collapsible-arrow { transform: rotate(180deg); }
+    .leaderboard-inner {
+      padding: var(--space-4) var(--space-6) var(--space-6);
+      border-top: 1px solid var(--color-border);
+    }
+    .leaderboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: var(--space-4);
+      margin-top: var(--space-4);
+    }
+    .leaderboard-card {
+      background: var(--color-bg);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4) var(--space-5);
+      border: 1px solid var(--color-border);
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .leaderboard-card:hover { border-color: var(--color-primary); box-shadow: var(--shadow-sm); }
+    .leaderboard-rank {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      margin-bottom: var(--space-3);
+    }
+    .leaderboard-num {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+    .rank-1 { background: #fef3c7; color: #92400e; }
+    .rank-2 { background: #f1f5f9; color: #475569; }
+    .rank-3 { background: #fce7f3; color: #9d174d; }
+    .rank-other { background: var(--color-primary-light); color: var(--color-primary); }
+    .leaderboard-name {
+      font-weight: 700;
+      font-size: var(--text-sm);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .leaderboard-stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+    }
+    .lb-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      padding: 2px 9px;
+      border-radius: 999px;
+      font-size: 0.73rem;
+      font-weight: 700;
+    }
+    .lb-total    { background: var(--color-primary-light); color: var(--color-primary); }
+    .lb-win      { background: #ede9fe; color: #6b21a8; }
+    .lb-visited  { background: #dcfce7; color: #166534; }
+    .lb-sns      { background: #fee2e2; color: #991b1b; }
+    .lb-pending  { background: #fef3c7; color: #92400e; }
+    .leaderboard-empty {
+      text-align: center;
+      color: var(--color-text-muted);
+      font-size: var(--text-sm);
+      padding: var(--space-6);
+    }
+
     /* ── Loading spinner ── */
     .loading-overlay {
       position: fixed;
@@ -1581,9 +1760,9 @@
     <a href="#sectionPregled"><span class="nav-icon">📊</span>Pregled</a>
     <a href="#sectionDozvole"><span class="nav-icon">🗺️</span>Moje ulice</a>
     <a href="#editorSection"><span class="nav-icon">➕</span>Unos adrese</a>
-    <a href="#sectionPretraga"><span class="nav-icon">🔍</span>Pretraga evidencije</a>
     <a href="#sectionEvidencija"><span class="nav-icon">📋</span>Evidencija obilazaka</a>
     <a href="#sectionStatistika"><span class="nav-icon">📈</span>Statistika po ulicama</a>
+    <a href="#sectionLeaderboard"><span class="nav-icon">🏆</span>Ko je obišao najviše</a>
     <a href="#adminPanelSection" id="adminNavLink" class="hidden"><span class="nav-icon">⚙️</span>Admin panel</a>
   </nav>
 
@@ -1787,18 +1966,20 @@
         </div>
       </div>
 
-      <!-- ── 4. PRETRAGA EVIDENCIJE ── -->
-      <div class="card-box" id="sectionPretraga">
-        <h2>Pretraga evidencije</h2>
-        <div class="filters-grid">
+      <!-- ── 4+5. EVIDENCIJA OBILAZAKA (merged) ── -->
+      <div class="evidencija-card" id="sectionEvidencija">
+        <h2 style="margin-bottom:var(--space-4);">📋 Evidencija obilazaka</h2>
+
+        <!-- Filters row -->
+        <div class="evidencija-top">
           <div class="field">
-            <label for="filterStreet">Filter po ulici</label>
+            <label for="filterStreet">Ulica</label>
             <select id="filterStreet">
               <option value="">Sve ulice</option>
             </select>
           </div>
           <div class="field">
-            <label for="filterStatus">Filter po statusu</label>
+            <label for="filterStatus">Status</label>
             <select id="filterStatus">
               <option value="">Svi statusi</option>
               <option value="students_win">✌️ Studenti pobedjuju</option>
@@ -1811,23 +1992,16 @@
           </div>
           <div class="field">
             <label for="searchInput">Pretraga</label>
-            <input id="searchInput" type="text" placeholder="Ulica, broj ili puna adresa" />
+            <input id="searchInput" type="text" placeholder="Ulica ili broj..." />
           </div>
+          <button id="resetFiltersBtn" type="button" class="evidencija-search-clear" title="Reset filtera">↺ Reset</button>
         </div>
-        <div class="actions">
-          <button id="applyFiltersBtn" type="button">Primeni filtere</button>
-          <button id="resetFiltersBtn" type="button" class="btn-dark">Reset filtera</button>
-          <button id="exportCsvBtn" type="button" class="btn-dark">Export CSV</button>
-          <button id="exportExcelBtn" type="button" class="btn-dark">Export Excel</button>
-          <button id="printBtn" type="button" class="btn-dark">Print pregled</button>
-        </div>
-      </div>
 
-      <!-- ── 5. EVIDENCIJA OBILAZAKA ── -->
-      <h2 class="section-title" id="sectionEvidencija">Evidencija obilazaka</h2>
+        <!-- Divider -->
+        <div class="evidencija-divider"></div>
 
-      <div class="card-box">
-        <div class="two-level-picker">
+        <!-- Two-level picker -->
+        <div class="evidencija-picker-row">
           <div class="field">
             <label for="buildingSelect">
               🏠 Objekat
@@ -1847,11 +2021,21 @@
             </select>
           </div>
         </div>
+
         <!-- Hidden select kept for compat -->
         <select id="addressSelect" style="display:none"></select>
+        <!-- Hidden apply btn kept for compat -->
+        <button id="applyFiltersBtn" style="display:none"></button>
 
         <div id="pageInfo" class="page-info"></div>
         <div id="selectedAddressDetails"></div>
+
+        <!-- Export row -->
+        <div class="evidencija-export-row">
+          <button id="exportCsvBtn" type="button" class="btn-dark">⬇️ CSV</button>
+          <button id="exportExcelBtn" type="button" class="btn-dark">⬇️ Excel</button>
+          <button id="printBtn" type="button" class="btn-dark">🖨️ Print</button>
+        </div>
       </div>
 
       <!-- ── 6. STATISTIKA PO ULICAMA ── -->
@@ -1868,7 +2052,22 @@
         </div>
       </details>
 
-      <!-- ── 7. ADMIN PANEL ── -->
+      <!-- ── 7. LEADERBOARD ── -->
+      <details class="leaderboard-collapsible" id="sectionLeaderboard">
+        <summary>
+          <span class="stats-collapsible-header-left">
+            🏆 Ko je obišao najviše
+          </span>
+          <span class="stats-collapsible-arrow">▾</span>
+        </summary>
+        <div class="leaderboard-inner">
+          <div id="leaderboardContent">
+            <div class="leaderboard-empty">Otvori da učitaš podatke...</div>
+          </div>
+        </div>
+      </details>
+
+      <!-- ── 8. ADMIN PANEL ── -->
       <div id="adminPanelSection" class="card-box hidden">
         <h2>Admin panel</h2>
 
@@ -3191,6 +3390,7 @@
       .eq('id', addressId)
     if (error) { setStatus(`❌ Greška pri promeni statusa: ${error.message}`); return }
     setStatus('✅ Status uspešno ažuriran.')
+    invalidateLeaderboard()
     await loadAddresses()
     await loadDashboardStats()
     // Flash the badge after re-render
@@ -3936,6 +4136,117 @@
   const _origRenderDetails = renderSelectedAddressDetails
   // We'll call applyLatinEnforcement after each renderSelectedAddressDetails
 
+
+  // ── Leaderboard ────────────────────────────────────────────────────────────
+  const leaderboardContentEl = document.getElementById('leaderboardContent')
+  let leaderboardLoaded      = false
+
+  async function loadLeaderboard() {
+    if (leaderboardLoaded) return
+    leaderboardContentEl.innerHTML = '<div class="leaderboard-empty">Učitavanje...</div>'
+
+    // Fetch all addresses with updated_by
+    let query = supabase
+      .from('addresses')
+      .select('census_status, updated_by')
+
+    if (!isAdmin()) {
+      const allowedIds = availableStreets.map(s => s.id).filter(Boolean)
+      if (allowedIds.length) query = query.in('street_id', allowedIds)
+    }
+
+    const { data: addrs, error } = await query
+    if (error) {
+      leaderboardContentEl.innerHTML = `<div class="leaderboard-empty">Greška: ${error.message}</div>`
+      return
+    }
+
+    // Fetch all profiles for names
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('id, fullname, email')
+
+    const profileMap = new Map((profiles || []).map(p => [p.id, p]))
+
+    // Aggregate per user
+    const userMap = new Map()
+    for (const a of (addrs || [])) {
+      if (!a.updated_by) continue
+      if (!userMap.has(a.updated_by)) {
+        userMap.set(a.updated_by, {
+          id:           a.updated_by,
+          total:        0,
+          students_win: 0,
+          visited:      0,
+          sns:          0,
+          not_found:    0,
+          scheduled:    0,
+          not_visited:  0
+        })
+      }
+      const u = userMap.get(a.updated_by)
+      u.total++
+      if (u[a.census_status] !== undefined) u[a.census_status]++
+    }
+
+    // Sort by total desc, then by visited+students_win desc
+    const sorted = Array.from(userMap.values())
+      .sort((a, b) => {
+        const aScore = (a.visited + a.students_win)
+        const bScore = (b.visited + b.students_win)
+        if (b.total !== a.total) return b.total - a.total
+        return bScore - aScore
+      })
+
+    if (!sorted.length) {
+      leaderboardContentEl.innerHTML = '<div class="leaderboard-empty">Nema podataka — niko još nije uneo izmene.</div>'
+      return
+    }
+
+    const rankClass = i => i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : 'rank-other'
+    const rankIcon  = i => i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i+1}`
+
+    leaderboardContentEl.innerHTML = `
+      <div class="leaderboard-grid">
+        ${sorted.map((u, i) => {
+          const profile  = profileMap.get(u.id)
+          const name     = profile?.fullname || profile?.email || 'Nepoznat'
+          const pending  = u.not_visited + u.scheduled
+          return `
+            <div class="leaderboard-card">
+              <div class="leaderboard-rank">
+                <span class="leaderboard-num ${rankClass(i)}">${rankIcon(i)}</span>
+                <span class="leaderboard-name" title="${name}">${name}</span>
+              </div>
+              <div class="leaderboard-stats">
+                <span class="lb-pill lb-total">Ukupno: ${u.total}</span>
+                ${u.students_win ? `<span class="lb-pill lb-win">✌️ ${u.students_win}</span>` : ''}
+                ${u.visited      ? `<span class="lb-pill lb-visited">✅ ${u.visited}</span>`      : ''}
+                ${u.sns          ? `<span class="lb-pill lb-sns">💩 ${u.sns}</span>`              : ''}
+                ${pending        ? `<span class="lb-pill lb-pending">⏳ ${pending}</span>`        : ''}
+              </div>
+            </div>
+          `
+        }).join('')}
+      </div>
+    `
+
+    leaderboardLoaded = true
+  }
+
+  // Lazy load — only when opened
+  document.getElementById('sectionLeaderboard')?.addEventListener('toggle', (e) => {
+    if (e.target.open) loadLeaderboard()
+  })
+
+  // Reset leaderboard cache when data changes so it reloads fresh
+  function invalidateLeaderboard() {
+    leaderboardLoaded = false
+    if (document.getElementById('sectionLeaderboard')?.open) {
+      loadLeaderboard()
+    }
+  }
+
   // ── Init ───────────────────────────────────────────────────────────────────
   async function initApp() {
     setStatus('Pokretanje...')
@@ -4018,16 +4329,19 @@
   saveAssignmentsBtn.addEventListener('click', saveSelectedUserAssignments)
   createNewUserBtn.addEventListener('click', createNewUserProfile)
 
-  applyFiltersBtn.addEventListener('click', () => {
-    renderAddresses()
-    setStatus('✅ Filteri primenjeni.')
-  })
+  applyFiltersBtn?.addEventListener('click', () => { renderAddresses() })
+
+  // Auto-apply filters on change
+  filterStreetEl?.addEventListener('change', () => { selectedBuildingKey = null; selectedAddressId = null; renderAddresses() })
+  filterStatusEl?.addEventListener('change', () => { selectedBuildingKey = null; selectedAddressId = null; renderAddresses() })
+  searchInputEl?.addEventListener('input', () => { selectedBuildingKey = null; selectedAddressId = null; renderAddresses() })
 
   resetFiltersBtn.addEventListener('click', () => {
     filterStreetEl.value  = ''
     filterStatusEl.value  = ''
     searchInputEl.value   = ''
     selectedAddressId     = null
+    selectedBuildingKey   = null
     renderAddresses()
     setStatus('✅ Filteri resetovani.')
   })
