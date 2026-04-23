@@ -3148,17 +3148,18 @@ let addressQuery = supabase
     if (idx !== -1) allAddresses[idx].notes = notesValue || null
   }
 
-  async function loadAddresses() {
-    showLoading('Učitavanje adresa...')
-    let query = supabase
-      .from('addresses')
-      .select(`
-        id, street_id, house_number, house_number_suffix, unit_number,
-        full_address_label, address_type, census_status, is_active,
-        notes, created_by, updated_by, updated_at,
-        streets ( id, name, settlement_name )
-      `)
-      .order('id', { ascending: false })
+ async function loadAddresses() {
+  showLoading('Učitavanje adresa...')
+  let query = supabase
+    .from('addresses')
+    .select(`
+      id, street_id, house_number, house_number_suffix, unit_number,
+      full_address_label, address_type, census_status, is_active,
+      notes, created_by, updated_by, updated_at,
+      streets ( id, name, settlement_name )
+    `)
+    .order('house_number', { ascending: true })
+    .order('house_number_suffix', { ascending: true, nullsFirst: false })
 
     if (!isAdmin()) {
       const allowedStreetIds = availableStreets.map(s => s.id).filter(Boolean)
