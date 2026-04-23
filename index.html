@@ -3156,8 +3156,25 @@ let addressQuery = supabase
 async function loadAddresses() {
   showLoading('Učitavanje adresa...')
   let query = supabase
-    .from('addresses_sorted')
-    .select('*')
+    .from('addresses')
+    .select(`
+      id,
+      street_id,
+      house_number,
+      house_number_suffix,
+      unit_number,
+      full_address_label,
+      address_type,
+      census_status,
+      is_active,
+      notes,
+      created_by,
+      updated_by,
+      updated_at,
+      streets ( id, name, settlement_name )
+    `)
+    .order('house_number', { ascending: true })
+    .order('house_number_suffix', { ascending: true, nullsFirst: true })
 
   if (!isAdmin()) {
     const allowedStreetIds = availableStreets.map(s => s.id).filter(Boolean)
@@ -3172,7 +3189,7 @@ async function loadAddresses() {
 
   const { data, error } = await query
   if (error) {
-    showError(error.message)
+    selectedAddressDetailsEl.innerHTML = `<div class="empty">Greška: ${error.message}</div>`
     hideLoading()
     return
   }
@@ -3181,7 +3198,6 @@ async function loadAddresses() {
   renderAddresses()
   hideLoading()
 }
-
   async function saveAddress() {
     if (!canEdit()) { setStatus('❌ Nemaš dozvolu za unos adrese.'); return }
     const street_id          = streetSelectEl.value
