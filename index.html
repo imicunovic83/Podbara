@@ -3173,6 +3173,7 @@ async function loadAddresses() {
       updated_at,
       streets ( id, name, settlement_name )
     `)
+    .order('name', { referencedTable: 'streets', ascending: true })
     .order('house_number', { ascending: true })
     .order('house_number_suffix', { ascending: true, nullsFirst: true })
 
@@ -3198,6 +3199,7 @@ async function loadAddresses() {
   renderAddresses()
   hideLoading()
 }
+  
   async function saveAddress() {
     if (!canEdit()) { setStatus('❌ Nemaš dozvolu za unos adrese.'); return }
     const street_id          = streetSelectEl.value
