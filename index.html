@@ -1482,6 +1482,59 @@
       margin-top: 4px;
     }
 
+/* ── Collapsible street stats ── */
+    .stats-collapsible {
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      background: var(--color-surface-2);
+      box-shadow: var(--shadow-md);
+      margin-bottom: var(--space-5);
+    }
+    .stats-collapsible summary {
+      list-style: none;
+      cursor: pointer;
+      padding: var(--space-5) var(--space-6);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      user-select: none;
+      font-size: var(--text-lg);
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      background: var(--color-surface-2);
+      transition: background 0.15s;
+      gap: var(--space-4);
+    }
+    .stats-collapsible summary::-webkit-details-marker { display: none; }
+    .stats-collapsible summary:hover { background: var(--color-bg); }
+    .stats-collapsible-arrow {
+      font-size: 1rem;
+      color: var(--color-text-muted);
+      transition: transform 0.25s ease;
+      flex-shrink: 0;
+    }
+    .stats-collapsible[open] .stats-collapsible-arrow {
+      transform: rotate(180deg);
+    }
+    .stats-collapsible-header-left {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+    .stats-collapsible-badge {
+      background: var(--color-primary-light);
+      color: var(--color-primary);
+      border-radius: 999px;
+      padding: 0.2rem 0.7rem;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+    .stats-collapsible .street-stats-box {
+      padding: 0 var(--space-6) var(--space-6);
+      border-top: 1px solid var(--color-border);
+    }
+
     /* ── Loading spinner ── */
     .loading-overlay {
       position: fixed;
@@ -1802,12 +1855,18 @@
       </div>
 
       <!-- ── 6. STATISTIKA PO ULICAMA ── -->
-      <div class="card-box" id="sectionStatistika">
-        <h2>Statistika po ulicama</h2>
+      <details class="stats-collapsible" id="sectionStatistika">
+        <summary>
+          <span class="stats-collapsible-header-left">
+            📈 Statistika po ulicama
+            <span id="streetStatsStreetCount" class="stats-collapsible-badge"></span>
+          </span>
+          <span class="stats-collapsible-arrow">▾</span>
+        </summary>
         <div id="streetStats" class="street-stats-box">
           <div class="empty">Učitavanje statistike...</div>
         </div>
-      </div>
+      </details>
 
       <!-- ── 7. ADMIN PANEL ── -->
       <div id="adminPanelSection" class="card-box hidden">
@@ -2055,11 +2114,9 @@
       const key = normalizeStreetKey(street.name, street.settlement_name)
       if (!uniqueMap.has(key)) uniqueMap.set(key, street)
     }
-    return Array.from(uniqueMap.values()).sort((a, b) => {
-      const nameA = cleanStreetName(a.name).toLowerCase()
-      const nameB = cleanStreetName(b.name).toLowerCase()
-      return nameA.localeCompare(nameB, 'sr')
-    })
+    return Array.from(uniqueMap.values()).sort((a, b) =>
+      naturalCompare(cleanStreetName(a.name), cleanStreetName(b.name))
+    )
   }
 
   function setStatus(msg) {
@@ -2363,6 +2420,30 @@
     })
   }
 
+
+  // ── Natural sort helper ────────────────────────────────────────────────────
+  // Sorts "Bele Njive 2" before "Bele Njive 10" correctly
+  function naturalCompare(a, b) {
+    // Split strings into text and number chunks
+    const re = /(\d+)|(\D+)/g
+    const chunksA = String(a).match(re) || []
+    const chunksB = String(b).match(re) || []
+    const len = Math.max(chunksA.length, chunksB.length)
+    for (let i = 0; i < len; i++) {
+      const ca = chunksA[i] || ''
+      const cb = chunksB[i] || ''
+      const na = parseInt(ca, 10)
+      const nb = parseInt(cb, 10)
+      if (!isNaN(na) && !isNaN(nb)) {
+        if (na !== nb) return na - nb
+      } else {
+        const cmp = ca.localeCompare(cb, 'sr', { sensitivity: 'base' })
+        if (cmp !== 0) return cmp
+      }
+    }
+    return 0
+  }
+
   // ── Two-level address picker ──────────────────────────────────────────────
   let selectedBuildingKey = null   // "streetId||houseNumber||suffix"
 
@@ -2387,23 +2468,14 @@
         map.set(key, { key, label: getBuildingLabel(item), item })
       }
     })
-    return Array.from(map.values()).sort((a, b) =>
-      a.label.localeCompare(b.label, 'sr')
-    )
+    return Array.from(map.values()).sort((a, b) => naturalCompare(a.label, b.label))
   }
 
   // Get units for a building key
   function getUnitsForBuilding(filtered, buildingKey) {
     return filtered
       .filter(item => getBuildingKey(item) === buildingKey)
-      .sort((a, b) => {
-        const ua = String(a.unit_number || '')
-        const ub = String(b.unit_number || '')
-        // Try numeric sort first
-        const na = parseInt(ua), nb = parseInt(ub)
-        if (!isNaN(na) && !isNaN(nb)) return na - nb
-        return ua.localeCompare(ub, 'sr')
-      })
+      .sort((a, b) => naturalCompare(String(a.unit_number || ''), String(b.unit_number || '')))
   }
 
   function populateBuildingSelect(filtered) {
@@ -2699,9 +2771,10 @@
       if (s[status] !== undefined) s[status]++
     }
 
-    const streets = Array.from(streetMap.values()).sort((a, b) =>
-      a.name.localeCompare(b.name, 'sr')
-    )
+    const streets = Array.from(streetMap.values()).sort((a, b) => naturalCompare(a.name, b.name))
+
+    const streetCountBadgeEl = document.getElementById('streetStatsStreetCount')
+    if (streetCountBadgeEl) streetCountBadgeEl.textContent = `${streets.length} ulica`
 
     streetStatsEl.innerHTML = streets.map(s => `
       <div class="street-stat-item">
@@ -3055,17 +3128,10 @@
 
   async function loadDashboardStats() {
     showLoading('Učitavanje statistike...')
-let addressQuery = supabase
- .from('addresses_sorted')
-  .select(`
-    id, street_id, house_number, house_number_suffix, unit_number,
-    full_address_label, address_type, census_status, is_active,
-    notes, created_by, updated_by, updated_at,
-    streets ( id, name, settlement_name )
-  `)
-  .order('house_number', { ascending: true })
-  .order('house_number_suffix', { ascending: true, nullsFirst: true });
-    
+    let addressQuery = supabase
+      .from('addresses')
+      .select(`id, street_id, census_status, streets ( id, name, settlement_name )`)
+
     if (!isAdmin()) {
       const allowedStreetIds = availableStreets.map(s => s.id).filter(Boolean)
       if (!allowedStreetIds.length) {
@@ -3153,58 +3219,36 @@ let addressQuery = supabase
     if (idx !== -1) allAddresses[idx].notes = notesValue || null
   }
 
-async function loadAddresses() {
-  showLoading('Učitavanje adresa...')
+  async function loadAddresses() {
+    showLoading('Učitavanje adresa...')
+    let query = supabase
+      .from('addresses')
+      .select(`
+        id, street_id, house_number, house_number_suffix, unit_number,
+        full_address_label, address_type, census_status, is_active,
+        notes, created_by, updated_by, updated_at,
+        streets ( id, name, settlement_name )
+      `)
+      .order('id', { ascending: false })
 
-   let query = supabase
-    .from('addresses')
-    .select(`
-      id,
-      street_id,
-      house_number,
-      house_number_suffix,
-      unit_number,
-      full_address_label,
-      address_type,
-      census_status,
-      is_active,
-      notes,
-      created_by,
-      updated_by,
-      updated_at,
-      streets!inner (
-        id,
-        name,
-        settlement_name
-      )
-    `)
-    .order('name', { referencedTable: 'streets', ascending: true })
-    .order('house_number', { ascending: true })
-    .order('house_number_suffix', { ascending: true, nullsFirst: true })
+    if (!isAdmin()) {
+      const allowedStreetIds = availableStreets.map(s => s.id).filter(Boolean)
+      if (!allowedStreetIds.length) { allAddresses = []; renderAddresses(); hideLoading(); return }
+      query = query.in('street_id', allowedStreetIds)
+    }
 
-  if (!isAdmin()) {
-    const allowedStreetIds = availableStreets.map(s => s.id).filter(Boolean)
-    if (!allowedStreetIds.length) {
-      allAddresses = []
-      renderAddresses()
+    const { data, error } = await query
+    if (error) {
+      selectedAddressDetailsEl.innerHTML = `<div class="empty">Greška: ${error.message}</div>`
       hideLoading()
       return
     }
-    query = query.in('street_id', allowedStreetIds)
-  }
-
-  const { data, error } = await query
-  if (error) {
-    selectedAddressDetailsEl.innerHTML = `<div class="empty">Greška: ${error.message}</div>`
+    allAddresses = data || []
+    await loadUpdaterProfiles((data || []).map(a => a.updated_by))
+    renderAddresses()
     hideLoading()
-    return
   }
 
-  allAddresses = data ?? []
-  renderAddresses()
-  hideLoading()
-}
-  
   async function saveAddress() {
     if (!canEdit()) { setStatus('❌ Nemaš dozvolu za unos adrese.'); return }
     const street_id          = streetSelectEl.value
