@@ -3056,7 +3056,7 @@
   async function loadDashboardStats() {
     showLoading('Učitavanje statistike...')
 let addressQuery = supabase
-  .from('addresses')
+ .from('addresses_sorted')
   .select(`
     id, street_id, house_number, house_number_suffix, unit_number,
     full_address_label, address_type, census_status, is_active,
