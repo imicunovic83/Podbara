@@ -2137,7 +2137,7 @@
     quickEntrySaveBtnEl.textContent = 'Čuvam...'
     try {
       const { error } = await supabase
-        .from('addressesRaw')
+        .from('addresses')
         .update({
           census_status: status,
           notes:         notes,
@@ -3055,9 +3055,9 @@
 
   async function loadDashboardStats() {
     showLoading('Učitavanje statistike...')
-  let addressQuery = supabase
-  .from('addressesRaw')
-  .select(`id, street_id, house_number, house_number_suffix, census_status, full_address_label, streets ( id, name, settlement_name )`);
+    let addressQuery = supabase
+      .from('addresses')
+      .select(`id, street_id, census_status, streets ( id, name, settlement_name )`)
 
     if (!isAdmin()) {
       const allowedStreetIds = availableStreets.map(s => s.id).filter(Boolean)
@@ -3077,37 +3077,14 @@
       addressQuery = addressQuery.in('street_id', allowedStreetIds)
     }
 
-    const { data: addressesRawRaw, error: addrError } = await addressQuery;
-
-if (addrError) {
-  statsCardsEl.innerHTML = `<div class="empty">Greška statistika: ${addrError.message}</div>`;
-  hideLoading();
-  return;
-}
-
-const collator = new Intl.Collator('sr', { numeric: true, sensitivity: 'base' });
-
-const addressesRaw = [...(addressesRawRaw ?? [])].sort((a, b) => {
-  const numA = Number(a.house_number ?? 0);
-  const numB = Number(b.house_number ?? 0);
-
-  if (numA !== numB) return numA - numB;
-
-  const sufA = (a.house_number_suffix ?? '').trim();
-  const sufB = (b.house_number_suffix ?? '').trim();
-
-  if (!sufA && sufB) return -1;
-  if (sufA && !sufB) return 1;
-
-  return collator.compare(sufA, sufB);
-});
+    const { data: addresses, error: addrError } = await addressQuery
     if (addrError) {
       statsCardsEl.innerHTML = `<div class="empty">Greška statistika: ${addrError.message}</div>`
       hideLoading()
       return
     }
 
-    const rows = addressesRaw || []
+    const rows = addresses || []
     const total = rows.length
     // FIX: was a.censusstatus — correct field is a.census_status
     const studentsWin = rows.filter(a => a.census_status === 'students_win').length
@@ -3136,7 +3113,7 @@ const addressesRaw = [...(addressesRawRaw ?? [])].sort((a, b) => {
     if (!canEdit()) { setStatus('❌ Nemaš dozvolu za promenu statusa.'); return }
     setStatus('Čuvam status...')
     const { error } = await supabase
-      .from('addressesRaw')
+      .from('addresses')
       .update({ census_status: newStatus, updated_by: currentUser.id })
       .eq('id', addressId)
     if (error) { setStatus(`❌ Greška pri promeni statusa: ${error.message}`); return }
@@ -3159,7 +3136,7 @@ const addressesRaw = [...(addressesRawRaw ?? [])].sort((a, b) => {
     if (!canEdit()) { setStatus('❌ Nemaš dozvolu za promenu napomene.'); return }
     setStatus('Čuvam napomenu...')
     const { error } = await supabase
-      .from('addressesRaw')
+      .from('addresses')
       .update({ notes: notesValue || null, updated_by: currentUser.id })
       .eq('id', addressId)
     if (error) { setStatus(`❌ Greška pri čuvanju napomene: ${error.message}`); return }
@@ -3172,7 +3149,7 @@ const addressesRaw = [...(addressesRawRaw ?? [])].sort((a, b) => {
   async function loadAddresses() {
     showLoading('Učitavanje adresa...')
     let query = supabase
-      .from('addressesRaw')
+      .from('addresses')
       .select(`
         id, street_id, house_number, house_number_suffix, unit_number,
         full_address_label, address_type, census_status, is_active,
@@ -3217,14 +3194,14 @@ const addressesRaw = [...(addressesRawRaw ?? [])].sort((a, b) => {
     saveBtn.textContent = 'Čuvam...'
     try {
       const { data: existing, error: existingError } = await supabase
-        .from('addressesRaw')
+        .from('addresses')
         .select('id')
         .eq('street_id', street_id)
         .eq('full_address_label', full_address_label)
         .maybeSingle()
       if (existingError) throw existingError
       if (existing) { setStatus('⚠️ Adresa već postoji!'); return }
-      const { data: inserted, error } = await supabase.from('addressesRaw').insert([{
+      const { data: inserted, error } = await supabase.from('addresses').insert([{
         street_id, house_number,
         house_number_suffix: house_number_suffix || null,
         unit_number: unit_number || null,
@@ -3265,14 +3242,14 @@ const addressesRaw = [...(addressesRawRaw ?? [])].sort((a, b) => {
     updateBtn.textContent = 'Čuvam izmene...'
     try {
       const { data: existing, error: checkError } = await supabase
-        .from('addressesRaw').select('id')
+        .from('addresses').select('id')
         .eq('street_id', street_id)
         .eq('full_address_label', full_address_label)
         .neq('id', editingAddressId)
         .maybeSingle()
       if (checkError) throw checkError
       if (existing) { setStatus('⚠️ Već postoji druga adresa sa istim nazivom na toj ulici.'); return }
-      const { error } = await supabase.from('addressesRaw').update({
+      const { error } = await supabase.from('addresses').update({
         street_id, house_number,
         house_number_suffix: house_number_suffix || null,
         unit_number: unit_number || null,
@@ -3296,7 +3273,7 @@ const addressesRaw = [...(addressesRawRaw ?? [])].sort((a, b) => {
     if (!canEdit()) { setStatus('❌ Nemaš dozvolu za brisanje adrese.'); return }
     if (!confirm(`Da li sigurno želiš da obrišeš adresu "${label}"?`)) return
     try {
-      const { error } = await supabase.from('addressesRaw').delete().eq('id', id)
+      const { error } = await supabase.from('addresses').delete().eq('id', id)
       if (error) throw error
       if (String(editingAddressId) === String(id)) exitEditMode()
       setStatus(`🗑️ Adresa "${label}" je obrisana.`)
@@ -3315,7 +3292,7 @@ const addressesRaw = [...(addressesRawRaw ?? [])].sort((a, b) => {
     setStatus('Tražim duplikate...')
     try {
       const { data: all, error } = await supabase
-        .from('addressesRaw').select('id, street_id, full_address_label').order('id', { ascending: true })
+        .from('addresses').select('id, street_id, full_address_label').order('id', { ascending: true })
       if (error) throw error
       const seen     = new Map()
       const toDelete = []
@@ -3327,7 +3304,7 @@ const addressesRaw = [...(addressesRawRaw ?? [])].sort((a, b) => {
       const batchSize = 50
       for (let i = 0; i < toDelete.length; i += batchSize) {
         const batch = toDelete.slice(i, i + batchSize)
-        const { error: delErr } = await supabase.from('addressesRaw').delete().in('id', batch)
+        const { error: delErr } = await supabase.from('addresses').delete().in('id', batch)
         if (delErr) throw delErr
       }
       setStatus(`🗑️ Obrišeno ${toDelete.length} duplikata! Lista je osvežena.`)
@@ -3497,7 +3474,7 @@ const addressesRaw = [...(addressesRawRaw ?? [])].sort((a, b) => {
     inlineSaveStatusBtn.textContent = 'Čuvam...'
     try {
       const { error } = await supabase
-        .from('addressesRaw')
+        .from('addresses')
         .update({ census_status: newStatus, notes, updated_by: currentUser.id })
         .eq('id', newlySavedAddressId)
       if (error) throw error
@@ -3638,7 +3615,7 @@ const addressesRaw = [...(addressesRawRaw ?? [])].sort((a, b) => {
       streetMap.set(key, s)
     })
 
-    // Build existing addressesRaw set for duplicate detection
+    // Build existing addresses set for duplicate detection
     const existingSet = new Set(
       allAddresses.map(a => `${a.street_id}||${(a.full_address_label || '').toLowerCase().trim()}`)
     )
@@ -3766,7 +3743,7 @@ const addressesRaw = [...(addressesRawRaw ?? [])].sort((a, b) => {
     const batchSize = 50
     for (let i = 0; i < toInsert.length; i += batchSize) {
       const batch = toInsert.slice(i, i + batchSize)
-      const { error } = await supabase.from('addressesRaw').insert(batch)
+      const { error } = await supabase.from('addresses').insert(batch)
       if (error) {
         console.error('Import batch error:', error)
         failed += batch.length
