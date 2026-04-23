@@ -3156,7 +3156,7 @@ let addressQuery = supabase
 async function loadAddresses() {
   showLoading('Učitavanje adresa...')
 
-  let query = supabase
+   let query = supabase
     .from('addresses')
     .select(`
       id,
@@ -3172,7 +3172,7 @@ async function loadAddresses() {
       created_by,
       updated_by,
       updated_at,
-      streets (
+      streets!inner (
         id,
         name,
         settlement_name
