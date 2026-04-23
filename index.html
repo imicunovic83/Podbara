@@ -2368,7 +2368,7 @@
 
   // Build a unique key for a building (ignoring unit)
   function getBuildingKey(item) {
-    return `${item.street_id}||${item.house_number || ''}||${item.house_number_suffix || ''}`
+    return `${item.street_id}||${item.house_number || ''}||${(item.house_number_suffix || '').toLowerCase()}`
   }
 
   // Label for a building (street + number, no unit)
@@ -3180,7 +3180,7 @@
     if (!canEdit()) { setStatus('❌ Nemaš dozvolu za unos adrese.'); return }
     const street_id          = streetSelectEl.value
     const house_number       = houseNumberEl.value.trim()
-    const house_number_suffix = houseSuffixEl.value.trim()
+    const house_number_suffix = houseSuffixEl.value.trim().toLowerCase()
     const unit_number        = unitNumberEl.value.trim()
     const address_type       = addressTypeEl.value
     const street             = availableStreets.find(s => String(s.id) === String(street_id))
@@ -3228,7 +3228,7 @@
     if (!editingAddressId) { setStatus('❌ Nije izabrana adresa za izmenu.'); return }
     const street_id           = streetSelectEl.value
     const house_number        = houseNumberEl.value.trim()
-    const house_number_suffix = houseSuffixEl.value.trim()
+    const house_number_suffix = houseSuffixEl.value.trim().toLowerCase()
     const unit_number         = unitNumberEl.value.trim()
     const address_type        = addressTypeEl.value
     const street              = availableStreets.find(s => String(s.id) === String(street_id))
@@ -3965,7 +3965,13 @@
 
   streetSelectEl.addEventListener('change', updateAddressLabel)
   houseNumberEl.addEventListener('input', updateAddressLabel)
-  houseSuffixEl.addEventListener('input', updateAddressLabel)
+  houseSuffixEl.addEventListener('input', () => {
+    // Normalize suffix to lowercase immediately
+    const pos = houseSuffixEl.selectionStart
+    houseSuffixEl.value = houseSuffixEl.value.toLowerCase()
+    try { houseSuffixEl.setSelectionRange(pos, pos) } catch(e) {}
+    updateAddressLabel()
+  })
   unitNumberEl.addEventListener('input', updateAddressLabel)
 
   // Building select — level 1
