@@ -3164,7 +3164,7 @@ let addressQuery = supabase
       streets ( id, name, settlement_name )
     `)
     .order('house_number', { ascending: true })
-    .order('house_number_suffix', { ascending: true, nullsFirst: false })
+    .order('house_number_suffix', { ascending: true, nullsFirst: true })
 
     if (!isAdmin()) {
       const allowedStreetIds = availableStreets.map(s => s.id).filter(Boolean)
