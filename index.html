@@ -3057,9 +3057,14 @@
     showLoading('Učitavanje statistike...')
 let addressQuery = supabase
   .from('addresses')
-  .select(`id, street_id, house_number, house_number_suffix, census_status, streets ( id, name, settlement_name )`)
+  .select(`
+    id, street_id, house_number, house_number_suffix, unit_number,
+    full_address_label, address_type, census_status, is_active,
+    notes, created_by, updated_by, updated_at,
+    streets ( id, name, settlement_name )
+  `)
   .order('house_number', { ascending: true })
-  .order('house_number_suffix', { ascending: true, nullsFirst: false });
+  .order('house_number_suffix', { ascending: true, nullsFirst: true });
     
     if (!isAdmin()) {
       const allowedStreetIds = availableStreets.map(s => s.id).filter(Boolean)
