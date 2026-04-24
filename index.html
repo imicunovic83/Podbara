@@ -1714,6 +1714,80 @@
       padding: var(--space-6);
     }
 
+/* ── Offline indicator ── */
+    .offline-banner {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: #92400e;
+      color: #fef3c7;
+      text-align: center;
+      padding: var(--space-2) var(--space-4);
+      font-size: var(--text-sm);
+      font-weight: 700;
+      z-index: 300;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-3);
+      transform: translateY(100%);
+      transition: transform 0.3s ease;
+    }
+    .offline-banner.visible { transform: translateY(0); }
+    .offline-banner.syncing { background: var(--color-primary); color: white; }
+    .offline-queue-badge {
+      position: fixed;
+      bottom: 48px;
+      right: var(--space-4);
+      background: #d97706;
+      color: white;
+      border-radius: 999px;
+      padding: 0.3rem 0.75rem;
+      font-size: 0.75rem;
+      font-weight: 800;
+      z-index: 299;
+      display: none;
+      box-shadow: var(--shadow-md);
+      cursor: pointer;
+    }
+    .offline-queue-badge.visible { display: block; }
+
+/* ── Type toggle in detail ── */
+    .type-toggle-btn {
+      background: var(--color-bg);
+      color: var(--color-text);
+      border: 1.5px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: 0.35rem 0.85rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      white-space: nowrap;
+    }
+    .type-toggle-btn:hover {
+      border-color: var(--color-primary);
+      background: var(--color-primary-light);
+      color: var(--color-primary);
+      box-shadow: none;
+    }
+
+/* ── Smart dropdown inputs ── */
+    .smart-select-wrap {
+      position: relative;
+    }
+    .smart-select-wrap select {
+      width: 100%;
+    }
+    .smart-select-wrap .smart-loading {
+      position: absolute;
+      right: 2rem;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.7rem;
+      color: var(--color-text-muted);
+      pointer-events: none;
+    }
+
     /* ── Loading spinner ── */
     .loading-overlay {
       position: fixed;
@@ -1778,6 +1852,12 @@
     <button class="hamburger-btn" id="hamburgerBtn" aria-label="Meni">☰</button>
   </header>
 
+  <!-- Offline banner -->
+  <div id="offlineBanner" class="offline-banner">
+    <span id="offlineBannerText">📵 Offline — izmene se čuvaju lokalno</span>
+  </div>
+  <div id="queueBadge" class="offline-queue-badge" title="Nesinhronizovane izmene">⏳ <span id="queueCount">0</span> čeka</div>
+
   <!-- Loading overlay -->
   <div id="loadingOverlay" class="loading-overlay hidden">
     <div class="spinner"></div>
@@ -1839,21 +1919,24 @@
       </div>
 
       <!-- ── 2. MOJE ULICE ── -->
-      <div class="card-box" id="sectionDozvole">
-        <div class="my-streets-header">
-          <h2>Moje ulice</h2>
-          <div class="my-streets-meta">
-            <span id="infoEmail" class="my-streets-user">-</span>
-            <span id="assignedStreetsSummary" class="my-streets-count-badge">0 ulica</span>
+      <details class="stats-collapsible" id="sectionDozvole">
+        <summary>
+          <span class="stats-collapsible-header-left">
+            🗺️ Moje ulice
+            <span id="assignedStreetsSummary" class="stats-collapsible-badge">0 ulica</span>
+            <span id="infoEmail" style="font-size:0.75rem;color:var(--color-text-muted);font-weight:500;"></span>
+          </span>
+          <span class="stats-collapsible-arrow">▾</span>
+        </summary>
+        <div class="street-stats-box" style="padding:0 var(--space-6) var(--space-5);">
+          <div id="myStreetsGrid" class="my-streets-grid" style="margin-top:var(--space-4);">
+            <div class="empty" style="width:100%">Učitavanje ulica...</div>
           </div>
-        </div>
-        <div id="myStreetsGrid" class="my-streets-grid">
-          <div class="empty" style="width:100%">Učitavanje ulica...</div>
         </div>
         <!-- Hidden for JS compat -->
         <span id="infoRole" style="display:none">-</span>
         <ul id="assignedStreets" style="display:none"><li></li></ul>
-      </div>
+      </details>
 
       <!-- ── 3. UNOS ADRESE + BRZI STATUS ── -->
       <div id="editorSection" class="card-box">
@@ -1875,19 +1958,25 @@
             </select>
           </div>
 
-          <div class="field">
+          <div class="field smart-select-wrap">
             <label for="KućaNumber">Broj kuće/zgrade</label>
-            <input id="KućaNumber" type="text" placeholder="npr. 15" />
+            <select id="KućaNumber">
+              <option value="">Izaberi ulicu prvo...</option>
+            </select>
           </div>
 
-          <div class="field">
+          <div class="field smart-select-wrap">
             <label for="houseSuffix">Dodatak broju</label>
-            <input id="houseSuffix" type="text" placeholder="npr. A" />
+            <select id="houseSuffix">
+              <option value="">—</option>
+            </select>
           </div>
 
-          <div class="field">
+          <div class="field smart-select-wrap">
             <label for="unitNumber" id="unitNumberLabel">Stan / jedinica</label>
-            <input id="unitNumber" type="text" placeholder="npr. 3 ili A2" />
+            <select id="unitNumber">
+              <option value="">—</option>
+            </select>
             <div id="unitNumberHelp" class="note">Za kuću opciono, za zgradu obavezno.</div>
           </div>
 
@@ -2787,7 +2876,12 @@
           <div class="addr-row"><span class="addr-label">Broj:</span> ${item.house_number ?? '-'}</div>
           <div class="addr-row"><span class="addr-label">Dodatak:</span> ${item.house_number_suffix ?? '-'}</div>
           <div class="addr-row"><span class="addr-label">Stan / jedinica:</span> ${item.unit_number ?? '-'}</div>
-          <div class="addr-row"><span class="addr-label">Tip:</span> ${item.address_type ?? '-'}</div>
+          <div class="addr-row" style="display:flex;align-items:center;gap:var(--space-3);flex-wrap:wrap;">
+            <span><span class="addr-label">Tip:</span> <span id="tipLabel-${item.id}">${item.address_type ?? '-'}</span></span>
+            ${canEdit() ? `<button type="button" class="type-toggle-btn" data-toggle-type-id="${item.id}" data-current-type="${item.address_type ?? 'Kuća'}">
+              🔄 Promeni tip
+            </button>` : ''}
+          </div>
           <div class="addr-row"><span class="addr-label">Aktivna:</span> ${item.is_active ? 'Da' : 'Ne'}</div>
         </div>
         <div class="updated-at-info">🕐 Izmenjeno <strong>${updatedAt}</strong> · <strong>${updaterName}</strong></div>
@@ -2905,6 +2999,12 @@
         if (textarea) updateNotes(item.id, textarea.value)
       })
     }
+
+    // Type toggle button
+    selectedAddressDetailsEl.querySelector('[data-toggle-type-id]')?.addEventListener('click', (e) => {
+      const btn = e.currentTarget
+      updateAddressType(btn.dataset.toggleTypeId, btn.dataset.currentType)
+    })
 
     // Map toggle — lazy load iframe only on first click
     const mapToggleBtn  = selectedAddressDetailsEl.querySelector(`#mapToggleBtn-${item.id}`)
@@ -3381,8 +3481,41 @@
   }
 
   // ── CRUD ───────────────────────────────────────────────────────────────────
+
+  async function updateAddressType(addressId, currentType) {
+    if (!canEdit()) { setStatus('❌ Nemaš dozvolu.'); return }
+    const newType = currentType === 'Kuća' ? 'Zgrada' : 'Kuća'
+    const confirmed = confirm(`Promeniti tip adrese u "${newType}"?`)
+    if (!confirmed) return
+    // Update in-memory
+    const idx = allAddresses.findIndex(a => String(a.id) === String(addressId))
+    if (idx !== -1) allAddresses[idx].address_type = newType
+    if (!isOnline) {
+      addToQueue({ field: 'address_type', addressId, value: newType, userId: currentUser.id })
+      setStatus(`📵 Offline — tip promenjen u "${newType}", sinhronizuje se kada se vrati internet.`)
+      renderAddresses()
+      return
+    }
+    const { error } = await supabase.from('addresses')
+      .update({ address_type: newType, updated_by: currentUser.id })
+      .eq('id', addressId)
+    if (error) { setStatus(`❌ Greška: ${error.message}`); return }
+    setStatus(`✅ Tip adrese promenjen u "${newType}".`)
+    await loadAddresses()
+  }
+
   async function updateCensusStatus(addressId, newStatus) {
     if (!canEdit()) { setStatus('❌ Nemaš dozvolu za promenu statusa.'); return }
+    // Update in-memory immediately for instant UI feedback
+    const idx = allAddresses.findIndex(a => String(a.id) === String(addressId))
+    if (idx !== -1) allAddresses[idx].census_status = newStatus
+    renderAddresses()
+    if (!isOnline) {
+      addToQueue({ field: 'census_status', addressId, value: newStatus, userId: currentUser.id })
+      setStatus('📵 Offline — status sačuvan lokalno, sinhronizuje se kada se vrati internet.')
+      invalidateLeaderboard()
+      return
+    }
     setStatus('Čuvam status...')
     const { error } = await supabase
       .from('addresses')
@@ -3407,6 +3540,13 @@
 
   async function updateNotes(addressId, notesValue) {
     if (!canEdit()) { setStatus('❌ Nemaš dozvolu za promenu napomene.'); return }
+    const idx = allAddresses.findIndex(a => String(a.id) === String(addressId))
+    if (idx !== -1) allAddresses[idx].notes = notesValue || null
+    if (!isOnline) {
+      addToQueue({ field: 'notes', addressId, value: notesValue || null, userId: currentUser.id })
+      setStatus('📵 Offline — napomena sačuvana lokalno.')
+      return
+    }
     setStatus('Čuvam napomenu...')
     const { error } = await supabase
       .from('addresses')
@@ -3414,9 +3554,6 @@
       .eq('id', addressId)
     if (error) { setStatus(`❌ Greška pri čuvanju napomene: ${error.message}`); return }
     setStatus('✅ Napomena sačuvana.')
-    // Update in-memory so detail re-render shows the saved value
-    const idx = allAddresses.findIndex(a => String(a.id) === String(addressId))
-    if (idx !== -1) allAddresses[idx].notes = notesValue || null
   }
 
   async function loadAddresses() {
@@ -3446,6 +3583,7 @@
     allAddresses = data || []
     await loadUpdaterProfiles((data || []).map(a => a.updated_by))
     renderAddresses()
+    reinitSmartDropdowns()
     hideLoading()
   }
 
@@ -4247,6 +4385,211 @@
     }
   }
 
+
+
+
+  // ── Smart form dropdowns (populate from allAddresses) ─────────────────────
+  function getAvailableNumbers(streetId) {
+    // Get unique house numbers for the selected street
+    const nums = new Map()
+    allAddresses
+      .filter(a => String(a.street_id) === String(streetId))
+      .forEach(a => {
+        const n = a.house_number || ''
+        if (n && !nums.has(n)) nums.set(n, n)
+      })
+    // Natural sort
+    return Array.from(nums.keys()).sort((a, b) => naturalCompare(a, b))
+  }
+
+  function getAvailableSuffixes(streetId, houseNumber) {
+    const suffixes = new Set()
+    allAddresses
+      .filter(a =>
+        String(a.street_id) === String(streetId) &&
+        String(a.house_number) === String(houseNumber)
+      )
+      .forEach(a => {
+        suffixes.add((a.house_number_suffix || '').toLowerCase())
+      })
+    return Array.from(suffixes).sort()
+  }
+
+  function getAvailableUnits(streetId, houseNumber, suffix) {
+    const units = new Set()
+    allAddresses
+      .filter(a =>
+        String(a.street_id) === String(streetId) &&
+        String(a.house_number) === String(houseNumber) &&
+        (a.house_number_suffix || '').toLowerCase() === String(suffix || '').toLowerCase()
+      )
+      .forEach(a => {
+        if (a.unit_number) units.add(a.unit_number)
+      })
+    return Array.from(units).sort((a, b) => naturalCompare(String(a), String(b)))
+  }
+
+  function populateSmartNumbers() {
+    const streetId = streetSelectEl.value
+    const nums = streetId ? getAvailableNumbers(streetId) : []
+    if (houseNumberEl.tagName === 'SELECT') {
+      houseNumberEl.innerHTML =
+        '<option value="">Izaberi broj...</option>' +
+        nums.map(n => `<option value="${n}">${n}</option>`).join('')
+    }
+    populateSmartSuffixes()
+  }
+
+  function populateSmartSuffixes() {
+    const streetId = streetSelectEl.value
+    const num = houseNumberEl.value
+    const suffixes = (streetId && num) ? getAvailableSuffixes(streetId, num) : []
+    if (houseSuffixEl.tagName === 'SELECT') {
+      houseSuffixEl.innerHTML =
+        '<option value="">Bez dodatka</option>' +
+        suffixes.filter(s => s !== '').map(s => `<option value="${s}">${s || '—'}</option>`).join('')
+    }
+    populateSmartUnits()
+  }
+
+  function populateSmartUnits() {
+    const streetId = streetSelectEl.value
+    const num      = houseNumberEl.value
+    const suffix   = houseSuffixEl.value
+    const units = (streetId && num) ? getAvailableUnits(streetId, num, suffix) : []
+    if (unitNumberEl.tagName === 'SELECT') {
+      unitNumberEl.innerHTML =
+        '<option value="">Bez stana / nova jedinica</option>' +
+        units.map(u => `<option value="${u}">${u}</option>`).join('')
+    }
+    updateAddressLabel()
+  }
+
+  // Reinitialize smart dropdowns after addresses load
+  function reinitSmartDropdowns() {
+    if (streetSelectEl.value) {
+      populateSmartNumbers()
+    }
+  }
+
+  // ── Offline queue system ───────────────────────────────────────────────────
+  const QUEUE_KEY      = 'podbara_offline_queue'
+  const offlineBannerEl = document.getElementById('offlineBanner')
+  const offlineBannerTextEl = document.getElementById('offlineBannerText')
+  const queueBadgeEl   = document.getElementById('queueBadge')
+  const queueCountEl   = document.getElementById('queueCount')
+  let   isOnline       = navigator.onLine
+
+  function getQueue() {
+    try { return JSON.parse(localStorage.getItem(QUEUE_KEY) || '[]') } catch { return [] }
+  }
+  function saveQueue(q) {
+    try { localStorage.setItem(QUEUE_KEY, JSON.stringify(q)) } catch(e) { console.warn('Queue save failed', e) }
+  }
+  function addToQueue(op) {
+    const q = getQueue()
+    // If same addressId+field already queued, update it (last write wins)
+    const idx = q.findIndex(x => x.addressId === op.addressId && x.field === op.field)
+    if (idx !== -1) q.splice(idx, 1)
+    q.push({ ...op, ts: Date.now() })
+    saveQueue(q)
+    updateQueueUI()
+  }
+  function updateQueueUI() {
+    const q = getQueue()
+    const count = q.length
+    if (queueCountEl) queueCountEl.textContent = count
+    if (queueBadgeEl) queueBadgeEl.classList.toggle('visible', count > 0)
+  }
+  function updateOnlineStatus() {
+    isOnline = navigator.onLine
+    if (offlineBannerEl) {
+      offlineBannerEl.classList.toggle('visible', !isOnline)
+      offlineBannerEl.classList.remove('syncing')
+      offlineBannerTextEl.textContent = '📵 Offline — izmene se čuvaju lokalno i sinhronizuju kada se vrati internet'
+    }
+    if (isOnline) {
+      setTimeout(() => processPendingQueue(), 500)
+    }
+  }
+  window.addEventListener('online',  updateOnlineStatus)
+  window.addEventListener('offline', updateOnlineStatus)
+  updateOnlineStatus()
+
+  // Sync badge click — manual sync
+  queueBadgeEl?.addEventListener('click', () => {
+    if (isOnline) processPendingQueue()
+    else setStatus('❌ Nema interneta — sačekaj konekciju.')
+  })
+
+  async function processPendingQueue() {
+    const q = getQueue()
+    if (!q.length || !isOnline) return
+
+    offlineBannerEl?.classList.add('visible', 'syncing')
+    offlineBannerTextEl.textContent = `🔄 Sinhronizujem ${q.length} izmena...`
+
+    let failed = []
+    for (const op of q) {
+      try {
+        if (op.field === 'census_status') {
+          const { error } = await supabase.from('addresses')
+            .update({ census_status: op.value, updated_by: op.userId })
+            .eq('id', op.addressId)
+          if (error) throw error
+        } else if (op.field === 'notes') {
+          const { error } = await supabase.from('addresses')
+            .update({ notes: op.value || null, updated_by: op.userId })
+            .eq('id', op.addressId)
+          if (error) throw error
+        } else if (op.field === 'address_type') {
+          const { error } = await supabase.from('addresses')
+            .update({ address_type: op.value, updated_by: op.userId })
+            .eq('id', op.addressId)
+          if (error) throw error
+        }
+      } catch (err) {
+        console.warn('[Queue] Failed to sync op:', op, err)
+        failed.push(op)
+      }
+    }
+
+    saveQueue(failed)
+    updateQueueUI()
+
+    const synced = q.length - failed.length
+    if (synced > 0) {
+      setStatus(`✅ Sinhronizovano ${synced} izmena sa servera.`)
+      await loadAddresses()
+      await loadDashboardStats()
+      invalidateLeaderboard()
+    }
+
+    if (!failed.length) {
+      offlineBannerEl?.classList.remove('visible', 'syncing')
+    } else {
+      offlineBannerEl?.classList.remove('syncing')
+      offlineBannerTextEl.textContent = `📵 Offline — ${failed.length} izmena čeka`
+    }
+  }
+
+  // ── Service Worker registration ────────────────────────────────────────────
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js')
+        .then(reg => {
+          console.log('[SW] Registered:', reg.scope)
+          // Listen for sync requests from SW
+          navigator.serviceWorker.addEventListener('message', (event) => {
+            if (event.data?.type === 'SYNC_REQUESTED') {
+              processPendingQueue()
+            }
+          })
+        })
+        .catch(err => console.warn('[SW] Registration failed:', err))
+    })
+  }
+
   // ── Init ───────────────────────────────────────────────────────────────────
   async function initApp() {
     setStatus('Pokretanje...')
@@ -4257,6 +4600,8 @@
       await loadDashboardStats()
       if (isAdmin()) { await loadAdminProfiles(); await loadAllSystemStreets() }
       setStatus(`✅ Spreman za rad! Aktivna rola: ${getRole()}`)
+    updateQueueUI()
+    if (isOnline) setTimeout(() => processPendingQueue(), 1000)
     } else {
       setStatus('Nisi prijavljen. Pošalji magic link za pristup.')
     }
@@ -4350,15 +4695,32 @@
   exportExcelBtn.addEventListener('click', exportFilteredExcel)
   printBtn.addEventListener('click', printFilteredView)
 
-  streetSelectEl.addEventListener('change', updateAddressLabel)
-  houseNumberEl.addEventListener('input', updateAddressLabel)
-  houseSuffixEl.addEventListener('input', () => {
-    // Normalize suffix to lowercase immediately
-    const pos = houseSuffixEl.selectionStart
-    houseSuffixEl.value = houseSuffixEl.value.toLowerCase()
-    try { houseSuffixEl.setSelectionRange(pos, pos) } catch(e) {}
+  streetSelectEl.addEventListener('change', () => {
+    populateSmartNumbers()
     updateAddressLabel()
   })
+  houseNumberEl.addEventListener('change', () => {
+    if (houseNumberEl.tagName === 'SELECT') {
+      populateSmartSuffixes()
+    }
+    updateAddressLabel()
+  })
+  houseSuffixEl.addEventListener('change', () => {
+    if (houseSuffixEl.tagName === 'SELECT') {
+      populateSmartUnits()
+    }
+    updateAddressLabel()
+  })
+  // Keep old input listener for when elements are inputs (edit mode uses enterEditMode which sets values directly)
+  const _legacySuffixInput = () => {
+    // Normalize suffix to lowercase immediately
+    if (houseSuffixEl.tagName === 'INPUT') {
+      const pos = houseSuffixEl.selectionStart
+      houseSuffixEl.value = houseSuffixEl.value.toLowerCase()
+      try { houseSuffixEl.setSelectionRange(pos, pos) } catch(e) {}
+      updateAddressLabel()
+    }
+  }
   unitNumberEl.addEventListener('input', updateAddressLabel)
 
   // Building select — level 1
