@@ -2533,6 +2533,16 @@
       .replace(/'/g, '&#039;')
   }
 
+
+  // ── Debounce helper ────────────────────────────────────────────────────────
+  function debounce(fn, delay = 250) {
+    let timer
+    return (...args) => {
+      clearTimeout(timer)
+      timer = setTimeout(() => fn(...args), delay)
+    }
+  }
+
   // ── Status helpers ─────────────────────────────────────────────────────────
   function getStatusClass(status) {
     switch (status) {
@@ -4691,7 +4701,7 @@
   // Auto-apply filters on change
   filterStreetEl?.addEventListener('change', () => { selectedBuildingKey = null; selectedAddressId = null; renderAddresses() })
   filterStatusEl?.addEventListener('change', () => { selectedBuildingKey = null; selectedAddressId = null; renderAddresses() })
-  searchInputEl?.addEventListener('input', () => { selectedBuildingKey = null; selectedAddressId = null; renderAddresses() })
+  searchInputEl?.addEventListener('input', debounce(() => { selectedBuildingKey = null; selectedAddressId = null; renderAddresses() }, 250))
 
   resetFiltersBtn.addEventListener('click', () => {
     filterStreetEl.value  = ''
