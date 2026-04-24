@@ -7,7 +7,7 @@ const CACHE_NAME = 'podbara-v1'
 // Resources to cache on install
 const PRECACHE_URLS = [
   './',
-  './od-vrata-do-vrata.html',
+  './index.html',
   'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js',
   'https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap',
 ]
@@ -74,7 +74,7 @@ self.addEventListener('fetch', event => {
           }
           return response
         })
-        .catch(() => caches.match(event.request).then(r => r || caches.match('./od-vrata-do-vrata.html')))
+        .catch(() => caches.match(event.request).then(r => r || caches.match('./index.html')))
     )
     return
   }
