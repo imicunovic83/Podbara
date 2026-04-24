@@ -2459,7 +2459,7 @@
   // ── Quick entry panel ──────────────────────────────────────────────────────
   function showQuickEntry(addressId, addressLabel) {
     quickEntryAddressId = addressId
-    if (quickEntryAddressLabelEl) quickEntryAddressLabelEl.textContent = addressLabel
+    if (quickEntryAddressLabelEl) quickEntryAddressLabelEl.textContent = addressLabel  // textContent is safe
     if (quickEntryStatusEl)       quickEntryStatusEl.value = 'not_visited'
     if (quickEntryNotesEl)        quickEntryNotesEl.value  = ''
     quickEntryPanelEl?.classList.remove('hidden')
@@ -2519,6 +2519,18 @@
 
   function buildMapsNavUrl(query) {
     return `https://www.google.com/maps/search/?api=1&query=${query}`
+  }
+
+
+  // ── XSS protection ─────────────────────────────────────────────────────────
+  function escapeHtml(str) {
+    if (str == null) return ''
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;')
   }
 
   // ── Status helpers ─────────────────────────────────────────────────────────
@@ -2831,7 +2843,7 @@
     // Sync hidden select
     if (addressSelectEl) {
       addressSelectEl.innerHTML = filtered.map(item =>
-        `<option value="${item.id}">${item.full_address_label || ''}</option>`
+        `<option value="${item.id}">${escapeHtml(item.full_address_label) || ''}</option>`
       ).join('')
     }
     populateBuildingSelect(filtered)
@@ -2861,23 +2873,23 @@
 
     const notesVal = item.notes ? item.notes.replace(/"/g, '&quot;') : ''
     const updater   = updaterProfiles[item.updated_by]
-    const updaterName = updater?.fullname || updater?.email || 'Nepoznat'
+    const updaterName = escapeHtml(updater?.fullname || updater?.email || 'Nepoznat')
     const updatedAt = item.updated_at ? formatRelativeTime(item.updated_at) : '-'
 
     selectedAddressDetailsEl.innerHTML = `
       <div class="address-detail-card">
         <div class="address-detail-header">
-          <h3 class="address-detail-title">${item.full_address_label ?? 'Bez naziva'}</h3>
+          <h3 class="address-detail-title">${escapeHtml(item.full_address_label) || 'Bez naziva'}</h3>
           <span class="status-badge ${getStatusClass(item.census_status)}" id="statusBadge-${item.id}">${getStatusLabel(item.census_status)}</span>
         </div>
         <div class="address-detail-grid">
-          <div class="addr-row"><span class="addr-label">Ulica:</span> ${cleanStreetName(item.streets?.name) || '-'}</div>
-          <div class="addr-row"><span class="addr-label">Naselje:</span> ${item.streets?.settlement_name || 'Podbara'}</div>
-          <div class="addr-row"><span class="addr-label">Broj:</span> ${item.house_number ?? '-'}</div>
-          <div class="addr-row"><span class="addr-label">Dodatak:</span> ${item.house_number_suffix ?? '-'}</div>
-          <div class="addr-row"><span class="addr-label">Stan / jedinica:</span> ${item.unit_number ?? '-'}</div>
+          <div class="addr-row"><span class="addr-label">Ulica:</span> ${escapeHtml(cleanStreetName(item.streets?.name)) || '-'}</div>
+          <div class="addr-row"><span class="addr-label">Naselje:</span> ${escapeHtml(item.streets?.settlement_name) || 'Podbara'}</div>
+          <div class="addr-row"><span class="addr-label">Broj:</span> ${escapeHtml(item.house_number) || '-'}</div>
+          <div class="addr-row"><span class="addr-label">Dodatak:</span> ${escapeHtml(item.house_number_suffix) || '-'}</div>
+          <div class="addr-row"><span class="addr-label">Stan / jedinica:</span> ${escapeHtml(item.unit_number) || '-'}</div>
           <div class="addr-row" style="display:flex;align-items:center;gap:var(--space-3);flex-wrap:wrap;">
-            <span><span class="addr-label">Tip:</span> <span id="tipLabel-${item.id}">${item.address_type ?? '-'}</span></span>
+            <span><span class="addr-label">Tip:</span> <span id="tipLabel-${item.id}">${escapeHtml(item.address_type) || '-'}</span></span>
             ${canEdit() ? `<button type="button" class="type-toggle-btn" data-toggle-type-id="${item.id}" data-current-type="${item.address_type ?? 'Kuća'}">
               🔄 Promeni tip
             </button>` : ''}
@@ -2951,7 +2963,7 @@
             >Obriši</button>
           </div>
         ` : `
-          ${item.notes ? `<div class="addr-row" style="margin-top:1rem;"><span class="addr-label">Napomena:</span> ${item.notes}</div>` : ''}
+          ${item.notes ? `<div class="addr-row" style="margin-top:1rem;"><span class="addr-label">Napomena:</span> ${escapeHtml(item.notes)}</div>` : ''}
         `}
       </div>
     `
@@ -3077,7 +3089,7 @@
 
     streetStatsEl.innerHTML = streets.map(s => `
       <div class="street-stat-item">
-        <div class="street-stat-name">${s.name}</div>
+        <div class="street-stat-name">${escapeHtml(s.name)}</div>
         <div class="street-stat-pills">
           <span class="street-stat-pill pill-total">Ukupno: ${s.total}</span>
           ${s.students_win ? `<span class="street-stat-pill pill-students_win">✌️ Pobeđujemo: ${s.students_win}</span>` : ''}
@@ -3419,7 +3431,7 @@
     const myStreetsGridEl = document.getElementById('myStreetsGrid')
     if (myStreetsGridEl) {
       myStreetsGridEl.innerHTML = availableStreets.length
-        ? availableStreets.map(s => `<span class="my-street-chip">${cleanStreetName(s.name)}</span>`).join('')
+        ? availableStreets.map(s => `<span class="my-street-chip">${escapeHtml(cleanStreetName(s.name))}</span>`).join('')
         : '<div class="empty" style="width:100%">Nema dodeljenih ulica.</div>'
     }
     populateStreetFilters()
@@ -4348,13 +4360,13 @@
       <div class="leaderboard-grid">
         ${sorted.map((u, i) => {
           const profile  = profileMap.get(u.id)
-          const name     = profile?.fullname || profile?.email || 'Nepoznat'
+          const name     = escapeHtml(profile?.fullname || profile?.email || 'Nepoznat')
           const pending  = u.not_visited + u.scheduled
           return `
             <div class="leaderboard-card">
               <div class="leaderboard-rank">
                 <span class="leaderboard-num ${rankClass(i)}">${rankIcon(i)}</span>
-                <span class="leaderboard-name" title="${name}">${name}</span>
+                <span class="leaderboard-name" title="${escapeHtml(name)}">${name}</span>
               </div>
               <div class="leaderboard-stats">
                 <span class="lb-pill lb-total">Ukupno: ${u.total}</span>
