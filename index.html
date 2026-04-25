@@ -1624,6 +1624,38 @@
       padding: var(--space-2) var(--space-3);
       font-size: var(--text-sm);
     }
+    .search-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: var(--color-surface-2);
+      border: 1.5px solid var(--color-primary);
+      border-top: none;
+      border-radius: 0 0 var(--radius-md) var(--radius-md);
+      max-height: 280px;
+      overflow-y: auto;
+      z-index: 50;
+      box-shadow: var(--shadow-lg);
+    }
+    .search-dropdown-item {
+      padding: var(--space-2) var(--space-3);
+      cursor: pointer;
+      font-size: var(--text-sm);
+      border-bottom: 1px solid var(--color-border);
+      transition: background 0.1s;
+    }
+    .search-dropdown-item:last-child { border-bottom: none; }
+    .search-dropdown-item:hover {
+      background: var(--color-primary-light);
+      color: var(--color-primary);
+    }
+    .search-dropdown-empty {
+      padding: var(--space-3);
+      color: var(--color-text-muted);
+      font-size: var(--text-sm);
+      text-align: center;
+    }
     .evidencija-search-clear {
       background: var(--color-bg);
       color: var(--color-text-muted);
@@ -2287,10 +2319,10 @@
               <option value="scheduled">Zakazano</option>
             </select>
           </div>
-          <div class="field">
+         <div class="field" style="position:relative;">
             <label for="searchInput">Pretraga</label>
-            <input id="searchInput" type="text" list="searchSuggestions" placeholder="Kucaj A, broj, ili izaberi..." autocomplete="off" />
-            <datalist id="searchSuggestions"></datalist>
+            <input id="searchInput" type="text" placeholder="Kucaj A, broj, ili izaberi..." autocomplete="off" />
+            <div id="searchDropdown" class="search-dropdown" style="display:none;"></div>
           </div>
           <button id="resetFiltersBtn" type="button" class="evidencija-search-clear" title="Reset filtera">↺ Reset</button>
         </div>
@@ -2956,15 +2988,15 @@
   // ── Zahtevi #3a + #5 + #6: smart autocomplete za polje "Pretraga" ─────────
   // Bez izabrane ulice → predloži cele adrese iz baze (filtrirano po availableStreets).
   // Sa izabranom ulicom → predloži samo brojeve/jedinice te ulice.
+  // ── Zahtevi #3a + #5 + #6: custom autocomplete za polje "Pretraga" ───────
+  let _searchSuggestionsCache = []
+
   function populateSearchSuggestions() {
-    const dl = document.getElementById('searchSuggestions')
-    if (!dl) return
     const selectedStreetId = filterStreetEl?.value
     let pool = allAddresses || []
     if (selectedStreetId) {
       pool = pool.filter(a => String(a.street_id) === String(selectedStreetId))
     } else if (!isAdmin()) {
-      // Editor/Viewer vide samo svoje ulice
       const allowedIds = new Set(availableStreets.map(s => String(s.id)))
       pool = pool.filter(a => allowedIds.has(String(a.street_id)))
     }
@@ -2974,22 +3006,51 @@
       const num    = `${item.house_number || ''}${item.house_number_suffix || ''}`.trim()
       const unit   = String(item.unit_number || '').trim()
       if (selectedStreetId) {
-        // Suzeno na izabranu ulicu — predlaži samo brojeve i kombinacije
         if (num) suggestions.add(num)
         if (num && unit) suggestions.add(`${num} / ${unit}`)
       } else {
-        // Bez ulice — predlaži cele adrese
         const baseLabel = `${street}${num ? ' ' + num : ''}`.trim()
         if (baseLabel) suggestions.add(baseLabel)
         if (baseLabel && unit) suggestions.add(`${baseLabel} / ${unit}`)
         if (street) suggestions.add(street)
       }
     })
-    const sorted = Array.from(suggestions)
+    _searchSuggestionsCache = Array.from(suggestions)
       .filter(Boolean)
       .sort((a, b) => naturalCompare(a, b))
-      .slice(0, 200)
-    dl.innerHTML = sorted.map(s => `<option value="${escapeHtml(s)}"></option>`).join('')
+  }
+
+  function showSearchDropdown(query) {
+    const dd = document.getElementById('searchDropdown')
+    if (!dd) return
+    const q = (query || '').trim().toLowerCase()
+    let items = _searchSuggestionsCache
+    if (q) items = items.filter(s => s.toLowerCase().includes(q))
+    items = items.slice(0, 50)
+
+    if (!items.length) {
+      dd.innerHTML = '<div class="search-dropdown-empty">Nema rezultata</div>'
+    } else {
+      dd.innerHTML = items.map(s =>
+        `<div class="search-dropdown-item" data-value="${escapeHtml(s)}">${escapeHtml(s)}</div>`
+      ).join('')
+    }
+    dd.style.display = 'block'
+
+    dd.querySelectorAll('[data-value]').forEach(el => {
+      el.addEventListener('mousedown', (ev) => {
+        ev.preventDefault()
+        const v = el.getAttribute('data-value')
+        if (searchInputEl) searchInputEl.value = v
+        hideSearchDropdown()
+        renderAddresses()
+      })
+    })
+  }
+
+  function hideSearchDropdown() {
+    const dd = document.getElementById('searchDropdown')
+    if (dd) dd.style.display = 'none'
   }
 
   // ── Admin render ───────────────────────────────────────────────────────────
@@ -5284,7 +5345,24 @@
     renderAddresses()
   })
   filterStatusEl?.addEventListener('change', () => { selectedBuildingKey = null; selectedAddressId = null; renderAddresses() })
-  searchInputEl?.addEventListener('input', debounce(() => { selectedBuildingKey = null; selectedAddressId = null; renderAddresses() }, 250))
+ searchInputEl?.addEventListener('focus', () => showSearchDropdown(searchInputEl.value))
+  searchInputEl?.addEventListener('input', () => {
+    showSearchDropdown(searchInputEl.value)
+    if (window.__searchInputT) clearTimeout(window.__searchInputT)
+    window.__searchInputT = setTimeout(() => {
+      selectedBuildingKey = null
+      selectedAddressId = null
+      renderAddresses()
+    }, 250)
+  })
+  searchInputEl?.addEventListener('blur', () => {
+    setTimeout(hideSearchDropdown, 150)
+  })
+  document.addEventListener('click', (e) => {
+    const dd = document.getElementById('searchDropdown')
+    if (!dd) return
+    if (!searchInputEl?.contains(e.target) && !dd.contains(e.target)) hideSearchDropdown()
+  })
 
   resetFiltersBtn.addEventListener('click', () => {
     filterStreetEl.value  = ''
