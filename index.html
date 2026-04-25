@@ -4089,6 +4089,10 @@
     allAddresses = data || []
     await loadUpdaterProfiles((data || []).map(a => a.updated_by))
     renderAddresses()
+    // Fix: osvezi smart autocomplete tek kad su adrese stvarno ucitane
+    try { populateSearchSuggestions() } catch (e) { console.warn('search suggestions:', e) }
+    // Fix: osvezi mapu kad se adrese ponovo ucitaju
+    try { typeof refreshMapa === 'function' && refreshMapa() } catch (e) {}
     reinitSmartDropdowns()
     hideLoading()
   }
