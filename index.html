@@ -681,6 +681,14 @@
     }
 
     .street-stat-pill {
+      cursor: pointer;
+      border: 1px solid transparent;
+      font-family: inherit;
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
+    }
+    .street-stat-pill:hover { transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+    .street-stat-pill:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+    .street-stat-pill {
       display: inline-flex;
       align-items: center;
       gap: 4px;
@@ -816,6 +824,38 @@
       color: var(--color-primary);
     }
     .mobile-nav a .nav-icon { font-size: 1.1rem; width: 1.4rem; text-align: center; }
+
+    .mobile-nav-divider {
+      height: 1px;
+      background: var(--color-border);
+      margin: var(--space-3) var(--space-4);
+    }
+    .mobile-nav-logout {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      width: calc(100% - 2 * var(--space-4));
+      margin: var(--space-2) var(--space-4) var(--space-4);
+      padding: var(--space-3) var(--space-4);
+      border: 1px solid var(--color-danger);
+      border-radius: var(--radius-md);
+      background: transparent;
+      color: var(--color-danger);
+      font-family: inherit;
+      font-size: var(--text-base);
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+    .mobile-nav-logout:hover {
+      background: var(--color-danger);
+      color: #fff;
+    }
+    .topbar-hint {
+      font-size: var(--text-xs);
+      color: var(--color-text-muted);
+      letter-spacing: 0.02em;
+    }
 
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
@@ -1514,6 +1554,20 @@
       transition: transform 0.25s ease;
       flex-shrink: 0;
     }
+    .static-section { padding: var(--space-5) var(--space-6); }
+    .static-section-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      margin-bottom: var(--space-2);
+    }
+    .static-section-header-left {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-size: var(--text-lg);
+      flex-wrap: wrap;
+    }
     .stats-collapsible[open] .stats-collapsible-arrow {
       transform: rotate(180deg);
     }
@@ -1590,6 +1644,31 @@
       color: var(--color-primary);
       box-shadow: none;
     }
+    .inline-add-cta {
+      margin-top: var(--space-4);
+      padding: var(--space-4);
+      background: var(--color-warning-bg);
+      border: 1px dashed var(--color-warning-text);
+      border-radius: var(--radius-lg);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: var(--space-3);
+      justify-content: space-between;
+    }
+    .inline-add-cta-text {
+      margin: 0;
+      color: var(--color-warning-text);
+      font-weight: 600;
+    }
+    .inline-add-form {
+      margin-top: var(--space-4);
+      padding: var(--space-5);
+      background: var(--color-primary-light);
+      border: 1px solid var(--color-primary);
+      border-radius: var(--radius-lg);
+    }
+    .inline-add-form h3 { margin-bottom: var(--space-3); color: var(--color-primary); }
     .evidencija-divider {
       height: 1px;
       background: var(--color-border);
@@ -1884,7 +1963,72 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
+    /* ── Mapa sekcija (Zahtev #10 — MVP) ── */
+    .mapa-card {
+      background: var(--color-surface-2);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-xl);
+      padding: var(--space-5);
+      margin-bottom: var(--space-5);
+    }
+    .mapa-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-3);
+      margin-bottom: var(--space-4);
+      padding: var(--space-3);
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+    }
+    .mapa-control-group { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; }
+    .mapa-control-group label {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      cursor: pointer;
+      font-size: var(--text-sm);
+      font-weight: 500;
+    }
+    .mapa-control-group input[type="checkbox"] { width: 1rem; height: 1rem; cursor: pointer; }
+    #mapaContainer {
+      width: 100%;
+      height: clamp(360px, 60vh, 640px);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--color-border);
+      overflow: hidden;
+    }
+    .mapa-empty {
+      text-align: center;
+      padding: var(--space-6);
+      color: var(--color-text-muted);
+      font-size: var(--text-sm);
+    }
+    .leaflet-popup-content { font-family: 'DM Sans', sans-serif; min-width: 200px; }
+    .leaflet-popup-content h4 { margin: 0 0 var(--space-2); font-size: var(--text-base); }
+    .leaflet-popup-content select, .leaflet-popup-content button {
+      width: 100%;
+      margin-top: var(--space-2);
+      padding: var(--space-2);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      font-family: inherit;
+      font-size: var(--text-sm);
+    }
+    .leaflet-popup-content button {
+      background: var(--color-primary);
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .leaflet-popup-content button:hover { background: var(--color-primary-hover); }
+
+
   </style>
+  <!-- Zahtev #10: Leaflet za sloj mape -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 <body>
@@ -1902,9 +2046,13 @@
     <a href="#sectionDozvole"><span class="nav-icon">🗺️</span>Moje ulice</a>
     <a href="#editorSection"><span class="nav-icon">➕</span>Unos adrese</a>
     <a href="#sectionEvidencija"><span class="nav-icon">📋</span>Evidencija obilazaka</a>
+    <a href="#sectionMapa" id="mapNavLink"><span class="nav-icon">🗺️</span>Mapa</a>
     <a href="#sectionStatistika"><span class="nav-icon">📈</span>Statistika po ulicama</a>
     <a href="#sectionLeaderboard"><span class="nav-icon">🏆</span>Ko je obišao najviše</a>
     <a href="#adminPanelSection" id="adminNavLink" class="hidden"><span class="nav-icon">⚙️</span>Admin panel</a>
+    <!-- Logout je u hamburger meniju da se korisnik ne odjavi slučajno -->
+    <div class="mobile-nav-divider"></div>
+    <button type="button" id="logoutBtn" class="mobile-nav-logout"><span class="nav-icon">🚪</span>Odjavi se</button>
   </nav>
 
   <header class="page-header">
@@ -1934,26 +2082,23 @@
 
     <div id="status" class="status">Učitavanje...</div>
 
-    <!-- ── Auth ── -->
+    <!-- ── Auth (samo prijava lozinkom — magic link je uklonjen) ── -->
     <div id="authSection" class="card-box">
       <h2>Prijava</h2>
       <div class="form-grid">
         <div class="field">
           <label for="emailInput">Email adresa</label>
-          <input id="emailInput" type="email" placeholder="npr. ime@email.com" />
+          <input id="emailInput" type="email" placeholder="npr. ime@email.com" autocomplete="username" />
+        </div>
+        <div class="field">
+          <label for="passwordInput">Lozinka</label>
+          <input id="passwordInput" type="password" placeholder="Unesi lozinku" autocomplete="current-password" />
         </div>
       </div>
       <div class="actions">
-        <button id="loginBtn" type="button">Pošalji magic link</button>
-        <button id="passwordLoginBtn" type="button" class="btn-dark">Login lozinkom</button>
+        <button id="passwordLoginBtn" type="button">Prijavi se</button>
       </div>
-      <div class="form-grid" style="margin-top: 1rem;">
-        <div class="field">
-          <label for="passwordInput">Lozinka</label>
-          <input id="passwordInput" type="password" placeholder="Unesi lozinku za test login" />
-        </div>
-      </div>
-      <p class="note">Na email će stići link za prijavu. Klikni ga i vratiće te nazad na ovu stranicu.</p>
+      <p class="note">Unesi email i lozinku za pristup aplikaciji.</p>
     </div>
 
     <!-- ══════════════════════════════════════════
@@ -1961,13 +2106,13 @@
     ══════════════════════════════════════════ -->
     <div id="appSection" class="hidden">
 
-      <!-- Topbar -->
+      <!-- Topbar — bez Logout dugmeta (premešteno u hamburger meni) -->
       <div class="topbar">
         <div class="user-panel">
           <div id="userBadge" class="user-badge">Nije prijavljen</div>
           <div id="roleBadge" class="role-badge">Rola: -</div>
         </div>
-        <button id="logoutBtn" type="button" class="btn-dark">Logout</button>
+        <span class="topbar-hint">Odjava → ☰ meni</span>
       </div>
 
       <!-- ── 1. PREGLED ── -->
@@ -1984,25 +2129,25 @@
         </div>
       </div>
 
-      <!-- ── 2. MOJE ULICE ── -->
-      <details class="stats-collapsible" id="sectionDozvole">
-        <summary>
-          <span class="stats-collapsible-header-left">
-            🗺️ Moje ulice
+      <!-- ── 2. MOJE ULICE (zahtev #7: stalno vidljive, bez padajućeg menija) ── -->
+      <section class="card-box static-section" id="sectionDozvole">
+        <header class="static-section-header">
+          <span class="static-section-header-left">
+            🗺️ <strong>Moje ulice</strong>
             <span id="assignedStreetsSummary" class="stats-collapsible-badge">0 ulica</span>
             <span id="infoEmail" style="font-size:0.75rem;color:var(--color-text-muted);font-weight:500;"></span>
           </span>
-          <span class="stats-collapsible-arrow">▾</span>
-        </summary>
-        <div class="street-stats-box" style="padding:0 var(--space-6) var(--space-5);">
-          <div id="myStreetsGrid" class="my-streets-grid" style="margin-top:var(--space-4);">
+        </header>
+        <div class="street-stats-box" style="padding:var(--space-3) 0 0;">
+          <div id="myStreetsGrid" class="my-streets-grid" style="margin-top:var(--space-2);">
             <div class="empty" style="width:100%">Učitavanje ulica...</div>
           </div>
+          <p class="note" style="margin-top:var(--space-3);">Klikni na ulicu da otvoriš listu adresa u Evidenciji obilazaka.</p>
         </div>
         <!-- Hidden for JS compat -->
         <span id="infoRole" style="display:none">-</span>
         <ul id="assignedStreets" style="display:none"><li></li></ul>
-      </details>
+      </section>
 
       <!-- ── 3. UNOS ADRESE + BRZI STATUS ── -->
       <div id="editorSection" class="card-box">
@@ -2144,7 +2289,8 @@
           </div>
           <div class="field">
             <label for="searchInput">Pretraga</label>
-            <input id="searchInput" type="text" placeholder="Ulica ili broj..." />
+            <input id="searchInput" type="text" list="searchSuggestions" placeholder="Kucaj A, broj, ili izaberi..." autocomplete="off" />
+            <datalist id="searchSuggestions"></datalist>
           </div>
           <button id="resetFiltersBtn" type="button" class="evidencija-search-clear" title="Reset filtera">↺ Reset</button>
         </div>
@@ -2165,7 +2311,7 @@
           </div>
           <div class="field unit-select-wrap dim" id="unitSelectWrap">
             <label for="unitSelect">
-              🚪 Jedinica
+              🚪 <span id="unitSelectLabelText">Stan / Jedinica</span>
               <span id="unitCountBadge" class="picker-count-badge"></span>
             </label>
             <select id="unitSelect">
@@ -2181,12 +2327,78 @@
 
         <div id="pageInfo" class="page-info"></div>
         <div id="selectedAddressDetails"></div>
+        <!-- Zahtev #4: inline CTA za dodavanje nove adrese (Admin + Editor, kada pretraga ne vrati rezultate) -->
+        <div id="inlineAddCta" class="inline-add-cta hidden">
+          <p class="inline-add-cta-text">🔍 Adresa nije pronađena u bazi.</p>
+          <button type="button" id="inlineAddCtaBtn" class="btn-dark">➕ Dodaj novu adresu</button>
+        </div>
+        <div id="inlineAddForm" class="inline-add-form hidden">
+          <h3>➕ Nova adresa (brzi unos)</h3>
+          <div class="form-grid">
+            <div class="field">
+              <label for="inlineAddStreet">Ulica *</label>
+              <select id="inlineAddStreet"><option value="">Izaberi...</option></select>
+            </div>
+            <div class="field">
+              <label for="inlineAddType">Tip adrese *</label>
+              <select id="inlineAddType">
+                <option value="Kuća">Kuća</option>
+                <option value="Zgrada">Zgrada</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="inlineAddHouseNumber">Broj kuće/zgrade *</label>
+              <input id="inlineAddHouseNumber" type="text" placeholder="npr. 17" />
+            </div>
+            <div class="field">
+              <label for="inlineAddHouseSuffix">Dodatak broju</label>
+              <input id="inlineAddHouseSuffix" type="text" placeholder="npr. a" />
+            </div>
+            <div class="field">
+              <label for="inlineAddUnit"><span id="inlineAddUnitLabel">Stan / Jedinica</span></label>
+              <input id="inlineAddUnit" type="text" placeholder="npr. 3" />
+            </div>
+          </div>
+          <div class="actions">
+            <button type="button" id="inlineAddSaveBtn">💾 Sačuvaj adresu</button>
+            <button type="button" id="inlineAddCancelBtn" class="btn-dark">Otkaži</button>
+          </div>
+          <p class="note">Posle čuvanja adresa će biti dostupna u Evidenciji za promenu statusa.</p>
+        </div>
 
         <!-- Export row -->
         <div class="evidencija-export-row">
           <button id="exportCsvBtn" type="button" class="btn-dark">⬇️ CSV</button>
           <button id="exportExcelBtn" type="button" class="btn-dark">⬇️ Excel</button>
           <button id="printBtn" type="button" class="btn-dark">🖨️ Print</button>
+        </div>
+      </div>
+
+      <!-- ── 5b. MAPA (Zahtev #10 — MVP) ── -->
+      <div class="mapa-card" id="sectionMapa">
+        <h2 style="margin-bottom:var(--space-3);">🗺️ Mapa adresa</h2>
+        <p class="note" style="margin-bottom:var(--space-3);">
+          Layer mapa sa statusima adresa. Kliknite na marker za detalje i promenu statusa.
+          Markeri se prikazuju samo za adrese sa upisanim koordinatama (vidi Supabase setup uputstvo).
+        </p>
+        <div class="mapa-controls">
+          <div class="mapa-control-group">
+            <strong style="font-size:var(--text-sm);">Slojevi:</strong>
+            <label><input type="checkbox" data-mapa-layer="status" checked> Sloj statusa</label>
+            <label><input type="checkbox" data-mapa-layer="my_streets" checked> Moje ulice</label>
+          </div>
+          <div class="mapa-control-group">
+            <strong style="font-size:var(--text-sm);">Filteri:</strong>
+            <label><input type="checkbox" data-mapa-status="students_win" checked> ✌️ Pobeđujemo</label>
+            <label><input type="checkbox" data-mapa-status="sns" checked> 💩 SNS</label>
+            <label><input type="checkbox" data-mapa-status="visited" checked> Obiđeno</label>
+            <label><input type="checkbox" data-mapa-status="not_visited" checked> Nije obiđeno</label>
+            <label><input type="checkbox" data-mapa-status="not_found" checked> Nije zatečen</label>
+            <label><input type="checkbox" data-mapa-status="scheduled" checked> Zakazano</label>
+          </div>
+        </div>
+        <div id="mapaContainer">
+          <div class="mapa-empty">Mapa se učitava...</div>
         </div>
       </div>
 
@@ -2372,7 +2584,6 @@
   const assignedStreetsEl         = document.getElementById('assignedStreets')
   const assignedStreetsSummaryEl  = document.getElementById('assignedStreetsSummary')
   const emailInputEl              = document.getElementById('emailInput')
-  const loginBtn                  = document.getElementById('loginBtn')
   const passwordInputEl           = document.getElementById('passwordInput')
   const passwordLoginBtn          = document.getElementById('passwordLoginBtn')
   const logoutBtn                 = document.getElementById('logoutBtn')
@@ -2637,7 +2848,8 @@
     roleBadgeEl.textContent = `Rola: ${role}`
     infoRoleEl.textContent = role
 
-    if (canEdit()) {
+    if (isAdmin()) {
+      // Zahtev #4: "Nova adresa" sekciju vidi samo admin
       editorSectionEl.classList.remove('hidden')
     } else {
       editorSectionEl.classList.add('hidden')
@@ -2738,6 +2950,46 @@
       <option value="">Sve ulice</option>
       ${availableStreets.map(s => `<option value="${s.id}">${cleanStreetName(s.name)}</option>`).join('')}
     `
+    populateSearchSuggestions()
+  }
+
+  // ── Zahtevi #3a + #5 + #6: smart autocomplete za polje "Pretraga" ─────────
+  // Bez izabrane ulice → predloži cele adrese iz baze (filtrirano po availableStreets).
+  // Sa izabranom ulicom → predloži samo brojeve/jedinice te ulice.
+  function populateSearchSuggestions() {
+    const dl = document.getElementById('searchSuggestions')
+    if (!dl) return
+    const selectedStreetId = filterStreetEl?.value
+    let pool = allAddresses || []
+    if (selectedStreetId) {
+      pool = pool.filter(a => String(a.street_id) === String(selectedStreetId))
+    } else if (!isAdmin()) {
+      // Editor/Viewer vide samo svoje ulice
+      const allowedIds = new Set(availableStreets.map(s => String(s.id)))
+      pool = pool.filter(a => allowedIds.has(String(a.street_id)))
+    }
+    const suggestions = new Set()
+    pool.forEach(item => {
+      const street = cleanStreetName(item.streets?.name || '')
+      const num    = `${item.house_number || ''}${item.house_number_suffix || ''}`.trim()
+      const unit   = String(item.unit_number || '').trim()
+      if (selectedStreetId) {
+        // Suzeno na izabranu ulicu — predlaži samo brojeve i kombinacije
+        if (num) suggestions.add(num)
+        if (num && unit) suggestions.add(`${num} / ${unit}`)
+      } else {
+        // Bez ulice — predlaži cele adrese
+        const baseLabel = `${street}${num ? ' ' + num : ''}`.trim()
+        if (baseLabel) suggestions.add(baseLabel)
+        if (baseLabel && unit) suggestions.add(`${baseLabel} / ${unit}`)
+        if (street) suggestions.add(street)
+      }
+    })
+    const sorted = Array.from(suggestions)
+      .filter(Boolean)
+      .sort((a, b) => naturalCompare(a, b))
+      .slice(0, 200)
+    dl.innerHTML = sorted.map(s => `<option value="${escapeHtml(s)}"></option>`).join('')
   }
 
   // ── Admin render ───────────────────────────────────────────────────────────
@@ -2879,14 +3131,28 @@
       return
     }
 
-    const units = getUnitsForBuilding(filtered, selectedBuildingKey)
+    let units = getUnitsForBuilding(filtered, selectedBuildingKey)
+
+    // Zahtev #3b: ako u objektu postoje stvarne jedinice (sa unit_number),
+    // sakrij stavke bez unit_number (npr. "Jedan unos – nije obidjeno").
+    const hasRealUnits = units.some(u => String(u.unit_number || '').trim().length > 0)
+    if (hasRealUnits) {
+      units = units.filter(u => String(u.unit_number || '').trim().length > 0)
+    }
+
     if (unitCountBadgeEl) unitCountBadgeEl.textContent = units.length
 
-    // If building has only 1 address (kuća or single unit) — dim unit picker
+    // Zahtev #3c: dinamička labela "Stan/Jedinica" prema tipu objekta
+    updateUnitSelectLabel(units, filtered)
+
+    // Ako je objekat sa samo 1 stavkom (kuća ili pojedinačan unos) — dim picker
     if (units.length <= 1) {
       unitSelectWrapEl?.classList.add('dim')
-      if (unitSelectEl) unitSelectEl.innerHTML = '<option value="">Jedna adresa (bez jedinica)</option>'
-      // Auto-select the single unit
+      if (unitSelectEl) {
+        unitSelectEl.innerHTML = units.length === 1
+          ? `<option value="${units[0].id}" selected>Jedan unos — ${getStatusLabel(units[0].census_status)}</option>`
+          : '<option value="">Nema unosa</option>'
+      }
       if (units.length === 1) selectedAddressId = String(units[0].id)
       return
     }
@@ -2903,13 +3169,25 @@
       unitSelectEl.innerHTML =
         units.map(u => {
           const unitLabel = u.unit_number
-            ? `Jedinica ${escapeHtml(String(u.unit_number))}`
-            : 'Jedan unos'
+            ? `${escapeHtml(String(u.unit_number))}`
+            : '—'
           const statusLbl = getStatusLabel(u.census_status)
           return `<option value="${u.id}" ${String(u.id) === String(selectedAddressId) ? 'selected' : ''}>${unitLabel} — ${statusLbl}</option>`
         }).join('')
       unitSelectEl.value = selectedAddressId || ''
     }
+  }
+
+  // ── Zahtev #3c: dinamička labela "Stan/Jedinica" ─────────────────────────
+  function updateUnitSelectLabel(units, filtered) {
+    const labelEl = document.getElementById('unitSelectLabelText')
+    if (!labelEl) return
+    // Pronađi tip objekta iz prve adrese u objektu
+    const buildingItem = filtered.find(it => getBuildingKey(it) === selectedBuildingKey)
+    const tip = buildingItem?.address_type || ''
+    if (tip === 'Zgrada')      labelEl.textContent = 'Stan'
+    else if (tip === 'Kuća')   labelEl.textContent = 'Jedinica'
+    else                        labelEl.textContent = 'Stan / Jedinica'
   }
 
   function populateAddressSelect(filtered) {
@@ -3163,6 +3441,13 @@
 
   // ── Address list render ────────────────────────────────────────────────────
   function renderAddresses() {
+    // Zahtev #4: prikaži CTA "Dodaj novu adresu" ako pretraga ne vrati rezultate (Admin + Editor)
+    setTimeout(() => {
+      const f = getFilteredAddresses()
+      const hasSearch = (searchInputEl?.value || '').trim().length > 0
+      if (canEdit() && hasSearch && f.length === 0) showInlineAddCta()
+      else hideInlineAddCta()
+    }, 0)
     const filtered    = getFilteredAddresses()
     populateAddressSelect(filtered)
     const selectedItem = getSelectedAddress(filtered)
@@ -3202,20 +3487,36 @@
     const streetCountBadgeEl = document.getElementById('streetStatsStreetCount')
     if (streetCountBadgeEl) streetCountBadgeEl.textContent = `${streets.length} ulica`
 
-    streetStatsEl.innerHTML = streets.map(s => `
+    // Zahtev #9: prikazuj uvek SVE statuse (i 0) i napravi pill-ove klikabilnim
+    streetStatsEl.innerHTML = streets.map(s => {
+      const street = availableStreets.find(av => cleanStreetName(av.name) === s.name)
+                  || allSystemStreets?.find(av => cleanStreetName(av.name) === s.name)
+      const sid = street ? street.id : ''
+      const pill = (status, cls, label, count) =>
+        `<button type="button" class="street-stat-pill ${cls}" data-jump-street="${escapeHtml(String(sid))}" data-jump-status="${status}" title="Otvori detaljnu pretragu">${label}: ${count}</button>`
+      return `
       <div class="street-stat-item">
         <div class="street-stat-name">${escapeHtml(s.name)}</div>
         <div class="street-stat-pills">
-          <span class="street-stat-pill pill-total">Ukupno: ${s.total}</span>
-          ${s.students_win ? `<span class="street-stat-pill pill-students_win">✌️ Pobeđujemo: ${s.students_win}</span>` : ''}
-          ${s.sns          ? `<span class="street-stat-pill pill-sns">💩 SNS: ${s.sns}</span>` : ''}
-          ${s.not_visited  ? `<span class="street-stat-pill pill-not_visited">Nije obiđeno: ${s.not_visited}</span>` : ''}
-          ${s.visited      ? `<span class="street-stat-pill pill-visited">Obiđeno: ${s.visited}</span>` : ''}
-          ${s.not_found    ? `<span class="street-stat-pill pill-not_found">Nije zatečen: ${s.not_found}</span>` : ''}
-          ${s.scheduled    ? `<span class="street-stat-pill pill-scheduled">Zakazano: ${s.scheduled}</span>` : ''}
+          ${pill('',             'pill-total',         'Ukupno',            s.total)}
+          ${pill('students_win', 'pill-students_win',  '✌️ Pobeđujemo',     s.students_win)}
+          ${pill('sns',          'pill-sns',           '💩 SNS',             s.sns)}
+          ${pill('not_visited',  'pill-not_visited',   'Nije obiđeno',       s.not_visited)}
+          ${pill('visited',      'pill-visited',       'Obiđeno',            s.visited)}
+          ${pill('not_found',    'pill-not_found',     'Nije zatečen',       s.not_found)}
+          ${pill('scheduled',    'pill-scheduled',     'Zakazano',           s.scheduled)}
         </div>
-      </div>
-    `).join('')
+      </div>`
+    }).join('')
+
+    // Klik na pill -> postavi filtere i skoči u Evidenciju
+    streetStatsEl.querySelectorAll('[data-jump-street]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const sid    = btn.getAttribute('data-jump-street')
+        const status = btn.getAttribute('data-jump-status') || ''
+        jumpToEvidencijaForStreet(sid, status)
+      })
+    })
   }
 
   // ── Export helpers ─────────────────────────────────────────────────────────
@@ -3387,24 +3688,7 @@
   }
 
   // ── Auth ───────────────────────────────────────────────────────────────────
-  async function signInWithMagicLink() {
-    const email = emailInputEl.value.trim()
-    if (!email) { setStatus('Unesi validnu email adresu.'); return }
-    setStatus('Šaljem magic link...')
-    loginBtn.disabled = true
-    try {
-      const { error } = await supabase.auth.signInWithOtp({
-        email,
-        options: { emailRedirectTo: window.location.origin + window.location.pathname }
-      })
-      if (error) { setStatus(`Greška: ${error.message}`); return }
-      setStatus('✅ Magic link poslat! Proveri email.')
-    } catch (err) {
-      setStatus(`Greška: ${err.message}`)
-    } finally {
-      loginBtn.disabled = false
-    }
-  }
+  // Magic link prijava je uklonjena na zahtev — koristi se samo lozinka.
 
   async function signInWithPassword() {
     const email    = emailInputEl.value.trim()
@@ -3422,6 +3706,8 @@
       await loadAddresses()
       await loadDashboardStats()
       if (isAdmin()) { await loadAdminProfiles(); await loadAllSystemStreets() }
+      // Zahtev #10: inicijalizuj mapu posle prijave
+      try { window.__initMapaWhenReady && window.__initMapaWhenReady() } catch (e) { console.warn(e) }
       setStatus('✅ Uspešna prijava lozinkom.')
     } catch (err) {
       setStatus(`Greška: ${err.message}`)
@@ -3546,10 +3832,32 @@
     const myStreetsGridEl = document.getElementById('myStreetsGrid')
     if (myStreetsGridEl) {
       myStreetsGridEl.innerHTML = availableStreets.length
-        ? availableStreets.map(s => `<span class="my-street-chip">${escapeHtml(cleanStreetName(s.name))}</span>`).join('')
+        ? availableStreets.map(s =>
+            `<button type="button" class="my-street-chip" data-jump-street-id="${escapeHtml(String(s.id))}" title="Otvori adrese u Evidenciji">${escapeHtml(cleanStreetName(s.name))}</button>`
+          ).join('')
         : '<div class="empty" style="width:100%">Nema dodeljenih ulica.</div>'
+      // Zahtev #8: klik na chip = pretraga po toj ulici + skrol na Evidenciju
+      myStreetsGridEl.querySelectorAll('[data-jump-street-id]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const streetId = btn.getAttribute('data-jump-street-id')
+          jumpToEvidencijaForStreet(streetId, '')
+        })
+      })
     }
     populateStreetFilters()
+  }
+
+  // ── Helper za skok u Evidenciju sa primenjenim filterima (zahtevi #8 + #9) ──
+  function jumpToEvidencijaForStreet(streetId, status) {
+    if (filterStreetEl) filterStreetEl.value = streetId || ''
+    if (filterStatusEl) filterStatusEl.value = status || ''
+    if (searchInputEl)  searchInputEl.value = ''
+    selectedBuildingKey = null
+    selectedAddressId = null
+    renderAddresses()
+    populateSearchSuggestions()
+    const target = document.getElementById('sectionEvidencija')
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 
   async function loadDashboardStats() {
@@ -4777,6 +5085,104 @@
     })
   }
 
+  // ── Zahtev #4: Inline "Dodaj novu adresu" CTA u Evidenciji ──────────────
+  const inlineAddCtaEl       = document.getElementById('inlineAddCta')
+  const inlineAddCtaBtnEl    = document.getElementById('inlineAddCtaBtn')
+  const inlineAddFormEl      = document.getElementById('inlineAddForm')
+  const inlineAddStreetEl    = document.getElementById('inlineAddStreet')
+  const inlineAddTypeEl      = document.getElementById('inlineAddType')
+  const inlineAddHouseEl     = document.getElementById('inlineAddHouseNumber')
+  const inlineAddSuffixEl    = document.getElementById('inlineAddHouseSuffix')
+  const inlineAddUnitEl      = document.getElementById('inlineAddUnit')
+  const inlineAddUnitLabelEl = document.getElementById('inlineAddUnitLabel')
+  const inlineAddSaveBtnEl   = document.getElementById('inlineAddSaveBtn')
+  const inlineAddCancelBtnEl = document.getElementById('inlineAddCancelBtn')
+
+  function showInlineAddCta() {
+    if (!inlineAddCtaEl) return
+    if (!canEdit()) return
+    inlineAddCtaEl.classList.remove('hidden')
+  }
+  function hideInlineAddCta() { inlineAddCtaEl?.classList.add('hidden') }
+  function hideInlineAddForm() { inlineAddFormEl?.classList.add('hidden') }
+
+  inlineAddCtaBtnEl?.addEventListener('click', () => {
+    if (!canEdit()) return
+    hideInlineAddCta()
+    if (inlineAddFormEl) inlineAddFormEl.classList.remove('hidden')
+    // Popuni dropdown ulica
+    if (inlineAddStreetEl) {
+      inlineAddStreetEl.innerHTML = '<option value="">Izaberi ulicu...</option>' +
+        availableStreets.map(s => `<option value="${s.id}">${escapeHtml(cleanStreetName(s.name))}</option>`).join('')
+    }
+    // Probaj da pogodiš ulicu iz trenutnog filtera
+    const sid = filterStreetEl?.value
+    if (sid && inlineAddStreetEl) inlineAddStreetEl.value = sid
+    // Pre-fill iz pretrage (npr. "17" ili "17a")
+    const search = (searchInputEl?.value || '').trim()
+    const m = search.match(/^(\d+)([a-zA-Z]?)$/)
+    if (m) {
+      if (inlineAddHouseEl)  inlineAddHouseEl.value  = m[1]
+      if (inlineAddSuffixEl) inlineAddSuffixEl.value = m[2] || ''
+    }
+    inlineAddHouseEl?.focus()
+  })
+
+  inlineAddCancelBtnEl?.addEventListener('click', () => {
+    hideInlineAddForm()
+    if (inlineAddHouseEl)  inlineAddHouseEl.value  = ''
+    if (inlineAddSuffixEl) inlineAddSuffixEl.value = ''
+    if (inlineAddUnitEl)   inlineAddUnitEl.value   = ''
+  })
+
+  inlineAddTypeEl?.addEventListener('change', () => {
+    const t = inlineAddTypeEl.value
+    if (!inlineAddUnitLabelEl) return
+    inlineAddUnitLabelEl.textContent = t === 'Zgrada' ? 'Stan *' : 'Jedinica'
+  })
+
+  inlineAddSaveBtnEl?.addEventListener('click', async () => {
+    if (!canEdit()) { setStatus('❌ Nemaš dozvolu za unos.'); return }
+    const sid    = inlineAddStreetEl?.value
+    const tip    = inlineAddTypeEl?.value
+    const broj   = (inlineAddHouseEl?.value || '').trim()
+    const dod    = (inlineAddSuffixEl?.value || '').trim()
+    const stan   = (inlineAddUnitEl?.value || '').trim()
+    if (!sid || !tip || !broj) { setStatus('❌ Popuni ulicu, tip i broj.'); return }
+    if (tip === 'Zgrada' && !stan) { setStatus('❌ Za zgradu je stan obavezan.'); return }
+    const street = availableStreets.find(s => String(s.id) === String(sid))
+    if (!street) { setStatus('❌ Ulica nije pronađena.'); return }
+    const fullLabel = `${cleanStreetName(street.name)} ${broj}${dod}${stan ? ' / ' + stan : ''}`
+    setStatus('Snimam adresu...')
+    try {
+      const { data, error } = await supabase.from('addresses').insert({
+        street_id: sid,
+        house_number: broj,
+        house_number_suffix: dod || null,
+        unit_number: stan || null,
+        full_address_label: fullLabel,
+        address_type: tip,
+        census_status: 'not_visited',
+        is_active: true,
+        created_by: currentUser.id,
+        updated_by: currentUser.id
+      }).select(`*, streets ( id, name, settlement_name )`).single()
+      if (error) { setStatus(`Greška: ${error.message}`); return }
+      allAddresses.push(data)
+      hideInlineAddForm()
+      if (inlineAddHouseEl)  inlineAddHouseEl.value  = ''
+      if (inlineAddSuffixEl) inlineAddSuffixEl.value = ''
+      if (inlineAddUnitEl)   inlineAddUnitEl.value   = ''
+      // Postavi pretragu na novu adresu i refresh
+      if (searchInputEl) searchInputEl.value = `${broj}${dod}`
+      populateSearchSuggestions()
+      renderAddresses()
+      setStatus(`✅ Sačuvana: ${fullLabel}`)
+    } catch (err) {
+      setStatus(`Greška: ${err.message}`)
+    }
+  })
+
   // ── Init ───────────────────────────────────────────────────────────────────
   async function initApp() {
     setStatus('Pokretanje...')
@@ -4790,13 +5196,16 @@
     updateQueueUI()
     if (isOnline) setTimeout(() => processPendingQueue(), 1000)
     } else {
-      setStatus('Nisi prijavljen. Pošalji magic link za pristup.')
+      setStatus('Nisi prijavljen. Unesi email i lozinku za pristup.')
     }
   }
 
   // ── Event listeners ────────────────────────────────────────────────────────
-  loginBtn.addEventListener('click', signInWithMagicLink)
   passwordLoginBtn.addEventListener('click', signInWithPassword)
+  // Enter u password polju takodje pokrece prijavu
+  passwordInputEl?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') signInWithPassword()
+  })
 
   logoutBtn.addEventListener('click', async () => {
     await supabase.auth.signOut()
@@ -4864,7 +5273,12 @@
   applyFiltersBtn?.addEventListener('click', () => { renderAddresses() })
 
   // Auto-apply filters on change
-  filterStreetEl?.addEventListener('change', () => { selectedBuildingKey = null; selectedAddressId = null; renderAddresses() })
+  filterStreetEl?.addEventListener('change', () => {
+    selectedBuildingKey = null
+    selectedAddressId = null
+    populateSearchSuggestions()
+    renderAddresses()
+  })
   filterStatusEl?.addEventListener('change', () => { selectedBuildingKey = null; selectedAddressId = null; renderAddresses() })
   searchInputEl?.addEventListener('input', debounce(() => { selectedBuildingKey = null; selectedAddressId = null; renderAddresses() }, 250))
 
@@ -4943,6 +5357,176 @@
   })
 
   initApp()
+
+  // ── Zahtev #10: Mapa (Leaflet MVP) ────────────────────────────────────────
+  let mapaInstance = null
+  let mapaMarkersLayer = null
+  let mapaStreetHighlightLayer = null
+  const mapaStatusColors = {
+    students_win: '#22c55e',
+    sns:          '#dc2626',
+    not_visited:  '#f59e0b',
+    visited:      '#0ea5e9',
+    not_found:    '#6b7280',
+    scheduled:    '#3b82f6'
+  }
+  const mapaStatusLabels = {
+    students_win: '✌️ Pobeđujemo',
+    sns:          '💩 SNS',
+    not_visited:  'Nije obiđeno',
+    visited:      'Obiđeno',
+    not_found:    'Nije zatečen',
+    scheduled:    'Zakazano'
+  }
+
+  function initMapa() {
+    if (typeof L === 'undefined') {
+      console.warn('Leaflet nije učitan')
+      return
+    }
+    const container = document.getElementById('mapaContainer')
+    if (!container || mapaInstance) return
+    container.innerHTML = ''
+    // Centar Podbare (Novi Sad)
+    mapaInstance = L.map(container).setView([45.2671, 19.8335], 16)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap'
+    }).addTo(mapaInstance)
+    mapaMarkersLayer = L.layerGroup().addTo(mapaInstance)
+    mapaStreetHighlightLayer = L.layerGroup().addTo(mapaInstance)
+  }
+
+  function getMapaActiveStatuses() {
+    const checks = document.querySelectorAll('[data-mapa-status]')
+    const set = new Set()
+    checks.forEach(c => { if (c.checked) set.add(c.getAttribute('data-mapa-status')) })
+    return set
+  }
+  function isMapaLayerOn(name) {
+    const el = document.querySelector(`[data-mapa-layer="${name}"]`)
+    return !!el && el.checked
+  }
+
+  function buildPopupHtml(item) {
+    const street  = cleanStreetName(item.streets?.name || '')
+    const num     = `${item.house_number || ''}${item.house_number_suffix || ''}`
+    const unit    = item.unit_number ? ` / ${item.unit_number}` : ''
+    const status  = item.census_status || 'not_visited'
+    const statusOpts = Object.keys(mapaStatusLabels).map(s =>
+      `<option value="${s}" ${s === status ? 'selected' : ''}>${mapaStatusLabels[s]}</option>`
+    ).join('')
+    return `
+      <h4>${escapeHtml(street)} ${escapeHtml(num)}${escapeHtml(unit)}</h4>
+      <div><strong>Status:</strong> ${mapaStatusLabels[status] || status}</div>
+      ${canEdit() ? `
+        <select data-popup-status-for="${item.id}">${statusOpts}</select>
+        <button type="button" data-popup-save-for="${item.id}">💾 Sačuvaj status</button>
+      ` : ''}
+    `
+  }
+
+  function refreshMapa() {
+    if (!mapaInstance || !mapaMarkersLayer) return
+    mapaMarkersLayer.clearLayers()
+    mapaStreetHighlightLayer?.clearLayers()
+    if (!isMapaLayerOn('status')) return
+    const activeStatuses = getMapaActiveStatuses()
+    let pool = allAddresses || []
+    // Role-based filter: Editor/Viewer vide samo svoje ulice
+    if (!isAdmin()) {
+      const allowed = new Set(availableStreets.map(s => String(s.id)))
+      pool = pool.filter(a => allowed.has(String(a.street_id)))
+    }
+    let plotted = 0
+    pool.forEach(item => {
+      const lat = parseFloat(item.latitude)
+      const lng = parseFloat(item.longitude)
+      if (!isFinite(lat) || !isFinite(lng)) return
+      const status = item.census_status || 'not_visited'
+      if (!activeStatuses.has(status)) return
+      const color = mapaStatusColors[status] || '#999'
+      const marker = L.circleMarker([lat, lng], {
+        radius: 8,
+        color: '#fff',
+        weight: 2,
+        fillColor: color,
+        fillOpacity: 0.9
+      })
+      marker.bindPopup(() => buildPopupHtml(item))
+      marker.on('popupopen', (e) => {
+        const popupNode = e.popup.getElement()
+        const saveBtn = popupNode?.querySelector(`[data-popup-save-for="${item.id}"]`)
+        const sel     = popupNode?.querySelector(`[data-popup-status-for="${item.id}"]`)
+        if (saveBtn && sel) {
+          saveBtn.addEventListener('click', async () => {
+            const newStatus = sel.value
+            saveBtn.disabled = true
+            try {
+              const { error } = await supabase.from('addresses')
+                .update({ census_status: newStatus, updated_by: currentUser.id })
+                .eq('id', item.id)
+              if (error) throw error
+              item.census_status = newStatus
+              setStatus('✅ Status ažuriran sa mape.')
+              refreshMapa()
+              renderAddresses()
+            } catch (err) {
+              setStatus(`Greška: ${err.message}`)
+            } finally {
+              saveBtn.disabled = false
+              mapaInstance.closePopup()
+            }
+          })
+        }
+      })
+      mapaMarkersLayer.addLayer(marker)
+      plotted++
+    })
+    // Sloj "Moje ulice" — samo Editor/Admin (ne Viewer)
+    if (isMapaLayerOn('my_streets') && availableStreets.length && plotted > 0) {
+      const allowed = new Set(availableStreets.map(s => String(s.id)))
+      const myAddrs = pool.filter(a => allowed.has(String(a.street_id)) && isFinite(parseFloat(a.latitude)))
+      if (myAddrs.length > 1) {
+        const bounds = L.latLngBounds(myAddrs.map(a => [parseFloat(a.latitude), parseFloat(a.longitude)]))
+        L.rectangle(bounds, { color: '#01696f', weight: 1, fillOpacity: 0.05, dashArray: '4 4' })
+          .addTo(mapaStreetHighlightLayer)
+      }
+    }
+  }
+
+  function setupMapaControls() {
+    document.querySelectorAll('[data-mapa-layer], [data-mapa-status]').forEach(el => {
+      el.addEventListener('change', refreshMapa)
+    })
+  }
+
+  function showOrHideMapaForRole() {
+    const link = document.getElementById('mapNavLink')
+    const card = document.getElementById('sectionMapa')
+    // Viewer: vidi mapu samo bez statusa (osnova). Editor + Admin: pune mogućnosti.
+    // Pokaži link/sekciju svima ulogovanim, ali za Viewera onemogući kontrole statusa.
+    if (!card) return
+    card.classList.remove('hidden')
+    if (link) link.classList.remove('hidden')
+    if (!isAdmin() && getRole() !== 'editor') {
+      // Viewer — sakrij filtere statusa po default-u (zadrži sloj statusa, ali bez edita)
+      document.querySelectorAll('[data-mapa-status]').forEach(c => { c.disabled = false })
+    }
+  }
+
+  // Inicijalizacija mape posle login-a — pozovi iz renderLoggedIn flow-a
+  window.__initMapaWhenReady = function () {
+    showOrHideMapaForRole()
+    if (typeof L === 'undefined') {
+      // Sačekaj malo, Leaflet se učitava async (defer)
+      setTimeout(window.__initMapaWhenReady, 300)
+      return
+    }
+    initMapa()
+    setupMapaControls()
+    refreshMapa()
+  }
 </script>
 </body>
 </html>
