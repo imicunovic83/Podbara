@@ -2038,7 +2038,18 @@
       color: var(--color-text-muted);
       font-size: var(--text-sm);
     }
-    .leaflet-popup-content { font-family: 'DM Sans', sans-serif; min-width: 200px; }
+    .leaflet-popup-content { font-family: 'DM Sans', sans-serif; min-width: 240px; max-width: 320px; }
+    .building-pie-icon { background: transparent; border: none; }
+    .building-pie-icon svg { display: block; cursor: pointer; }
+    .building-popup-header { font-size: 0.95rem; font-weight: 700; margin: 0 0 8px; padding-bottom: 6px; border-bottom: 2px solid var(--color-primary); }
+    .building-popup-list { max-height: 280px; overflow-y: auto; margin: 8px 0; }
+    .building-popup-unit { padding: 6px 0; border-bottom: 1px solid #eee; }
+    .building-popup-unit:last-child { border-bottom: none; }
+    .building-popup-unit strong { display: block; font-size: 0.85rem; margin-bottom: 4px; }
+    .building-popup-unit select { width: 100%; padding: 4px 6px; font-size: 0.8rem; border: 1px solid #ddd; border-radius: 4px; }
+    .building-popup-saveall { width: 100%; margin-top: 8px; padding: 8px; background: var(--color-primary); color: #fff; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; }
+    .building-popup-saveall:hover { background: var(--color-primary-hover); }
+    .building-popup-saveall:disabled { opacity: 0.6; cursor: not-allowed; }
     .leaflet-popup-content h4 { margin: 0 0 var(--space-2); font-size: var(--text-base); }
     .leaflet-popup-content select, .leaflet-popup-content button {
       width: 100%;
@@ -5460,11 +5471,7 @@
     ).addTo(mapaInstance)
     mapaStreetHighlightLayer = L.layerGroup().addTo(mapaInstance)
 
-  // (da user ne moze nesvesno da ga ostavi iskljucen i misli da je app pukla)
-    document.querySelectorAll('[data-mapa-layer]').forEach(c => { c.checked = true })
-    document.querySelectorAll('[data-mapa-status]').forEach(c => { c.checked = true })
-
-  // Fix #10: Auto-reset master toggle "Adrese na mapi" na checked
+    // Fix #10: Auto-reset master toggle "Adrese na mapi" na checked
     // (da user ne moze nesvesno da ga ostavi iskljucen i misli da je app pukla)
     document.querySelectorAll('[data-mapa-layer]').forEach(c => { c.checked = true })
     document.querySelectorAll('[data-mapa-status]').forEach(c => { c.checked = true })
@@ -5479,6 +5486,135 @@
   function isMapaLayerOn(name) {
     const el = document.querySelector(`[data-mapa-layer="${name}"]`)
     return !!el && el.checked
+  }
+
+  // ── Pie-chart icon za zgradu (Fix #14) ────────────────────────────────────
+  function buildPieIcon(statusCounts, totalCount, size) {
+    if (totalCount === 0) return null
+    size = size || 36
+    const radius = size / 2 - 2
+    const cx = size / 2
+    const cy = size / 2
+
+    let svgInner = ''
+    // Pozadinski beli krug + crni okvir
+    svgInner += `<circle cx="${cx}" cy="${cy}" r="${radius + 1}" fill="#fff" stroke="#000" stroke-width="2"/>`
+
+    // Pie segmenti
+    const entries = Object.entries(statusCounts).filter(([_, c]) => c > 0)
+    if (entries.length === 1) {
+      // Jedan status — pun krug
+      const [status] = entries[0]
+      const color = mapaStatusColors[status] || '#999'
+      svgInner += `<circle cx="${cx}" cy="${cy}" r="${radius}" fill="${color}"/>`
+    } else {
+      let cumAngle = 0
+      entries.forEach(([status, count]) => {
+        const sliceAngle = (count / totalCount) * 2 * Math.PI
+        const startAngle = cumAngle
+        const endAngle = cumAngle + sliceAngle
+        cumAngle = endAngle
+        const x1 = cx + radius * Math.sin(startAngle)
+        const y1 = cy - radius * Math.cos(startAngle)
+        const x2 = cx + radius * Math.sin(endAngle)
+        const y2 = cy - radius * Math.cos(endAngle)
+        const largeArc = sliceAngle > Math.PI ? 1 : 0
+        const color = mapaStatusColors[status] || '#999'
+        svgInner += `<path d="M${cx},${cy} L${x1},${y1} A${radius},${radius} 0 ${largeArc},1 ${x2},${y2} Z" fill="${color}"/>`
+      })
+    }
+
+    // Broj stanova u sredini (samo ako > 1)
+    if (totalCount > 1) {
+      svgInner += `<circle cx="${cx}" cy="${cy}" r="${radius * 0.45}" fill="#fff" stroke="#000" stroke-width="1.5"/>`
+      svgInner += `<text x="${cx}" y="${cy + 4}" text-anchor="middle" font-size="11" font-weight="700" fill="#000">${totalCount}</text>`
+    }
+
+    const html = `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">${svgInner}</svg>`
+    return L.divIcon({
+      html, iconSize: [size, size], iconAnchor: [size/2, size/2], className: 'building-pie-icon'
+    })
+  }
+
+  // Popup za zgradu — lista stanova sa per-stan status edit (Fix #14)
+  function buildBuildingPopupHtml(items) {
+    const first = items[0]
+    const street = cleanStreetName(first.streets?.name || '')
+    const num    = `${first.house_number || ''}${first.house_number_suffix || ''}`
+    const label  = `${street} ${num}`.trim()
+    const cnt    = items.length
+
+    // Sortiranje stanova po unit_number (1, 2, 10, 11 prirodno)
+    const sortedItems = [...items].sort((a, b) =>
+      naturalCompare(String(a.unit_number || ''), String(b.unit_number || ''))
+    )
+
+    const unitsHtml = sortedItems.map(item => {
+      const unit = item.unit_number ? `Stan ${escapeHtml(String(item.unit_number))}` : 'Jedan unos'
+      const status = item.census_status || 'not_visited'
+      const statusOpts = Object.keys(mapaStatusLabels).map(s =>
+        `<option value="${s}" ${s === status ? 'selected' : ''}>${mapaStatusLabels[s]}</option>`
+      ).join('')
+      return `
+        <div class="building-popup-unit">
+          <strong>${unit}</strong>
+          ${canEdit()
+            ? `<select data-popup-unit-status-for="${item.id}" data-original-status="${status}">${statusOpts}</select>`
+            : `<div style="font-size:0.8rem;color:#555;">${mapaStatusLabels[status] || status}</div>`}
+        </div>
+      `
+    }).join('')
+
+    const headerCount = cnt === 1 ? '1 unos' : (cnt + ' jedinica')
+    return `
+      <div class="building-popup-header">🏠 ${escapeHtml(label)} <span style="font-weight:400;font-size:0.8rem;color:#666;">(${headerCount})</span></div>
+      <div class="building-popup-list">${unitsHtml}</div>
+      ${canEdit() ? `<button type="button" class="building-popup-saveall" data-popup-save-all="1">💾 Sačuvaj sve izmene</button>` : ''}
+    `
+  }
+
+  function attachBuildingPopupHandlers(e, items) {
+    const popupNode = e.popup.getElement()
+    if (!popupNode) return
+    const saveBtn = popupNode.querySelector('[data-popup-save-all]')
+    if (!saveBtn) return
+    saveBtn.addEventListener('click', async () => {
+      saveBtn.disabled = true
+      saveBtn.textContent = 'Čuvam...'
+      // Sakupi izmene (samo gde je status drukciji)
+      const updates = []
+      items.forEach(item => {
+        const sel = popupNode.querySelector(`[data-popup-unit-status-for="${item.id}"]`)
+        if (sel && sel.value !== item.census_status) {
+          updates.push({ id: item.id, status: sel.value })
+        }
+      })
+      if (updates.length === 0) {
+        setStatus('Nema izmena za snimanje.')
+        saveBtn.disabled = false
+        saveBtn.textContent = '💾 Sačuvaj sve izmene'
+        return
+      }
+      try {
+        for (const upd of updates) {
+          const { error } = await supabase.from('addresses')
+            .update({ census_status: upd.status, updated_by: currentUser.id })
+            .eq('id', upd.id)
+          if (error) throw error
+          const idx = allAddresses.findIndex(a => String(a.id) === String(upd.id))
+          if (idx !== -1) allAddresses[idx].census_status = upd.status
+        }
+        setStatus(`✅ Sačuvano ${updates.length} ${updates.length === 1 ? 'izmena' : 'izmena'} sa mape.`)
+        mapaInstance.closePopup()
+        refreshMapa()
+        renderAddresses()
+        try { loadDashboardStats() } catch (e2) {}
+      } catch (err) {
+        setStatus(`Greška: ${err.message}`)
+        saveBtn.disabled = false
+        saveBtn.textContent = '💾 Sačuvaj sve izmene'
+      }
+    })
   }
 
   function buildPopupHtml(item) {
@@ -5506,54 +5642,35 @@
     if (!isMapaLayerOn('status')) return
     const activeStatuses = getMapaActiveStatuses()
     let pool = allAddresses || []
-    // Role-based filter: Editor/Viewer vide samo svoje ulice
     if (!isAdmin()) {
       const allowed = new Set(availableStreets.map(s => String(s.id)))
       pool = pool.filter(a => allowed.has(String(a.street_id)))
     }
-    let plotted = 0
+
+    // Grupisanje po zgradi (street_id + house_number + suffix)
+    const buildings = new Map()
     pool.forEach(item => {
       const lat = parseFloat(item.latitude)
       const lng = parseFloat(item.longitude)
       if (!isFinite(lat) || !isFinite(lng)) return
       const status = item.census_status || 'not_visited'
       if (!activeStatuses.has(status)) return
-      const color = mapaStatusColors[status] || '#999'
-      const marker = L.circleMarker([lat, lng], {
-        radius: 12,
-        color: '#000',
-        weight: 3,
-        fillColor: color,
-        fillOpacity: 0.95,
-        opacity: 1
-      })
-      marker.bindPopup(() => buildPopupHtml(item))
-      marker.on('popupopen', (e) => {
-        const popupNode = e.popup.getElement()
-        const saveBtn = popupNode?.querySelector(`[data-popup-save-for="${item.id}"]`)
-        const sel     = popupNode?.querySelector(`[data-popup-status-for="${item.id}"]`)
-        if (saveBtn && sel) {
-          saveBtn.addEventListener('click', async () => {
-            const newStatus = sel.value
-            saveBtn.disabled = true
-            try {
-              const { error } = await supabase.from('addresses')
-                .update({ census_status: newStatus, updated_by: currentUser.id })
-                .eq('id', item.id)
-              if (error) throw error
-              item.census_status = newStatus
-              setStatus('✅ Status ažuriran sa mape.')
-              refreshMapa()
-              renderAddresses()
-            } catch (err) {
-              setStatus(`Greška: ${err.message}`)
-            } finally {
-              saveBtn.disabled = false
-              mapaInstance.closePopup()
-            }
-          })
-        }
-      })
+      const key = `${item.street_id}||${item.house_number || ''}||${(item.house_number_suffix || '').toLowerCase()}`
+      if (!buildings.has(key)) {
+        buildings.set(key, { lat, lng, items: [], statusCounts: {} })
+      }
+      const b = buildings.get(key)
+      b.items.push(item)
+      b.statusCounts[status] = (b.statusCounts[status] || 0) + 1
+    })
+
+    let plotted = 0
+    buildings.forEach((b) => {
+      const total = b.items.length
+      const icon = buildPieIcon(b.statusCounts, total, total > 1 ? 42 : 28)
+      const marker = L.marker([b.lat, b.lng], { icon })
+      marker.bindPopup(() => buildBuildingPopupHtml(b.items), { minWidth: 240, maxWidth: 320 })
+      marker.on('popupopen', (e) => attachBuildingPopupHandlers(e, b.items))
       mapaMarkersLayer.addLayer(marker)
       plotted++
     })
