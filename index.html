@@ -3067,9 +3067,10 @@
         renderAddresses()
       }
       // mousedown za desktop, touchstart za iOS (mousedown ne fire-uje pouzdano na iOS)
-      el.addEventListener('mousedown', handleSelect)
-      el.addEventListener('touchstart', handleSelect, { passive: false })
-    })
+     el.addEventListener('mousedown', (ev) => {
+  ev.preventDefault()  // samo da input ne izgubi fokus pre selekta
+  // ... select logika
+})
   }
 
   function hideSearchDropdown() {
