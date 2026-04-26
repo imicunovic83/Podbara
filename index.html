@@ -5460,12 +5460,10 @@
     document.querySelectorAll('[data-mapa-layer]').forEach(c => { c.checked = true })
     document.querySelectorAll('[data-mapa-status]').forEach(c => { c.checked = true })
 
-    // DEBUG: izloziti na window za debugovanje (kasnije skloniti)
-    window.__mapaInstance = mapaInstance
-    window.__mapaMarkersLayer = mapaMarkersLayer
-    window.__refreshMapa = refreshMapa
-    window.__getAllAddresses = () => allAddresses
-    console.log('[DEBUG] Mapa exposed: window.__mapaInstance, __mapaMarkersLayer, __refreshMapa, __getAllAddresses()')
+  // Fix #10: Auto-reset master toggle "Adrese na mapi" na checked
+    // (da user ne moze nesvesno da ga ostavi iskljucen i misli da je app pukla)
+    document.querySelectorAll('[data-mapa-layer]').forEach(c => { c.checked = true })
+    document.querySelectorAll('[data-mapa-status]').forEach(c => { c.checked = true })
   }
 
   function getMapaActiveStatuses() {
