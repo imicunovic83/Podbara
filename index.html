@@ -3047,13 +3047,17 @@
     dd.style.display = 'block'
 
     dd.querySelectorAll('[data-value]').forEach(el => {
-      el.addEventListener('mousedown', (ev) => {
+      const handleSelect = (ev) => {
         ev.preventDefault()
+        ev.stopPropagation()
         const v = el.getAttribute('data-value')
         if (searchInputEl) searchInputEl.value = v
         hideSearchDropdown()
         renderAddresses()
-      })
+      }
+      // mousedown za desktop, touchstart za iOS (mousedown ne fire-uje pouzdano na iOS)
+      el.addEventListener('mousedown', handleSelect)
+      el.addEventListener('touchstart', handleSelect, { passive: false })
     })
   }
 
