@@ -3321,25 +3321,10 @@
 
         <div class="map-section">
           <div class="map-section-header">
-            <span class="map-section-title">🗺️ Lokacija na mapi</span>
-            <div style="display:flex;gap:var(--space-2);align-items:center;flex-wrap:wrap;">
-              <a href="${buildMapsNavUrl(buildMapQuery(item))}" target="_blank" rel="noopener" class="map-nav-btn">
-                ↗ Navigacija
-              </a>
-              <button type="button" class="map-toggle-btn" id="mapToggleBtn-${item.id}">Prikaži mapu</button>
-            </div>
-          </div>
-          <div id="mapFrameWrap-${item.id}" class="map-frame-wrap hidden">
-            <div class="map-loading" id="mapLoading-${item.id}">
-              <span>🗺️</span><span>Učitavanje mape...</span>
-            </div>
-            <iframe
-              id="mapIframe-${item.id}"
-              title="Mapa adrese"
-              allowfullscreen
-              loading="lazy"
-              referrerpolicy="no-referrer-when-downgrade"
-            ></iframe>
+            <span class="map-section-title">📍 Navigacija do adrese</span>
+            <a href="${buildMapsNavUrl(buildMapQuery(item))}" target="_blank" rel="noopener" class="map-nav-btn">
+              ↗ Otvori u Google Maps
+            </a>
           </div>
         </div>
 
@@ -3481,32 +3466,7 @@
     // Apply latin enforcement to new unit inputs
     applyLatinEnforcement()
 
-    // Map toggle — lazy load iframe only on first click
-    const mapToggleBtn  = selectedAddressDetailsEl.querySelector(`#mapToggleBtn-${item.id}`)
-    const mapFrameWrap  = selectedAddressDetailsEl.querySelector(`#mapFrameWrap-${item.id}`)
-    const mapIframe     = selectedAddressDetailsEl.querySelector(`#mapIframe-${item.id}`)
-    const mapLoading    = selectedAddressDetailsEl.querySelector(`#mapLoading-${item.id}`)
-    let   mapLoaded     = false
-
-    mapToggleBtn?.addEventListener('click', () => {
-      const isHidden = mapFrameWrap?.classList.contains('hidden')
-      if (isHidden) {
-        mapFrameWrap?.classList.remove('hidden')
-        mapToggleBtn.textContent = 'Sakrij mapu'
-        // Lazy load: only set src on first open
-        if (!mapLoaded && mapIframe) {
-          const query = buildMapQuery(item)
-          mapIframe.src = buildMapEmbedUrl(query)
-          mapIframe.addEventListener('load', () => {
-            mapLoading?.classList.add('loaded')
-            mapLoaded = true
-          }, { once: true })
-        }
-      } else {
-        mapFrameWrap?.classList.add('hidden')
-        mapToggleBtn.textContent = 'Prikaži mapu'
-      }
-    })
+    // (Map toggle iframe je sklonjen — koristi se Mapa sekcija + Google Maps navigacija)
   }
 
   // ── Address list render ────────────────────────────────────────────────────
@@ -5494,6 +5454,11 @@
       : L.layerGroup()
     ).addTo(mapaInstance)
     mapaStreetHighlightLayer = L.layerGroup().addTo(mapaInstance)
+
+    // Fix #10: Auto-reset master toggle "Adrese na mapi" na checked
+    // (da user ne moze nesvesno da ga ostavi iskljucen i misli da je app pukla)
+    document.querySelectorAll('[data-mapa-layer]').forEach(c => { c.checked = true })
+    document.querySelectorAll('[data-mapa-status]').forEach(c => { c.checked = true })
   }
 
   function getMapaActiveStatuses() {
@@ -5642,6 +5607,8 @@
         mapaUserPositionMarker = L.circleMarker([uLat, uLon], {
           radius: 10, color: '#fff', weight: 3, fillColor: '#1a73e8', fillOpacity: 1
         }).bindTooltip('Vi ste ovde', { permanent: true, direction: 'top' }).addTo(mapaInstance)
+        // Fix #9: Eksplicitno zumiraj na korisnikovu poziciju (fitBounds ne radi kad je bounds submetar)
+        mapaInstance.setView([uLat, uLon], 17, { animate: true })
         // Pool
         let pool = allAddresses || []
         if (!isAdmin()) {
