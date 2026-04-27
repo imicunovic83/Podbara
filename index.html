@@ -2844,7 +2844,7 @@
           </div>
           <!-- FAB za "Najbliže neobiđeno" (donji-desni ugao) -->
           <button type="button" id="mapaNearestFab" class="mapa-fab" aria-label="Najbliže neobiđeno">
-            📍 Najbliže
+            📍 Najbliže neobiđeno
           </button>
         </div>
       </div>
@@ -7202,7 +7202,9 @@
     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
   }
 
-  function showNearestUnvisited() {
+  // Helper: pronalazi top 5 najbližih adresa od korisnikove lokacije.
+  // filterFn(a) određuje koje adrese ulaze u pretragu (npr. samo not_visited).
+  function showNearestAddresses({ filterFn, statusLabel }) {
     if (!mapaInstance) { setStatus('❌ Mapa nije inicijalizovana.'); return }
     if (!navigator.geolocation) { setStatus('❌ Tvoj browser ne podržava geolokaciju.'); return }
     setStatus('📍 Tražim tvoju lokaciju...')
@@ -7215,7 +7217,6 @@
         mapaUserPositionMarker = L.circleMarker([uLat, uLon], {
           radius: 10, color: '#fff', weight: 3, fillColor: '#1a73e8', fillOpacity: 1
         }).bindTooltip('Vi ste ovde', { permanent: true, direction: 'top' }).addTo(mapaInstance)
-        // Fix #9: Eksplicitno zumiraj na korisnikovu poziciju (fitBounds ne radi kad je bounds submetar)
         mapaInstance.setView([uLat, uLon], 17, { animate: true })
         // Pool
         let pool = allAddresses || []
@@ -7224,7 +7225,7 @@
           pool = pool.filter(a => allowed.has(String(a.street_id)))
         }
         const nearest = pool
-          .filter(a => a.census_status === 'not_visited'
+          .filter(a => filterFn(a)
                        && isFinite(parseFloat(a.latitude))
                        && isFinite(parseFloat(a.longitude)))
           .map(a => ({
@@ -7234,7 +7235,7 @@
           .sort((a, b) => a.dist - b.dist)
           .slice(0, 5)
         if (!nearest.length) {
-          setStatus('❌ Nema neobiđenih adresa sa koordinatama u tvojoj zoni.')
+          setStatus(`❌ Nema ${statusLabel} adresa sa koordinatama u tvojoj zoni.`)
           return
         }
         const bounds = L.latLngBounds([
@@ -7248,7 +7249,7 @@
           const unit   = n.item.unit_number ? `/${n.item.unit_number}` : ''
           return `${i+1}. ${street} ${num}${unit} (${Math.round(n.dist)}m)`
         }).join('  •  ')
-        setStatus(`✅ Top 5 najbližih neobiđenih: ${summary}`)
+        setStatus(`✅ Top 5 najbližih ${statusLabel}: ${summary}`)
       },
       (err) => {
         const msg = err.code === 1 ? 'Geolokacija odbijena (dozvoli pristup lokaciji)'
@@ -7261,8 +7262,24 @@
     )
   }
 
-  mapaNearestBtnEl?.addEventListener('click', showNearestUnvisited)
-  document.getElementById('mapaNearestFab')?.addEventListener('click', showNearestUnvisited)
+  // "Najbliže neobiđeno" — samo adrese sa status=not_visited
+  function showNearestUnvisited() {
+    showNearestAddresses({
+      filterFn:    a => a.census_status === 'not_visited',
+      statusLabel: 'neobiđenih'
+    })
+  }
+  // "Najbliže od mene" — bilo koja adresa, bez obzira na status
+  function showNearestAny() {
+    showNearestAddresses({
+      filterFn:    a => true,
+      statusLabel: 'adresa'
+    })
+  }
+
+  // Wire dugmeta — različite funkcije za različite namene
+  mapaNearestBtnEl?.addEventListener('click', showNearestAny)         // "Najbliže od mene" (sve)
+  document.getElementById('mapaNearestFab')?.addEventListener('click', showNearestUnvisited)  // FAB (samo neobiđeno)
 
   // Reset filtera mape — sve checkbox-eve čekira, status filter u Evidenciji čisti
   document.getElementById('mapaResetFiltersBtn')?.addEventListener('click', () => {
