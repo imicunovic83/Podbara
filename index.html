@@ -2107,6 +2107,7 @@
     <a href="#sectionStatistika"><span class="nav-icon">📈</span>Statistika po ulicama</a>
     <a href="#sectionLeaderboard"><span class="nav-icon">🏆</span>Ko je obišao najviše</a>
     <a href="#adminPanelSection" id="adminNavLink" class="hidden"><span class="nav-icon">⚙️</span>Admin panel</a>
+    <a href="#sectionMojProfil"><span class="nav-icon">👤</span>Moj profil</a>
     <!-- Logout je u hamburger meniju da se korisnik ne odjavi slučajno -->
     <div class="mobile-nav-divider"></div>
     <button type="button" id="logoutBtn" class="mobile-nav-logout"><span class="nav-icon">🚪</span>Odjavi se</button>
@@ -2156,6 +2157,44 @@
         <button id="passwordLoginBtn" type="button">Prijavi se</button>
       </div>
       <p class="note">Unesi email i lozinku za pristup aplikaciji.</p>
+      <p class="note" style="margin-top:0.75rem;">
+        <a href="#" id="forgotPasswordLink" style="color:var(--color-primary);text-decoration:underline;">Zaboravio/la sam lozinku</a>
+      </p>
+    </div>
+
+    <!-- ── Forgot password section (skriven dok user ne klikne link) ── -->
+    <div id="forgotPasswordSection" class="card-box hidden">
+      <h2>Resetovanje lozinke</h2>
+      <p class="note">Unesi email adresu sa kojom je nalog napravljen. Poslaćemo ti link za postavljanje nove lozinke.</p>
+      <div class="form-grid">
+        <div class="field">
+          <label for="forgotEmailInput">Email adresa</label>
+          <input id="forgotEmailInput" type="email" placeholder="npr. ime@email.com" autocomplete="username" />
+        </div>
+      </div>
+      <div class="actions" style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+        <button id="sendResetLinkBtn" type="button">📧 Pošalji link za reset</button>
+        <button id="backToLoginBtn" type="button" class="btn-dark">← Nazad na prijavu</button>
+      </div>
+    </div>
+
+    <!-- ── Password recovery section (vidi se nakon klika na link iz mejla) ── -->
+    <div id="recoverySection" class="card-box hidden">
+      <h2>Postavi novu lozinku</h2>
+      <p class="note">Unesi novu lozinku koju ćeš ubuduće koristiti. Minimum 8 karaktera.</p>
+      <div class="form-grid">
+        <div class="field">
+          <label for="recoveryNewPassword">Nova lozinka</label>
+          <input id="recoveryNewPassword" type="password" placeholder="Min. 8 karaktera" autocomplete="new-password" />
+        </div>
+        <div class="field">
+          <label for="recoveryConfirmPassword">Potvrdi novu lozinku</label>
+          <input id="recoveryConfirmPassword" type="password" placeholder="Ponovi novu lozinku" autocomplete="new-password" />
+        </div>
+      </div>
+      <div class="actions">
+        <button id="saveNewPasswordBtn" type="button">💾 Sačuvaj novu lozinku</button>
+      </div>
     </div>
 
     <!-- ══════════════════════════════════════════
@@ -2612,6 +2651,45 @@
 
       </div>
 
+      <!-- ── 9. MOJ PROFIL ── -->
+      <div id="sectionMojProfil" class="card-box">
+        <h2>👤 Moj profil</h2>
+        <div class="form-grid" style="margin-bottom:var(--space-4);">
+          <div class="field">
+            <label>Email</label>
+            <input id="profileEmail" type="email" disabled />
+          </div>
+          <div class="field">
+            <label>Ime i prezime</label>
+            <input id="profileFullname" type="text" disabled />
+          </div>
+          <div class="field">
+            <label>Rola</label>
+            <input id="profileRole" type="text" disabled />
+          </div>
+        </div>
+
+        <h3 style="margin-top:var(--space-4);">🔒 Promena lozinke</h3>
+        <p class="note">Unesi trenutnu lozinku, pa novu (min. 8 karaktera).</p>
+        <div class="form-grid">
+          <div class="field">
+            <label for="currentPasswordInput">Trenutna lozinka</label>
+            <input id="currentPasswordInput" type="password" placeholder="Trenutna lozinka" autocomplete="current-password" />
+          </div>
+          <div class="field">
+            <label for="newPasswordInput">Nova lozinka</label>
+            <input id="newPasswordInput" type="password" placeholder="Min. 8 karaktera" autocomplete="new-password" />
+          </div>
+          <div class="field">
+            <label for="confirmPasswordInput">Potvrdi novu lozinku</label>
+            <input id="confirmPasswordInput" type="password" placeholder="Ponovi novu lozinku" autocomplete="new-password" />
+          </div>
+        </div>
+        <div class="actions">
+          <button id="changePasswordBtn" type="button">💾 Sačuvaj novu lozinku</button>
+        </div>
+      </div>
+
     </div><!-- /appSection -->
   </div><!-- /container -->
 
@@ -2647,6 +2725,24 @@
   const passwordInputEl           = document.getElementById('passwordInput')
   const passwordLoginBtn          = document.getElementById('passwordLoginBtn')
   const logoutBtn                 = document.getElementById('logoutBtn')
+  // Forgot password / recovery / promena lozinke
+  const forgotPasswordLinkEl      = document.getElementById('forgotPasswordLink')
+  const forgotPasswordSectionEl   = document.getElementById('forgotPasswordSection')
+  const forgotEmailInputEl        = document.getElementById('forgotEmailInput')
+  const sendResetLinkBtn          = document.getElementById('sendResetLinkBtn')
+  const backToLoginBtn            = document.getElementById('backToLoginBtn')
+  const recoverySectionEl         = document.getElementById('recoverySection')
+  const recoveryNewPasswordEl     = document.getElementById('recoveryNewPassword')
+  const recoveryConfirmPasswordEl = document.getElementById('recoveryConfirmPassword')
+  const saveNewPasswordBtn        = document.getElementById('saveNewPasswordBtn')
+  // Moj profil
+  const profileEmailEl            = document.getElementById('profileEmail')
+  const profileFullnameEl         = document.getElementById('profileFullname')
+  const profileRoleEl             = document.getElementById('profileRole')
+  const currentPasswordInputEl    = document.getElementById('currentPasswordInput')
+  const newPasswordInputEl        = document.getElementById('newPasswordInput')
+  const confirmPasswordInputEl    = document.getElementById('confirmPasswordInput')
+  const changePasswordBtn         = document.getElementById('changePasswordBtn')
   const streetSelectEl            = document.getElementById('streetSelect')
   const houseNumberEl             = document.getElementById('KućaNumber')
   const houseSuffixEl             = document.getElementById('houseSuffix')
@@ -3177,13 +3273,15 @@
   }
 
   // Get unique buildings from filtered list, sorted
+  // Returns: [{ key, label, item, items[] }] where items[] = svi redovi za tu adresu
   function getUniqueBuildings(filtered) {
     const map = new Map()
     filtered.forEach(item => {
       const key = getBuildingKey(item)
       if (!map.has(key)) {
-        map.set(key, { key, label: getBuildingLabel(item), item })
+        map.set(key, { key, label: getBuildingLabel(item), item, items: [] })
       }
+      map.get(key).items.push(item)
     })
     return Array.from(map.values()).sort((a, b) => naturalCompare(a.label, b.label))
   }
@@ -3195,22 +3293,65 @@
       .sort((a, b) => naturalCompare(String(a.unit_number || ''), String(b.unit_number || '')))
   }
 
+  // ── Hijerarhijska logika: Kuća/Zgrada/jedinica/stan ─────────────────────────
+  // Određuje tip adresne grupe (sve redove sa istim street||house||suffix kljucem):
+  //  - 'unexplored'    = Zgrada bez ijednog unetog stana (placeholder)
+  //  - 'building'      = Zgrada sa unetim stanovima
+  //  - 'house_multi'   = Kuća sa više jedinica (npr. Almaška 17 — 2 kuće u dvorištu)
+  //  - 'house_single'  = Klasična porodična kuća (1 red)
+  function getAddressGroupKind(items) {
+    if (!items || !items.length) return 'house_single'
+    const allBuilding = items.every(it => it.address_type === 'Zgrada')
+    const anyHasUnit  = items.some(it => String(it.unit_number || '').trim().length > 0)
+    if (allBuilding && !anyHasUnit) return 'unexplored'
+    if (allBuilding) return 'building'
+    if (items.length > 1 || anyHasUnit) return 'house_multi'
+    return 'house_single'
+  }
+
+  // Da li grupa nosi validne (status-noseće) jedinice?
+  // Neistražena zgrada ne nosi validne jedinice — isključuje se iz brojanja.
+  function isValidUnitGroup(items) {
+    return getAddressGroupKind(items) !== 'unexplored'
+  }
+
+  // Broji koliko stvarnih jedinica nosi grupa za potrebe brojanja "Ukupno".
+  // Neistražena zgrada = 0; ostale = broj redova.
+  function getEffectiveUnitCount(items) {
+    return isValidUnitGroup(items) ? items.length : 0
+  }
+
+  // Label za dropdown — "33 — Kuća", "17 — Kuća · 2 jedinice",
+  // "24a — Zgrada · 2 stana", "45 — Zgrada · neistraženo"
+  function getBuildingDropdownLabel(items) {
+    const first = items[0]
+    const num   = `${first.house_number || ''}${first.house_number_suffix || ''}`.trim()
+    const kind  = getAddressGroupKind(items)
+    if (kind === 'unexplored')   return `${num} — Zgrada · neistraženo`
+    if (kind === 'building')     return `${num} — Zgrada · ${items.length} ${items.length === 1 ? 'stan' : 'stana'}`
+    if (kind === 'house_multi')  return `${num} — Kuća · ${items.length} ${items.length === 1 ? 'jedinica' : 'jedinice'}`
+    return `${num} — Kuća`
+  }
+
   function populateBuildingSelect(filtered) {
     const buildings = getUniqueBuildings(filtered)
     if (buildingCountBadgeEl) buildingCountBadgeEl.textContent = buildings.length
 
-    // Preserve selection if still valid
+    // Preserve selection if still valid; ne auto-biramo prvi (default = prazno)
     const keys = new Set(buildings.map(b => b.key))
     if (!keys.has(selectedBuildingKey)) {
-      selectedBuildingKey = buildings.length ? buildings[0].key : null
+      selectedBuildingKey = null
     }
 
     if (buildingSelectEl) {
       buildingSelectEl.innerHTML =
-        '<option value="">Izaberi objekat...</option>' +
-        buildings.map(b =>
-          `<option value="${b.key}" ${b.key === selectedBuildingKey ? 'selected' : ''}>${b.label}</option>`
-        ).join('')
+        '<option value="">— Izaberi objekat —</option>' +
+        buildings.map(b => {
+          // Bogati label: "33 — Kuća", "17 — Kuća · 2 jedinice",
+          // "24a — Zgrada · 2 stana", "45 — Zgrada · neistraženo"
+          const richLabel = getBuildingDropdownLabel(b.items)
+          return `<option value="${b.key}" ${b.key === selectedBuildingKey ? 'selected' : ''}>${escapeHtml(richLabel)}</option>`
+        }).join('')
       buildingSelectEl.value = selectedBuildingKey || ''
     }
   }
@@ -3224,6 +3365,21 @@
     }
 
     let units = getUnitsForBuilding(filtered, selectedBuildingKey)
+    const groupKind = getAddressGroupKind(units)
+
+    // Specijalan slučaj: neistražena Zgrada — placeholder bez stanova.
+    // Setujemo selectedAddressId na placeholder red da detail kartica može da
+    // prikaže "+ Dodaj prvi stan" CTA umesto status editora.
+    if (groupKind === 'unexplored') {
+      unitSelectWrapEl?.classList.add('dim')
+      if (unitSelectEl) {
+        unitSelectEl.innerHTML = '<option value="">⚠ Zgrada bez unetih stanova</option>'
+      }
+      if (unitCountBadgeEl) unitCountBadgeEl.textContent = '0'
+      if (units.length) selectedAddressId = String(units[0].id)
+      updateUnitSelectLabel(units, filtered)
+      return
+    }
 
     // Zahtev #3b: ako u objektu postoje stvarne jedinice (sa unit_number),
     // sakrij stavke bez unit_number (npr. "Jedan unos – nije obidjeno").
@@ -3237,7 +3393,7 @@
     // Zahtev #3c: dinamička labela "Stan/Jedinica" prema tipu objekta
     updateUnitSelectLabel(units, filtered)
 
-    // Ako je objekat sa samo 1 stavkom (kuća ili pojedinačan unos) — dim picker
+    // Ako je objekat sa samo 1 stavkom (klasična porodična kuća) — dim picker, auto-select
     if (units.length <= 1) {
       unitSelectWrapEl?.classList.add('dim')
       if (unitSelectEl) {
@@ -3298,19 +3454,54 @@
     // Find by selectedAddressId
     let selected = filtered.find(item => String(item.id) === String(selectedAddressId))
     if (!selected && selectedBuildingKey) {
-      // Fallback: first unit of selected building
+      // Fallback: first unit of selected building (user je izabrao objekat ali nema unit jos)
       const units = getUnitsForBuilding(filtered, selectedBuildingKey)
       selected = units[0] || null
     }
-    if (!selected) selected = filtered[0]
+    // BITNO: bez auto-fallback na filtered[0]. Korisnik mora eksplicitno da izabere objekat.
     if (selected) selectedAddressId = String(selected.id)
+    else selectedAddressId = null
     return selected
   }
 
   // ── Address detail render ──────────────────────────────────────────────────
   function renderSelectedAddressDetails(item) {
     if (!item) {
-      selectedAddressDetailsEl.innerHTML = '<div class="empty">Nema adrese za prikaz.</div>'
+      selectedAddressDetailsEl.innerHTML = '<div class="empty">👆 Izaberi objekat iz liste iznad za prikaz detalja.</div>'
+      return
+    }
+
+    // Specijalan slučaj: neistražena zgrada (placeholder bez stanova).
+    // Umesto status editora pokaži CTA "Dodaj prvi stan".
+    const itemBuildingKey = getBuildingKey(item)
+    const itemSiblings    = (allAddresses || []).filter(a => getBuildingKey(a) === itemBuildingKey)
+    if (getAddressGroupKind(itemSiblings) === 'unexplored' && canEdit()) {
+      const street = cleanStreetName(item.streets?.name || '')
+      const num    = `${item.house_number || ''}${item.house_number_suffix || ''}`.trim()
+      selectedAddressDetailsEl.innerHTML = `
+        <div class="address-detail-card">
+          <div class="address-detail-header">
+            <h3 class="address-detail-title">${escapeHtml(street)} ${escapeHtml(num)}</h3>
+            <span class="status-badge" style="background:#e5e7eb;color:#374151;">⚠ Neistraženo</span>
+          </div>
+          <div class="empty" style="padding:var(--space-3);background:#fef3c7;border-radius:8px;margin:var(--space-3) 0;">
+            <strong>Ova zgrada nema unete stanove.</strong><br>
+            Da bi mogao da unosiš statuse, prvo dodaj makar Stan 1.
+          </div>
+          <button type="button" id="addFirstUnitBtn"
+            data-building-key="${escapeHtml(itemBuildingKey)}"
+            data-street-id="${escapeHtml(String(item.street_id || ''))}"
+            data-house-number="${escapeHtml(String(item.house_number || ''))}"
+            data-house-suffix="${escapeHtml(String(item.house_number_suffix || ''))}"
+            style="width:100%;padding:0.75rem;background:var(--color-primary);color:#fff;border:none;border-radius:6px;font-weight:600;cursor:pointer;">
+            ➕ Dodaj prvi stan
+          </button>
+        </div>
+      `
+      // Wire up CTA — otvara inline add formu predpopunjenu za ovu zgradu
+      document.getElementById('addFirstUnitBtn')?.addEventListener('click', () => {
+        openInlineAddForUnexploredBuilding(item)
+      })
       return
     }
 
@@ -3517,8 +3708,29 @@
       return
     }
 
+    // Varijanta C: Ukupno = stvarne jedinice (kuće + sve unete jedinice/stanovi).
+    // Neistražene zgrade (Zgrada bez ijednog unetog stana) se NE računaju u total.
+    // Vide se samo na mapi kao sivi "?" marker.
+    // Najpre grupiši redove po adresi (street_id||house_number||suffix) da bismo znali
+    // koje grupe su "neistražene" (placeholder zgrade).
+    const groupBuckets = new Map()
+    for (const row of addressRows) {
+      const key = `${row.street_id}||${row.house_number || ''}||${(row.house_number_suffix || '').toLowerCase()}`
+      if (!groupBuckets.has(key)) groupBuckets.set(key, [])
+      groupBuckets.get(key).push(row)
+    }
+    // Za svaki red zapamti da li pripada neistraženoj grupi
+    const unexploredRowIds = new Set()
+    groupBuckets.forEach(items => {
+      if (getAddressGroupKind(items) === 'unexplored') {
+        items.forEach(it => unexploredRowIds.add(String(it.id)))
+      }
+    })
+
     const streetMap = new Map()
     for (const row of addressRows) {
+      // Preskoči redove koji čine neistraženu zgradu
+      if (unexploredRowIds.has(String(row.id))) continue
       const streetName = cleanStreetName(row.streets?.name || 'Nepoznata ulica')
       if (!streetMap.has(streetName)) {
         streetMap.set(streetName, {
@@ -3771,6 +3983,8 @@
   function renderLoggedOut() {
     authSectionEl.classList.remove('hidden')
     appSectionEl.classList.add('hidden')
+    forgotPasswordSectionEl?.classList.add('hidden')
+    recoverySectionEl?.classList.add('hidden')
     currentUser = null; currentProfile = null; availableStreets = []
     allSystemStreets = []; allProfiles = []; selectedAdminUserAssignments = []
     editingAddressId = null; allAddresses = []
@@ -3780,11 +3994,112 @@
   function renderLoggedIn(user, profile) {
     authSectionEl.classList.add('hidden')
     appSectionEl.classList.remove('hidden')
+    forgotPasswordSectionEl?.classList.add('hidden')
+    recoverySectionEl?.classList.add('hidden')
     userBadgeEl.textContent = `Prijavljen: ${user.email}`
     roleBadgeEl.textContent = `Rola: ${profile?.role ?? 'nepoznata'}`
     infoEmailEl.textContent = user.email
     infoRoleEl.textContent  = profile?.role ?? '-'
+    // Popuni Moj profil polja
+    if (profileEmailEl)    profileEmailEl.value    = user.email || ''
+    if (profileFullnameEl) profileFullnameEl.value = profile?.fullname || ''
+    if (profileRoleEl)     profileRoleEl.value     = profile?.role || ''
   }
+
+  // ── Forgot password / Recovery / Change password ─────────────────────────
+  async function sendPasswordResetEmail() {
+    const email = (forgotEmailInputEl?.value || '').trim()
+    if (!email) { setStatus('❌ Unesi email adresu.'); forgotEmailInputEl?.focus(); return }
+    setStatus('Šaljem link za reset...')
+    sendResetLinkBtn.disabled = true
+    try {
+      // redirectTo = trenutni URL (kad user klikne link iz mejla, vraća se ovde)
+      const redirectTo = window.location.origin + window.location.pathname
+      const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo })
+      if (error) { setStatus(`Greška: ${error.message}`); return }
+      setStatus(`✅ Poslat link za reset na ${email}. Proveri inbox (i Spam folder).`)
+      if (forgotEmailInputEl) forgotEmailInputEl.value = ''
+    } catch (err) {
+      setStatus(`Greška: ${err.message}`)
+    } finally {
+      sendResetLinkBtn.disabled = false
+    }
+  }
+
+  async function saveNewPasswordFromRecovery() {
+    const p1 = (recoveryNewPasswordEl?.value || '').trim()
+    const p2 = (recoveryConfirmPasswordEl?.value || '').trim()
+    if (!p1 || !p2) { setStatus('❌ Popuni oba polja.'); return }
+    if (p1.length < 8) { setStatus('❌ Lozinka mora imati makar 8 karaktera.'); return }
+    if (p1 !== p2) { setStatus('❌ Lozinke se ne poklapaju.'); return }
+    setStatus('Snimam novu lozinku...')
+    saveNewPasswordBtn.disabled = true
+    try {
+      const { error } = await supabase.auth.updateUser({ password: p1 })
+      if (error) { setStatus(`Greška: ${error.message}`); return }
+      // Očisti recovery URL parametre da se ne re-trigeruje
+      try { history.replaceState(null, '', window.location.pathname) } catch (e) {}
+      setStatus('✅ Lozinka uspešno promenjena. Učitavam aplikaciju...')
+      if (recoveryNewPasswordEl)     recoveryNewPasswordEl.value     = ''
+      if (recoveryConfirmPasswordEl) recoveryConfirmPasswordEl.value = ''
+      // User je već autentifikovan kroz recovery sesiju → učitaj app
+      const ok = await loadCurrentUserAndProfile()
+      if (ok) {
+        await loadAllowedStreets()
+        await loadAddresses()
+        await loadDashboardStats()
+        if (isAdmin()) { await loadAdminProfiles(); await loadAllSystemStreets() }
+      }
+    } catch (err) {
+      setStatus(`Greška: ${err.message}`)
+    } finally {
+      saveNewPasswordBtn.disabled = false
+    }
+  }
+
+  async function changeMyPassword() {
+    const cur = (currentPasswordInputEl?.value || '').trim()
+    const p1  = (newPasswordInputEl?.value || '').trim()
+    const p2  = (confirmPasswordInputEl?.value || '').trim()
+    if (!cur || !p1 || !p2) { setStatus('❌ Popuni sva polja.'); return }
+    if (p1.length < 8) { setStatus('❌ Nova lozinka mora imati makar 8 karaktera.'); return }
+    if (p1 !== p2) { setStatus('❌ Nove lozinke se ne poklapaju.'); return }
+    if (p1 === cur) { setStatus('❌ Nova lozinka ne sme biti ista kao trenutna.'); return }
+    if (!currentUser?.email) { setStatus('❌ Nisi prijavljen.'); return }
+    setStatus('Proveravam trenutnu lozinku...')
+    changePasswordBtn.disabled = true
+    try {
+      // Re-autentifikuj sa trenutnom lozinkom (Supabase nema prirodan "verify current password" endpoint)
+      const { error: authErr } = await supabase.auth.signInWithPassword({
+        email: currentUser.email, password: cur
+      })
+      if (authErr) { setStatus('❌ Trenutna lozinka nije ispravna.'); return }
+      // Postavi novu
+      setStatus('Snimam novu lozinku...')
+      const { error: updErr } = await supabase.auth.updateUser({ password: p1 })
+      if (updErr) { setStatus(`Greška: ${updErr.message}`); return }
+      if (currentPasswordInputEl) currentPasswordInputEl.value = ''
+      if (newPasswordInputEl)     newPasswordInputEl.value     = ''
+      if (confirmPasswordInputEl) confirmPasswordInputEl.value = ''
+      setStatus('✅ Lozinka uspešno promenjena.')
+    } catch (err) {
+      setStatus(`Greška: ${err.message}`)
+    } finally {
+      changePasswordBtn.disabled = false
+    }
+  }
+
+  // Detekcija recovery sesije (kad user klikne link iz reset email-a).
+  // Supabase emit-uje event 'PASSWORD_RECOVERY' kada parsira recovery token iz URL-a.
+  supabase.auth.onAuthStateChange((event, session) => {
+    if (event === 'PASSWORD_RECOVERY') {
+      authSectionEl?.classList.add('hidden')
+      appSectionEl?.classList.add('hidden')
+      forgotPasswordSectionEl?.classList.add('hidden')
+      recoverySectionEl?.classList.remove('hidden')
+      setStatus('🔑 Postavi novu lozinku za nastavak.')
+    }
+  })
 
   // ── Data loaders ───────────────────────────────────────────────────────────
   async function loadCurrentUserAndProfile() {
@@ -3916,7 +4231,7 @@
     showLoading('Učitavanje statistike...')
     let addressQuery = supabase
       .from('addresses')
-      .select(`id, street_id, census_status, streets ( id, name, settlement_name )`)
+      .select(`id, street_id, house_number, house_number_suffix, address_type, unit_number, census_status, streets ( id, name, settlement_name )`)
 
     if (!isAdmin()) {
       const allowedStreetIds = availableStreets.map(s => s.id).filter(Boolean)
@@ -3944,7 +4259,23 @@
       return
     }
 
-    const rows = addresses || []
+    const rawRows = addresses || []
+
+    // Varijanta C: isključi neistražene zgrade (Zgrada bez ijednog stana) iz brojanja.
+    const groupBucketsForStats = new Map()
+    for (const row of rawRows) {
+      const key = `${row.street_id}||${row.house_number || ''}||${(row.house_number_suffix || '').toLowerCase()}`
+      if (!groupBucketsForStats.has(key)) groupBucketsForStats.set(key, [])
+      groupBucketsForStats.get(key).push(row)
+    }
+    const unexploredIds = new Set()
+    groupBucketsForStats.forEach(items => {
+      if (getAddressGroupKind(items) === 'unexplored') {
+        items.forEach(it => unexploredIds.add(String(it.id)))
+      }
+    })
+    const rows = rawRows.filter(a => !unexploredIds.has(String(a.id)))
+
     const total = rows.length
     // FIX: was a.censusstatus — correct field is a.census_status
     const studentsWin = rows.filter(a => a.census_status === 'students_win').length
@@ -4044,6 +4375,14 @@
   async function updateAddressType(addressId, currentType) {
     if (!canEdit()) { setStatus('❌ Nemaš dozvolu.'); return }
     const newType = currentType === 'Kuća' ? 'Zgrada' : 'Kuća'
+    // Provera: pri prelasku Kuća → Zgrada, mora postojati unit_number da ne napravimo placeholder
+    if (newType === 'Zgrada') {
+      const row = allAddresses.find(a => String(a.id) === String(addressId))
+      if (row && !String(row.unit_number || '').trim()) {
+        setStatus('❌ Pre konverzije u Zgradu, dodaj broj stana koristeći "➕ Dodaj novu jedinicu" panel ispod.')
+        return
+      }
+    }
     const confirmed = confirm(`Promeniti tip adrese u "${newType}"?`)
     if (!confirmed) return
     // Update in-memory
@@ -5186,6 +5525,26 @@
     inlineAddHouseEl?.focus()
   })
 
+  // Otvara inline-add formu predpopunjenu za neistraženu zgradu, fokus na polje "Stan"
+  function openInlineAddForUnexploredBuilding(item) {
+    if (!canEdit()) return
+    if (!inlineAddFormEl) return
+    hideInlineAddCta()
+    inlineAddFormEl.classList.remove('hidden')
+    if (inlineAddStreetEl) {
+      inlineAddStreetEl.innerHTML = '<option value="">Izaberi ulicu...</option>' +
+        availableStreets.map(s => `<option value="${s.id}">${escapeHtml(cleanStreetName(s.name))}</option>`).join('')
+      inlineAddStreetEl.value = String(item.street_id || '')
+    }
+    if (inlineAddTypeEl)   inlineAddTypeEl.value   = 'Zgrada'
+    if (inlineAddHouseEl)  inlineAddHouseEl.value  = String(item.house_number || '')
+    if (inlineAddSuffixEl) inlineAddSuffixEl.value = String(item.house_number_suffix || '')
+    if (inlineAddUnitEl)   inlineAddUnitEl.value   = ''
+    if (inlineAddUnitLabelEl) inlineAddUnitLabelEl.textContent = 'Stan *'
+    setTimeout(() => inlineAddUnitEl?.focus(), 100)
+    setStatus('Dodaj prvi stan u ovu zgradu (npr. 1).')
+  }
+
   inlineAddCancelBtnEl?.addEventListener('click', () => {
     hideInlineAddForm()
     if (inlineAddHouseEl)  inlineAddHouseEl.value  = ''
@@ -5244,6 +5603,21 @@
   // ── Init ───────────────────────────────────────────────────────────────────
   async function initApp() {
     setStatus('Pokretanje...')
+
+    // Recovery URL detekcija (belt & suspenders pored onAuthStateChange).
+    // Supabase ubacuje recovery token u hash kao "#access_token=...&type=recovery"
+    // ili u query string kao "?code=...&type=recovery" — proveravamo oba.
+    const hashLower   = (window.location.hash || '').toLowerCase()
+    const searchLower = (window.location.search || '').toLowerCase()
+    if (hashLower.includes('type=recovery') || searchLower.includes('type=recovery')) {
+      authSectionEl?.classList.add('hidden')
+      appSectionEl?.classList.add('hidden')
+      forgotPasswordSectionEl?.classList.add('hidden')
+      recoverySectionEl?.classList.remove('hidden')
+      setStatus('🔑 Postavi novu lozinku za nastavak.')
+      return
+    }
+
     const ok = await loadCurrentUserAndProfile()
     if (ok) {
       await loadAllowedStreets()
@@ -5272,6 +5646,40 @@
     await supabase.auth.signOut()
     renderLoggedOut()
     setStatus('Uspešno si odjavljen.')
+  })
+
+  // Forgot password / recovery / change password listeners
+  forgotPasswordLinkEl?.addEventListener('click', (e) => {
+    e.preventDefault()
+    authSectionEl?.classList.add('hidden')
+    forgotPasswordSectionEl?.classList.remove('hidden')
+    // Pre-fill ako je email već unet u login formi
+    if (forgotEmailInputEl && emailInputEl?.value) {
+      forgotEmailInputEl.value = emailInputEl.value
+    }
+    forgotEmailInputEl?.focus()
+    setStatus('Unesi email da ti pošaljemo link za reset.')
+  })
+
+  backToLoginBtn?.addEventListener('click', () => {
+    forgotPasswordSectionEl?.classList.add('hidden')
+    authSectionEl?.classList.remove('hidden')
+    setStatus('')
+  })
+
+  sendResetLinkBtn?.addEventListener('click', sendPasswordResetEmail)
+  forgotEmailInputEl?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') sendPasswordResetEmail()
+  })
+
+  saveNewPasswordBtn?.addEventListener('click', saveNewPasswordFromRecovery)
+  recoveryConfirmPasswordEl?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') saveNewPasswordFromRecovery()
+  })
+
+  changePasswordBtn?.addEventListener('click', changeMyPassword)
+  confirmPasswordInputEl?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') changeMyPassword()
   })
 
   saveBtn.addEventListener('click', saveAddress)
@@ -5495,6 +5903,60 @@
     return !!el && el.checked
   }
 
+  // ── Sivi "?" marker za neistražene zgrade ─────────────────────────────────
+  function buildUnexploredIcon(size) {
+    size = size || 32
+    const radius = size / 2 - 2
+    const cx = size / 2
+    const cy = size / 2
+    const html = `
+      <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+        <circle cx="${cx}" cy="${cy}" r="${radius}" fill="#e5e7eb" stroke="#6b7280" stroke-width="2" stroke-dasharray="3 2"/>
+        <text x="${cx}" y="${cy + 5}" text-anchor="middle" font-size="${Math.round(size * 0.55)}" font-weight="700" fill="#6b7280">?</text>
+      </svg>
+    `
+    return L.divIcon({
+      html, iconSize: [size, size], iconAnchor: [size/2, size/2], className: 'building-pie-icon'
+    })
+  }
+
+  // Popup za neistraženu zgradu — CTA "Dodaj prvi stan"
+  function buildUnexploredPopupHtml(items) {
+    const first = items[0]
+    const street = cleanStreetName(first.streets?.name || '')
+    const num    = `${first.house_number || ''}${first.house_number_suffix || ''}`
+    const label  = `${street} ${num}`.trim()
+    return `
+      <div class="building-popup-header">⚠ ${escapeHtml(label)} <span style="font-weight:400;font-size:0.8rem;color:#666;">(neistraženo)</span></div>
+      <div style="padding:8px 0;color:#555;font-size:0.85rem;">
+        Ova zgrada nema unete stanove. Da bi mogao da unosiš statuse, prvo dodaj makar Stan 1.
+      </div>
+      ${canEdit() ? `<button type="button" class="building-popup-saveall" data-popup-add-first-unit="${escapeHtml(String(first.id))}">➕ Dodaj prvi stan</button>` : ''}
+    `
+  }
+
+  function attachUnexploredPopupHandlers(e, items) {
+    const popupNode = e.popup.getElement()
+    if (!popupNode) return
+    const addBtn = popupNode.querySelector('[data-popup-add-first-unit]')
+    if (!addBtn) return
+    addBtn.addEventListener('click', () => {
+      const item = items[0]
+      // Skoči u Evidenciju → izaberi ovu zgradu → fokus na "Dodaj prvi stan"
+      mapaInstance?.closePopup()
+      // Postavi filter ulice + selectedBuildingKey, scrollaj na Evidenciju
+      if (filterStreetEl) filterStreetEl.value = String(item.street_id || '')
+      selectedBuildingKey = `${item.street_id}||${item.house_number || ''}||${(item.house_number_suffix || '').toLowerCase()}`
+      selectedAddressId   = String(item.id)
+      renderAddresses()
+      // Otvori inline-add formu predpopunjenu
+      setTimeout(() => {
+        openInlineAddForUnexploredBuilding(item)
+        document.getElementById('sectionEvidencija')?.scrollIntoView({ behavior: 'smooth' })
+      }, 200)
+    })
+  }
+
   // ── Pie-chart icon za zgradu (Fix #14) ────────────────────────────────────
   function buildPieIcon(statusCounts, totalCount, size) {
     if (totalCount === 0) return null
@@ -5674,10 +6136,22 @@
     let plotted = 0
     buildings.forEach((b) => {
       const total = b.items.length
-      const icon = buildPieIcon(b.statusCounts, total, total > 1 ? 42 : 28)
+      const groupKind = getAddressGroupKind(b.items)
+      let icon, popupHtmlFn, attachFn
+      if (groupKind === 'unexplored') {
+        // Neistražena zgrada — sivi "?" marker, popup sa CTA "Dodaj prvi stan"
+        icon = buildUnexploredIcon(32)
+        popupHtmlFn = () => buildUnexploredPopupHtml(b.items)
+        attachFn = (e) => attachUnexploredPopupHandlers(e, b.items)
+      } else {
+        // Pie chart za sve ostalo (kuća, kuća sa više jedinica, zgrada sa stanovima)
+        icon = buildPieIcon(b.statusCounts, total, total > 1 ? 42 : 28)
+        popupHtmlFn = () => buildBuildingPopupHtml(b.items)
+        attachFn = (e) => attachBuildingPopupHandlers(e, b.items)
+      }
       const marker = L.marker([b.lat, b.lng], { icon })
-      marker.bindPopup(() => buildBuildingPopupHtml(b.items), { minWidth: 240, maxWidth: 320 })
-      marker.on('popupopen', (e) => attachBuildingPopupHandlers(e, b.items))
+      marker.bindPopup(popupHtmlFn, { minWidth: 240, maxWidth: 320 })
+      marker.on('popupopen', attachFn)
       mapaMarkersLayer.addLayer(marker)
       plotted++
     })
