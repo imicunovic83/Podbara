@@ -802,6 +802,12 @@
     .unit-list-chip.is-active.chip-not_found    { background: #f3f4f6; border-color: #6b7280; }
     .unit-list-chip.is-active.chip-scheduled    { background: #ffedd5; border-color: #f97316; }
 
+    /* ── Admin templates table ── */
+    .admin-tpl-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    .admin-tpl-table th { text-align: left; padding: 0.4rem 0.5rem; background: #f3f4f6; border-bottom: 2px solid #d1d5db; }
+    .admin-tpl-table td { padding: 0.4rem 0.5rem; border-bottom: 1px solid #e5e7eb; vertical-align: middle; }
+    .admin-tpl-table .tpl-text-input { width: 100%; padding: 0.4rem; border: 1px solid #d1d5db; border-radius: 4px; font-size: 0.85rem; }
+
     /* ── Quick notes templates ── */
     .note-template-chip:hover {
       background: var(--color-primary-light) !important;
@@ -3014,6 +3020,19 @@
           </div>
         </div>
 
+        <!-- ── Templates napomena (admin-editable) ── -->
+        <div class="assignments-box" style="margin-top:var(--space-4);">
+          <h2>📝 Templates napomena</h2>
+          <p class="note">Brze poruke koje volonteri klikću da popune polje "Napomena" na adresi. Možeš da menjaš tekst, brišeš stare i dodaješ nove kako sakupljaš feedback sa terena.</p>
+          <div id="adminNoteTemplatesList" style="margin-bottom:var(--space-3);">
+            <div class="empty">Učitavanje...</div>
+          </div>
+          <div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;margin-bottom:0.5rem;">
+            <input type="text" id="newNoteTemplateInput" placeholder="npr. 🚪 Nema nikoga" style="flex:1;min-width:200px;" />
+            <button type="button" id="addNoteTemplateBtn" class="btn-success">➕ Dodaj template</button>
+          </div>
+        </div>
+
         <!-- ── IMPORT SECTION ── -->
         <div class="import-box">
           <h2>📥 Import adresa iz Excela</h2>
@@ -3251,6 +3270,7 @@
   let newlySavedAddressId         = null
   let selectedAddressId           = null
   let allAddresses                = []
+  let noteTemplates               = [] // dinamički iz Supabase, fallback na default
 
   // ── Helpers ───────────────────────────────────────────────────────────────
   function cleanStreetName(value) {
@@ -4055,10 +4075,10 @@
               ${[
                 { val: 'students_win', icon: '✌️', label: 'Pobeđujemo' },
                 { val: 'sns',          icon: '💩', label: 'SNS' },
-                { val: 'visited',      icon: '✓',  label: 'Obiđeno' },
                 { val: 'not_found',    icon: '❌', label: 'Nije zatečen' },
                 { val: 'scheduled',    icon: '⏰', label: 'Zakazano' },
-                { val: 'not_visited',  icon: '↩',  label: 'Nije obiđeno' }
+                { val: 'not_visited',  icon: '🟡', label: 'Nije obiđeno' },
+                { val: 'visited',      icon: '✅', label: 'Obiđeno' }
               ].map(o => `
                 <button type="button"
                         class="quick-status-chip chip-${o.val} ${item.census_status === o.val ? 'is-active' : ''}"
@@ -4111,21 +4131,16 @@
               rows="3"
               style="width:100%;padding:var(--space-3);border:1.5px solid var(--color-border);border-radius:var(--radius-md);background:#fff;font-size:var(--text-sm);font-family:inherit;"
             >${item.notes ?? ''}</textarea>
-            <div class="notes-quick-templates" style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-top:var(--space-2);">
-              ${[
-                { txt: '🚪 Nema nikoga' },
-                { txt: '📞 Ostavljen broj' },
-                { txt: '🔒 Zaključano' },
-                { txt: '👴 Stariji ljudi' },
-                { txt: '⏰ Pozvati posle 18h' },
-                { txt: '🏠 Nije primio' }
-              ].map(t => `
-                <button type="button" class="note-template-chip" data-note-template="${escapeHtml(t.txt)}" data-note-target="notes-${item.id}"
-                  style="padding:0.35rem 0.7rem;background:#f3f4f6;border:1px solid #d1d5db;border-radius:16px;font-size:0.78rem;cursor:pointer;color:#374151;">
-                  ${escapeHtml(t.txt)}
-                </button>
-              `).join('')}
-            </div>
+            ${(noteTemplates || []).length ? `
+              <div class="notes-quick-templates" style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-top:var(--space-2);">
+                ${(noteTemplates || []).map(t => `
+                  <button type="button" class="note-template-chip" data-note-template="${escapeHtml(t.text)}" data-note-target="notes-${item.id}"
+                    style="padding:0.35rem 0.7rem;background:#f3f4f6;border:1px solid #d1d5db;border-radius:16px;font-size:0.78rem;cursor:pointer;color:#374151;">
+                    ${escapeHtml(t.text)}
+                  </button>
+                `).join('')}
+              </div>
+            ` : ''}
             <div style="margin-top:var(--space-2);">
               <button type="button" class="btn-dark" data-save-notes-id="${item.id}" style="font-size:0.8rem;padding:0.5rem 0.9rem;">💾 Sačuvaj napomenu</button>
             </div>
@@ -4299,13 +4314,14 @@
       many: groupKind === 'building' ? 'stanova' : 'jedinica'
     })
 
+    // Redosled: pozitivni outcome → negativni → neutralni → "obišao" na kraju
     const STATUS_CHIPS = [
       { val: 'students_win', icon: '✌️' },
       { val: 'sns',          icon: '💩' },
-      { val: 'visited',      icon: '✓' },
       { val: 'not_found',    icon: '❌' },
       { val: 'scheduled',    icon: '⏰' },
-      { val: 'not_visited',  icon: '↩' }
+      { val: 'not_visited',  icon: '🟡' },
+      { val: 'visited',      icon: '✅' }
     ]
 
     const rowsHtml = sortedItems.map(it => {
@@ -4681,7 +4697,8 @@
       await loadAllowedStreets()
       await loadAddresses()
       await loadDashboardStats()
-      if (isAdmin()) { await loadAdminProfiles(); await loadAllSystemStreets() }
+      if (isAdmin()) { await loadAdminProfiles(); await loadAllSystemStreets(); renderAdminNoteTemplates() }
+      await loadNoteTemplates()
       // Zahtev #10: inicijalizuj mapu posle prijave
       try { window.__initMapaWhenReady && window.__initMapaWhenReady() } catch (e) { console.warn(e) }
       setStatus('✅ Uspešna prijava lozinkom.')
@@ -4760,7 +4777,8 @@
         await loadAllowedStreets()
         await loadAddresses()
         await loadDashboardStats()
-        if (isAdmin()) { await loadAdminProfiles(); await loadAllSystemStreets() }
+        if (isAdmin()) { await loadAdminProfiles(); await loadAllSystemStreets(); renderAdminNoteTemplates() }
+      await loadNoteTemplates()
       }
     } catch (err) {
       setStatus(`Greška: ${err.message}`)
@@ -4839,6 +4857,101 @@
     if (error) { setStatus(`Greška profiles: ${error.message}`); return }
     allProfiles = data || []
     renderAdminUsers()
+  }
+
+  // ── Note templates (CRUD u bazi) ────────────────────────────────────────────
+  async function loadNoteTemplates() {
+    try {
+      const { data, error } = await supabase
+        .from('note_templates')
+        .select('id, text, sort_order, is_active')
+        .eq('is_active', true)
+        .order('sort_order', { ascending: true })
+      if (error) {
+        // Tabela možda ne postoji još — pusti tihu grešku, fallback na prazno
+        console.warn('note_templates load error:', error.message)
+        noteTemplates = []
+        return
+      }
+      noteTemplates = data || []
+      // Re-renderuj admin UI ako je admin (možda je tabela tek inicijalizovana)
+      if (isAdmin && typeof isAdmin === 'function' && isAdmin()) {
+        try { renderAdminNoteTemplates() } catch (e) {}
+      }
+    } catch (e) {
+      console.warn('note_templates exception:', e)
+      noteTemplates = []
+    }
+  }
+
+  // Renderuj admin UI za templates (lista + add form)
+  function renderAdminNoteTemplates() {
+    const wrap = document.getElementById('adminNoteTemplatesList')
+    if (!wrap) return
+    if (!isAdmin()) { wrap.innerHTML = '<div class="empty">Samo admin.</div>'; return }
+    if (!noteTemplates.length) {
+      wrap.innerHTML = '<div class="empty">Nema templates. Dodaj prvi ispod.</div>'
+      return
+    }
+    wrap.innerHTML = `
+      <table class="admin-tpl-table">
+        <thead>
+          <tr><th style="width:32px;">#</th><th>Tekst</th><th style="width:140px;">Akcije</th></tr>
+        </thead>
+        <tbody>
+          ${noteTemplates.map((t, i) => `
+            <tr data-tpl-id="${t.id}">
+              <td>${i+1}</td>
+              <td><input type="text" class="tpl-text-input" data-tpl-text="${t.id}" value="${escapeHtml(t.text)}" /></td>
+              <td>
+                <button type="button" class="btn-dark" data-tpl-save="${t.id}" style="font-size:0.75rem;padding:0.3rem 0.6rem;">💾</button>
+                <button type="button" class="btn-danger" data-tpl-delete="${t.id}" style="font-size:0.75rem;padding:0.3rem 0.6rem;">🗑</button>
+              </td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `
+    wrap.querySelectorAll('[data-tpl-save]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const id = btn.dataset.tplSave
+        const inp = wrap.querySelector(`[data-tpl-text="${id}"]`)
+        const newText = (inp?.value || '').trim()
+        if (!newText) { setStatus('❌ Tekst ne može biti prazan.'); return }
+        const { error } = await supabase.from('note_templates').update({ text: newText, updated_at: new Date().toISOString() }).eq('id', id)
+        if (error) { setStatus(`Greška: ${error.message}`); return }
+        setStatus('✅ Template sačuvan.')
+        await loadNoteTemplates()
+        renderAdminNoteTemplates()
+      })
+    })
+    wrap.querySelectorAll('[data-tpl-delete]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const id = btn.dataset.tplDelete
+        if (!confirm('Obrisati ovaj template?')) return
+        const { error } = await supabase.from('note_templates').update({ is_active: false }).eq('id', id)
+        if (error) { setStatus(`Greška: ${error.message}`); return }
+        setStatus('✅ Template obrisan.')
+        await loadNoteTemplates()
+        renderAdminNoteTemplates()
+      })
+    })
+  }
+
+  async function addNoteTemplate(text) {
+    const trimmed = (text || '').trim()
+    if (!trimmed) { setStatus('❌ Unesi tekst template-a.'); return }
+    // Sledeći sort_order
+    const nextOrder = (noteTemplates.length ? Math.max(...noteTemplates.map(t => t.sort_order || 0)) : 0) + 1
+    const { error } = await supabase.from('note_templates').insert({
+      text: trimmed,
+      sort_order: nextOrder,
+      is_active: true
+    })
+    if (error) { setStatus(`Greška: ${error.message}`); return }
+    setStatus('✅ Template dodat.')
+    await loadNoteTemplates()
+    renderAdminNoteTemplates()
   }
 
   async function loadAllSystemStreets() {
@@ -6643,7 +6756,8 @@
       await loadAllowedStreets()
       await loadAddresses()
       await loadDashboardStats()
-      if (isAdmin()) { await loadAdminProfiles(); await loadAllSystemStreets() }
+      if (isAdmin()) { await loadAdminProfiles(); await loadAllSystemStreets(); renderAdminNoteTemplates() }
+      await loadNoteTemplates()
       // Fix: inicijalizuj mapu i kada se sesija restore-uje (mobile cached)
       try { window.__initMapaWhenReady && window.__initMapaWhenReady() } catch (e) { console.warn(e) }
       setStatus(`✅ Spreman za rad! Aktivna rola: ${getRole()}`)
@@ -6758,6 +6872,20 @@
   saveUserRoleBtn.addEventListener('click', saveSelectedUserRole)
   saveAssignmentsBtn.addEventListener('click', saveSelectedUserAssignments)
   createNewUserBtn.addEventListener('click', createNewUserProfile)
+
+  // Admin: dodavanje novog template-a napomene
+  document.getElementById('addNoteTemplateBtn')?.addEventListener('click', async () => {
+    const inp = document.getElementById('newNoteTemplateInput')
+    if (!inp) return
+    await addNoteTemplate(inp.value)
+    inp.value = ''
+  })
+  document.getElementById('newNoteTemplateInput')?.addEventListener('keydown', async (e) => {
+    if (e.key === 'Enter') {
+      await addNoteTemplate(e.target.value)
+      e.target.value = ''
+    }
+  })
 
   applyFiltersBtn?.addEventListener('click', () => { renderAddresses() })
 
