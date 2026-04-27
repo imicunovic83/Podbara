@@ -3366,21 +3366,29 @@
 
   // Label za dropdown — "33 — Kuća", "17 — Kuća · 2 jedinice",
   // "24a — Zgrada · 38 stanova", "45 — Zgrada · neistraženo"
+  // Kad je filter "Sve ulice" (nema izabrane ulice), prefiksuje ime ulice da
+  // user zna na koju adresu se objekat odnosi.
   function getBuildingDropdownLabel(items) {
     const first = items[0]
     const num   = `${first.house_number || ''}${first.house_number_suffix || ''}`.trim()
     const kind  = getAddressGroupKind(items)
     const cnt   = getEffectiveItems(items).length
-    if (kind === 'unexplored') return `${num} — Zgrada · neistraženo`
+
+    // Ako nije izabrana konkretna ulica → prefiksuj ime ulice
+    const showStreetPrefix = !(filterStreetEl?.value || '').trim()
+    const streetName = cleanStreetName(first.streets?.name || '')
+    const head = (showStreetPrefix && streetName) ? `${streetName} ${num}`.trim() : num
+
+    if (kind === 'unexplored') return `${head} — Zgrada · neistraženo`
     if (kind === 'building') {
       const word = pluralizeSr(cnt, { one: 'stan', few: 'stana', many: 'stanova' })
-      return `${num} — Zgrada · ${cnt} ${word}`
+      return `${head} — Zgrada · ${cnt} ${word}`
     }
     if (kind === 'house_multi') {
       const word = pluralizeSr(cnt, { one: 'jedinica', few: 'jedinice', many: 'jedinica' })
-      return `${num} — Kuća · ${cnt} ${word}`
+      return `${head} — Kuća · ${cnt} ${word}`
     }
-    return `${num} — Kuća`
+    return `${head} — Kuća`
   }
 
   function populateBuildingSelect(filtered) {
