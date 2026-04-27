@@ -294,6 +294,11 @@
       .mobile-nav a { padding: 0.9rem 1rem; font-size: 1rem; min-height: 48px; }
     }
 
+    /* ── Tutorial steps ── */
+    .tutorial-steps { padding-left: 1.2rem; line-height: 1.5; }
+    .tutorial-steps li { margin-bottom: 0.6rem; font-size: 0.9rem; }
+    .tutorial-steps li strong { display: block; margin-bottom: 0.15rem; }
+
     /* ── Marker modal (klik na pin na mapi) ── */
     .marker-modal {
       position: fixed;
@@ -2447,8 +2452,27 @@
     @media (max-width: 600px) {
       .leaflet-popup-content { min-width: 280px; max-width: 92vw; }
     }
-    .building-pie-icon { background: transparent; border: none; }
+    .building-pie-icon { background: transparent; border: none; overflow: visible !important; }
     .building-pie-icon svg { display: block; cursor: pointer; }
+    .building-pie-icon .pie-icon-wrap { overflow: visible; }
+    .building-pie-icon .pie-count-badge {
+      position: absolute;
+      top: -6px;
+      right: -8px;
+      background: #01696f;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 1px 6px;
+      border-radius: 11px;
+      border: 2px solid #fff;
+      min-width: 22px;
+      text-align: center;
+      line-height: 1.3;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.35);
+      pointer-events: none;
+      white-space: nowrap;
+    }
     .building-popup-header { font-size: 1rem; font-weight: 700; margin: 0 0 8px; padding-bottom: 6px; border-bottom: 2px solid var(--color-primary); }
     .building-popup-list { max-height: 320px; overflow-y: auto; margin: 8px 0; }
     .building-popup-unit { padding: 8px 0; border-bottom: 1px solid #eee; }
@@ -2528,6 +2552,7 @@
     <a href="#sectionLeaderboard"><span class="nav-icon">🏆</span>Ko je obišao/la najviše</a>
     <a href="#adminPanelSection" id="adminNavLink" class="hidden"><span class="nav-icon">⚙️</span>Admin panel</a>
     <a href="#sectionMojProfil"><span class="nav-icon">👤</span>Moj profil</a>
+    <a href="#" id="navOpenTutorial"><span class="nav-icon">❓</span>Kako koristiti</a>
     <!-- Logout je u hamburger meniju da se korisnik ne odjavi slučajno -->
     <div class="mobile-nav-divider"></div>
     <button type="button" id="logoutBtn" class="mobile-nav-logout"><span class="nav-icon">🚪</span>Odjavi se</button>
@@ -3170,6 +3195,53 @@
       </div>
       <div class="marker-modal-body" id="markerModalBody"></div>
       <div class="marker-modal-footer" id="markerModalFooter"></div>
+    </div>
+  </div>
+
+  <!-- ── Tutorial / Help modal ── -->
+  <div id="tutorialModal" class="marker-modal hidden" role="dialog" aria-modal="true">
+    <div class="marker-modal-backdrop" data-tutorial-close></div>
+    <div class="marker-modal-card">
+      <div class="marker-modal-header">
+        <h3>👋 Dobrodošao/la na "Od vrata do vrata"</h3>
+        <button type="button" class="marker-modal-close-btn" data-tutorial-close aria-label="Zatvori">✕</button>
+      </div>
+      <div class="marker-modal-body">
+        <p style="margin-top:0;color:#555;">Kratki vodič — 5 stvari koje treba da znaš pre nego što kreneš:</p>
+        <ol class="tutorial-steps">
+          <li>
+            <strong>📋 Evidencija obilazaka</strong> — glavni ekran. Filtriraš po ulici, kucaš broj u "Pretraga" (npr. <em>24a</em>), i lista sa svim stanovima se otvori.
+          </li>
+          <li>
+            <strong>⚡ Brza izmena statusa</strong> — 6 šarenih chip-ova menjaju status jednim klikom. Ne moraš da otvaraš dropdown niti da klikćeš "Sačuvaj".
+          </li>
+          <li>
+            <strong>📋 Lista svih stanova</strong> — kad uđeš u zgradu, dole vidiš spisak svih stanova. Svaki red ima svoje chip-ove — menjaš status direktno na svakom redu.
+          </li>
+          <li>
+            <strong>📋 Postavi sve na isti status</strong> — ako npr. niko ne otvara u zgradi, klikni "📋 Postavi SVE stanove na: ❌ Nije zatečen → Primeni na sve". 38 stanova ažuriraš jednim klikom.
+          </li>
+          <li>
+            <strong>🗺️ Mapa</strong> — vidi sve adrese kao šarene pin-ove. Klik na pin → otvori se prozor sa svim stanovima i možeš menjati status. FAB "📍 Najbliže neobiđeno" dole desno → pronalazi najbliže žute pin-ove od tvoje lokacije.
+          </li>
+        </ol>
+        <p style="background:#fef3c7;padding:0.6rem 0.8rem;border-radius:8px;color:#854d0e;font-size:0.85rem;">
+          💡 <strong>Trik:</strong> ako ti se desi pogrešan klik, imaš 5 sekundi da klikneš "↩ Poništi" u banner-u koji se pojavi dole.
+        </p>
+        <p style="background:#dcfce7;padding:0.6rem 0.8rem;border-radius:8px;color:#166534;font-size:0.85rem;">
+          ✅ <strong>Topbar bedž "Obišao/la danas: X"</strong> — broji koliko stanova si dnevno obišao/la. Resetuje se u ponoć.
+        </p>
+        <p style="background:#dbeafe;padding:0.6rem 0.8rem;border-radius:8px;color:#075985;font-size:0.85rem;">
+          📍 <strong>"Nastavi gde si stao"</strong> — kad otvoriš app, banner iznad Evidencije te vraća na poslednju adresu koju si menjao/la.
+        </p>
+        <label style="display:flex;align-items:center;gap:0.5rem;margin-top:1rem;font-size:0.9rem;cursor:pointer;">
+          <input type="checkbox" id="tutorialDontShowAgain" />
+          Ne prikazuj više pri otvaranju
+        </label>
+      </div>
+      <div class="marker-modal-footer">
+        <button type="button" class="marker-modal-saveall" data-tutorial-close>Razumeo/la sam</button>
+      </div>
     </div>
   </div>
 
@@ -4724,6 +4796,7 @@
       await loadDashboardStats()
       if (isAdmin()) { await loadAdminProfiles(); await loadAllSystemStreets(); renderAdminNoteTemplates() }
       await loadNoteTemplates()
+      try { maybeAutoShowTutorial() } catch (e) {}
       // Zahtev #10: inicijalizuj mapu posle prijave
       try { window.__initMapaWhenReady && window.__initMapaWhenReady() } catch (e) { console.warn(e) }
       setStatus('✅ Uspešna prijava lozinkom.')
@@ -4804,6 +4877,7 @@
         await loadDashboardStats()
         if (isAdmin()) { await loadAdminProfiles(); await loadAllSystemStreets(); renderAdminNoteTemplates() }
       await loadNoteTemplates()
+      try { maybeAutoShowTutorial() } catch (e) {}
       }
     } catch (err) {
       setStatus(`Greška: ${err.message}`)
@@ -6783,6 +6857,7 @@
       await loadDashboardStats()
       if (isAdmin()) { await loadAdminProfiles(); await loadAllSystemStreets(); renderAdminNoteTemplates() }
       await loadNoteTemplates()
+      try { maybeAutoShowTutorial() } catch (e) {}
       // Fix: inicijalizuj mapu i kada se sesija restore-uje (mobile cached)
       try { window.__initMapaWhenReady && window.__initMapaWhenReady() } catch (e) { console.warn(e) }
       setStatus(`✅ Spreman za rad! Aktivna rola: ${getRole()}`)
@@ -7058,6 +7133,30 @@
     scheduled:    'Zakazano'
   }
 
+  // Pamćenje zoom/pan stanja mape u localStorage (per user)
+  function getMapStateKey() {
+    return `podbara-map-state-${currentUser?.id || 'anon'}`
+  }
+  function saveMapState() {
+    if (!mapaInstance) return
+    try {
+      const c = mapaInstance.getCenter()
+      const state = { lat: c.lat, lng: c.lng, zoom: mapaInstance.getZoom() }
+      localStorage.setItem(getMapStateKey(), JSON.stringify(state))
+    } catch (e) {}
+  }
+  function loadMapState() {
+    try {
+      const raw = localStorage.getItem(getMapStateKey())
+      if (!raw) return null
+      const s = JSON.parse(raw)
+      if (typeof s?.lat === 'number' && typeof s?.lng === 'number' && typeof s?.zoom === 'number') {
+        return s
+      }
+    } catch (e) {}
+    return null
+  }
+
   function initMapa() {
     if (typeof L === 'undefined') {
       console.warn('Leaflet nije učitan')
@@ -7066,8 +7165,14 @@
     const container = document.getElementById('mapaContainer')
     if (!container || mapaInstance) return
     container.innerHTML = ''
-    // Centar Podbare (Novi Sad)
-    mapaInstance = L.map(container).setView([45.2671, 19.8335], 16)
+    // Restore prethodno stanje ako postoji, inače centar Podbare
+    const saved = loadMapState()
+    const initLat  = saved?.lat  ?? 45.2671
+    const initLng  = saved?.lng  ?? 19.8335
+    const initZoom = saved?.zoom ?? 16
+    mapaInstance = L.map(container).setView([initLat, initLng], initZoom)
+    // Snimaj stanje na svaku promenu pozicije/zoom-a
+    mapaInstance.on('moveend zoomend', saveMapState)
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
       attribution: '© OpenStreetMap'
@@ -7185,15 +7290,19 @@
       })
     }
 
-    // Broj stanova u sredini (samo ako > 1)
-    if (totalCount > 1) {
-      svgInner += `<circle cx="${cx}" cy="${cy}" r="${radius * 0.45}" fill="#fff" stroke="#000" stroke-width="1.5"/>`
-      svgInner += `<text x="${cx}" y="${cy + 4}" text-anchor="middle" font-size="11" font-weight="700" fill="#000">${totalCount}</text>`
-    }
-
-    const html = `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">${svgInner}</svg>`
+    const svgHtml = `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">${svgInner}</svg>`
+    // Bedž van marker-a (gornji-desni ugao) sa brojem stanova — čitljiv pri svim zoom-ovima.
+    // Prikazuje se samo ako ima više od 1 jedinice.
+    const badgeHtml = totalCount > 1
+      ? `<span class="pie-count-badge">${totalCount}</span>`
+      : ''
+    const html = `<div class="pie-icon-wrap" style="position:relative;width:${size}px;height:${size}px;">${svgHtml}${badgeHtml}</div>`
+    // Iconsize malo veća da badge ne bude clipovan
     return L.divIcon({
-      html, iconSize: [size, size], iconAnchor: [size/2, size/2], className: 'building-pie-icon'
+      html,
+      iconSize: [size, size],
+      iconAnchor: [size/2, size/2],
+      className: 'building-pie-icon'
     })
   }
 
@@ -7278,6 +7387,54 @@
         saveBtn.textContent = '💾 Sačuvaj sve izmene'
       }
     })
+  }
+
+  // ── Tutorial / Onboarding modal ────────────────────────────────────────────
+  const tutorialModalEl = document.getElementById('tutorialModal')
+
+  function openTutorialModal() {
+    if (!tutorialModalEl) return
+    // Sinhronizuj checkbox sa stanjem u localStorage
+    const cb = document.getElementById('tutorialDontShowAgain')
+    if (cb) cb.checked = localStorage.getItem('podbara-tutorial-skip') === '1'
+    tutorialModalEl.classList.remove('hidden')
+  }
+
+  function closeTutorialModal() {
+    if (!tutorialModalEl) return
+    // Ako je user čekirao "Ne prikazuj više", snimi
+    const cb = document.getElementById('tutorialDontShowAgain')
+    if (cb?.checked) {
+      try { localStorage.setItem('podbara-tutorial-skip', '1') } catch (e) {}
+    } else {
+      try { localStorage.removeItem('podbara-tutorial-skip') } catch (e) {}
+    }
+    // Onemogući auto-show pri sledećem login-u (regardless od checkbox-a, jer je user video tutorial)
+    try { localStorage.setItem('podbara-tutorial-seen', '1') } catch (e) {}
+    tutorialModalEl.classList.add('hidden')
+  }
+
+  // Wire close
+  tutorialModalEl?.querySelectorAll('[data-tutorial-close]').forEach(el => {
+    el.addEventListener('click', closeTutorialModal)
+  })
+  // Otvori iz menija
+  document.getElementById('navOpenTutorial')?.addEventListener('click', (e) => {
+    e.preventDefault()
+    closeMobileNav()
+    openTutorialModal()
+  })
+
+  // Auto-show prvi put posle login-a (ako user nije rekao "Ne prikazuj više")
+  function maybeAutoShowTutorial() {
+    try {
+      const seen = localStorage.getItem('podbara-tutorial-seen') === '1'
+      const skip = localStorage.getItem('podbara-tutorial-skip') === '1'
+      if (!seen && !skip) {
+        // Sačekaj malo da app ekran sliče, pa otvori
+        setTimeout(openTutorialModal, 800)
+      }
+    } catch (e) {}
   }
 
   // ── Marker modal (zameni Leaflet popup za detalje zgrade) ──────────────────
@@ -7396,8 +7553,9 @@
         invalidateLeaderboard()
         setStatus(`✅ Sačuvano ${updates.length} ${pluralizeSr(updates.length, { one:'izmena', few:'izmene', many:'izmena' })} sa mape.`)
         closeMarkerModal()
-        refreshMapa()
-        renderAddresses()
+        // Dvosmerni sync: refetch iz baze da se updated_at i sve ostalo osveži.
+        // loadAddresses interno zove renderAddresses + refreshMapa.
+        await loadAddresses()
         try { loadDashboardStats() } catch (e2) {}
       } catch (err) {
         setStatus(`Greška: ${err.message}`)
