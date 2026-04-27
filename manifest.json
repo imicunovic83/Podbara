@@ -1,0 +1,20 @@
+{
+  "name": "Od vrata do vrata — Podbara",
+  "short_name": "Podbara",
+  "description": "Door-to-door evidencija obilazaka — Podbara, Novi Sad",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f4f3ef",
+  "theme_color": "#01696f",
+  "lang": "sr",
+  "icons": [
+    {
+      "src": "./LOGO%20COLOR%20KRUZNI.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
