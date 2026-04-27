@@ -737,6 +737,78 @@
     .status-not_found    { background: var(--color-not_found-bg); color: var(--color-not_found-text); }
     .status-scheduled    { background: var(--color-scheduled-bg); color: var(--color-scheduled-text); }
 
+    /* ── Unit list (lista svih stanova u zgradi sa quick-edit per row) ── */
+    .unit-list-card {
+      background: #fff;
+      border: 1px solid var(--color-border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .unit-list-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 1rem;
+      background: var(--color-primary-light);
+      border-bottom: 2px solid var(--color-primary);
+      color: var(--color-primary);
+      font-size: 0.9rem;
+    }
+    .unit-list-body {
+      max-height: 480px;
+      overflow-y: auto;
+    }
+    .unit-list-row {
+      padding: 0.65rem 0.85rem;
+      border-bottom: 1px solid #f0f0f0;
+      cursor: pointer;
+      transition: background 0.12s ease;
+    }
+    .unit-list-row:hover { background: #f9fafb; }
+    .unit-list-row:last-child { border-bottom: none; }
+    .unit-list-row.is-current { background: #eff6ff; border-left: 3px solid var(--color-primary); padding-left: calc(0.85rem - 3px); }
+    .unit-list-row-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.4rem;
+    }
+    .unit-list-row-num { font-weight: 700; font-size: 0.92rem; }
+    .unit-list-row-chips {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 0.3rem;
+    }
+    .unit-list-chip {
+      padding: 0.4rem 0;
+      min-height: 38px;
+      border: 1.5px solid #e5e7eb;
+      background: #fff;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.1s ease;
+    }
+    .unit-list-chip:hover { border-color: var(--color-primary); }
+    .unit-list-chip.is-active.chip-students_win { background: #dcfce7; border-color: #22c55e; }
+    .unit-list-chip.is-active.chip-sns          { background: #fee2e2; border-color: #dc2626; }
+    .unit-list-chip.is-active.chip-not_visited  { background: #fef3c7; border-color: #f59e0b; }
+    .unit-list-chip.is-active.chip-visited      { background: #dbeafe; border-color: #0ea5e9; }
+    .unit-list-chip.is-active.chip-not_found    { background: #f3f4f6; border-color: #6b7280; }
+    .unit-list-chip.is-active.chip-scheduled    { background: #ffedd5; border-color: #f97316; }
+
+    /* ── Quick notes templates ── */
+    .note-template-chip:hover {
+      background: var(--color-primary-light) !important;
+      border-color: var(--color-primary) !important;
+      color: var(--color-primary) !important;
+    }
+
     /* ── Quick status action chips (1-tap status promene) ── */
     .quick-status-bar {
       margin-top: var(--space-4);
@@ -3961,37 +4033,19 @@
     const updater   = updaterProfiles[item.updated_by]
     const updaterName = escapeHtml(updater?.fullname || updater?.email || 'Nepoznat')
     const updatedAt = item.updated_at ? formatRelativeTime(item.updated_at) : '-'
+    const isMultiUnit = (() => {
+      const siblings = (allAddresses || []).filter(a => getBuildingKey(a) === itemBuildingKey)
+      return getEffectiveItems(siblings).length > 1
+    })()
 
     selectedAddressDetailsEl.innerHTML = `
       <div class="address-detail-card">
+        <!-- Kompaktan header -->
         <div class="address-detail-header">
           <h3 class="address-detail-title">${escapeHtml(item.full_address_label) || 'Bez naziva'}</h3>
           <span class="status-badge ${getStatusClass(item.census_status)}" id="statusBadge-${item.id}">${getStatusLabel(item.census_status)}</span>
         </div>
-        <div class="address-detail-grid">
-          <div class="addr-row"><span class="addr-label">Ulica:</span> ${escapeHtml(cleanStreetName(item.streets?.name)) || '-'}</div>
-          <div class="addr-row"><span class="addr-label">Naselje:</span> ${escapeHtml(item.streets?.settlement_name) || 'Podbara'}</div>
-          <div class="addr-row"><span class="addr-label">Broj:</span> ${escapeHtml(item.house_number) || '-'}</div>
-          <div class="addr-row"><span class="addr-label">Dodatak:</span> ${escapeHtml(item.house_number_suffix) || '-'}</div>
-          <div class="addr-row"><span class="addr-label">Stan / jedinica:</span> ${escapeHtml(item.unit_number) || '-'}</div>
-          <div class="addr-row" style="display:flex;align-items:center;gap:var(--space-3);flex-wrap:wrap;">
-            <span><span class="addr-label">Tip:</span> <span id="tipLabel-${item.id}">${escapeHtml(item.address_type) || '-'}</span></span>
-            ${canEdit() ? `<button type="button" class="type-toggle-btn" data-toggle-type-id="${item.id}" data-current-type="${item.address_type ?? 'Kuća'}">
-              🔄 Promeni tip
-            </button>` : ''}
-          </div>
-          <div class="addr-row"><span class="addr-label">Aktivna:</span> ${item.is_active ? 'Da' : 'Ne'}</div>
-        </div>
         <div class="updated-at-info">🕐 Izmenjeno <strong>${updatedAt}</strong> · <strong>${updaterName}</strong></div>
-
-        <div class="map-section">
-          <div class="map-section-header">
-            <span class="map-section-title">📍 Navigacija do adrese</span>
-            <a href="${buildMapsNavUrl(buildMapQuery(item))}" target="_blank" rel="noopener" class="map-nav-btn">
-              ↗ Otvori u Google Maps
-            </a>
-          </div>
-        </div>
 
         ${canEdit() ? `
           <!-- Brza izmena statusa (1-tap) -->
@@ -4017,11 +4071,9 @@
             </div>
           </div>
 
-          ${(() => {
-            // Bulk status widget — samo za multi-unit grupe (zgrade ili kuće sa više jedinica)
+          ${isMultiUnit ? (() => {
             const siblings = (allAddresses || []).filter(a => getBuildingKey(a) === itemBuildingKey)
             const effSiblings = getEffectiveItems(siblings)
-            if (effSiblings.length <= 1) return ''
             const labelWord = getAddressGroupKind(siblings) === 'building' ? 'stanove' : 'jedinice'
             return `
               <div class="quick-status-bar" style="background:#fefce8;border-radius:10px;padding:0.75rem;border:1px solid #fde68a;margin-top:var(--space-3);">
@@ -4033,10 +4085,10 @@
                     <option value="">— Izaberi status —</option>
                     <option value="students_win">✌️ Studenti pobedjuju</option>
                     <option value="sns">💩 SNS</option>
-                    <option value="visited">Obiđeno</option>
-                    <option value="not_found">Nije zatečen</option>
-                    <option value="scheduled">Zakazano</option>
-                    <option value="not_visited">Nije obiđeno</option>
+                    <option value="visited">✓ Obiđeno</option>
+                    <option value="not_found">❌ Nije zatečen</option>
+                    <option value="scheduled">⏰ Zakazano</option>
+                    <option value="not_visited">↩ Nije obiđeno</option>
                   </select>
                   <button type="button"
                           data-bulk-apply-key="${escapeHtml(itemBuildingKey)}"
@@ -4047,42 +4099,69 @@
                 </div>
               </div>
             `
-          })()}
+          })() : ''}
 
-          <div class="status-editor">
-            <div>
-              <label for="status-${item.id}">Promeni status (klasično)</label>
-              <select class="status-select" id="status-${item.id}" data-status-id="${item.id}" data-original-status="${item.census_status}">
-                <option value="students_win" ${item.census_status === 'students_win' ? 'selected' : ''}>✌️ Studenti pobedjuju</option>
-                <option value="sns"          ${item.census_status === 'sns'          ? 'selected' : ''}>💩 SNS</option>
-                <option value="not_visited"  ${item.census_status === 'not_visited'  ? 'selected' : ''}>↩ Nije obiđeno</option>
-                <option value="visited"      ${item.census_status === 'visited'      ? 'selected' : ''}>✓ Obiđeno</option>
-                <option value="not_found"    ${item.census_status === 'not_found'    ? 'selected' : ''}>❌ Nije zatečen</option>
-                <option value="scheduled"    ${item.census_status === 'scheduled'    ? 'selected' : ''}>⏰ Zakazano</option>
-              </select>
-              <div class="status-apply-row">
-                <button type="button" data-apply-status-id="${item.id}" style="font-size:0.8rem;padding:0.4rem 0.9rem;">✅ Primeni status</button>
-                <span class="status-pending-indicator" id="pending-${item.id}">● Nesačuvano</span>
-              </div>
+          <!-- Napomena sa quick templates -->
+          <div class="notes-section" style="margin-top:var(--space-4);">
+            <label for="notes-${item.id}" style="display:block;font-weight:700;font-size:0.85rem;margin-bottom:var(--space-2);">📝 Napomena</label>
+            <textarea
+              id="notes-${item.id}"
+              data-notes-id="${item.id}"
+              placeholder="Unesi napomenu o adresi..."
+              rows="3"
+              style="width:100%;padding:var(--space-3);border:1.5px solid var(--color-border);border-radius:var(--radius-md);background:#fff;font-size:var(--text-sm);font-family:inherit;"
+            >${item.notes ?? ''}</textarea>
+            <div class="notes-quick-templates" style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-top:var(--space-2);">
+              ${[
+                { txt: '🚪 Nema nikoga' },
+                { txt: '📞 Ostavljen broj' },
+                { txt: '🔒 Zaključano' },
+                { txt: '👴 Stariji ljudi' },
+                { txt: '⏰ Pozvati posle 18h' },
+                { txt: '🏠 Nije primio' }
+              ].map(t => `
+                <button type="button" class="note-template-chip" data-note-template="${escapeHtml(t.txt)}" data-note-target="notes-${item.id}"
+                  style="padding:0.35rem 0.7rem;background:#f3f4f6;border:1px solid #d1d5db;border-radius:16px;font-size:0.78rem;cursor:pointer;color:#374151;">
+                  ${escapeHtml(t.txt)}
+                </button>
+              `).join('')}
             </div>
-            <div>
-              <label for="notes-${item.id}">Napomena</label>
-              <textarea
-                id="notes-${item.id}"
-                data-notes-id="${item.id}"
-                placeholder="Unesi napomenu o adresi..."
-                rows="3"
-              >${item.notes ?? ''}</textarea>
-              <div class="notes-save-row">
-                <button type="button" class="btn-dark" data-save-notes-id="${item.id}" style="font-size:0.8rem;padding:0.4rem 0.9rem;">💾 Sačuvaj napomenu</button>
-              </div>
+            <div style="margin-top:var(--space-2);">
+              <button type="button" class="btn-dark" data-save-notes-id="${item.id}" style="font-size:0.8rem;padding:0.5rem 0.9rem;">💾 Sačuvaj napomenu</button>
             </div>
           </div>
 
-          <!-- Add unit / suffix panel -->
-          <div class="add-unit-panel" style="margin-top:var(--space-4);">
-            <div class="add-unit-title">➕ Dodaj novu jedinicu ili dodatak broju</div>
-            <div class="add-unit-row">
+          <!-- Action row -->
+          <div class="address-detail-actions" style="margin-top:var(--space-4);display:flex;gap:0.5rem;flex-wrap:wrap;">
+            <a href="${buildMapsNavUrl(buildMapQuery(item))}" target="_blank" rel="noopener" class="map-nav-btn" style="font-size:0.8rem;padding:0.45rem 0.85rem;text-decoration:none;background:#fff;border:1px solid var(--color-border);border-radius:6px;color:var(--color-primary);font-weight:600;">↗ Google Maps</a>
+            <button type="button" class="btn-dark" data-pan-to-map-id="${item.id}" style="font-size:0.8rem;padding:0.45rem 0.85rem;">🗺️ Pokaži na mapi</button>
+            <button type="button" class="btn-dark" data-edit-id="${item.id}" style="font-size:0.8rem;padding:0.45rem 0.85rem;">✏️ Edit mod</button>
+            <button type="button" class="btn-danger" data-delete-id="${item.id}"
+              data-delete-label="${(item.full_address_label ?? 'Bez naziva').replace(/"/g, '&quot;')}"
+              style="font-size:0.8rem;padding:0.45rem 0.85rem;">🗑️ Obriši</button>
+          </div>
+
+          <!-- Detalji adrese (skupljen po default-u) -->
+          <details class="addr-collapsible" style="margin-top:var(--space-4);background:#fafafa;border-radius:8px;padding:0.5rem 0.75rem;">
+            <summary style="cursor:pointer;font-weight:600;font-size:0.85rem;color:#374151;">▾ Detalji adrese (Ulica, Tip, Aktivna...)</summary>
+            <div class="address-detail-grid" style="margin-top:var(--space-3);">
+              <div class="addr-row"><span class="addr-label">Ulica:</span> ${escapeHtml(cleanStreetName(item.streets?.name)) || '-'}</div>
+              <div class="addr-row"><span class="addr-label">Naselje:</span> ${escapeHtml(item.streets?.settlement_name) || 'Podbara'}</div>
+              <div class="addr-row"><span class="addr-label">Broj:</span> ${escapeHtml(item.house_number) || '-'}</div>
+              <div class="addr-row"><span class="addr-label">Dodatak:</span> ${escapeHtml(item.house_number_suffix) || '-'}</div>
+              <div class="addr-row"><span class="addr-label">Stan:</span> ${escapeHtml(item.unit_number) || '-'}</div>
+              <div class="addr-row" style="display:flex;align-items:center;gap:var(--space-3);flex-wrap:wrap;">
+                <span><span class="addr-label">Tip:</span> <span id="tipLabel-${item.id}">${escapeHtml(item.address_type) || '-'}</span></span>
+                ${canEdit() ? `<button type="button" class="type-toggle-btn" data-toggle-type-id="${item.id}" data-current-type="${item.address_type ?? 'Kuća'}">🔄 Promeni tip</button>` : ''}
+              </div>
+              <div class="addr-row"><span class="addr-label">Aktivna:</span> ${item.is_active ? 'Da' : 'Ne'}</div>
+            </div>
+          </details>
+
+          <!-- Dodaj novu jedinicu (skupljen po default-u) -->
+          <details class="addr-collapsible" style="margin-top:0.5rem;background:#fafafa;border-radius:8px;padding:0.5rem 0.75rem;">
+            <summary style="cursor:pointer;font-weight:600;font-size:0.85rem;color:#374151;">▾ ➕ Dodaj novu jedinicu / dodatak broju</summary>
+            <div class="add-unit-row" style="margin-top:var(--space-3);">
               <div class="field">
                 <label>Dodatak broju</label>
                 <input type="text" id="newSuffix-${item.id}" placeholder="npr. a, b..." maxlength="4"
@@ -4111,17 +4190,7 @@
                 ➕ Dodaj
               </button>
             </div>
-          </div>
-
-          <div class="address-detail-actions">
-            <button type="button" class="btn-dark" data-edit-id="${item.id}">✏️ Izmeni status</button>
-            <button
-              type="button"
-              class="btn-danger"
-              data-delete-id="${item.id}"
-              data-delete-label="${(item.full_address_label ?? 'Bez naziva').replace(/"/g, '&quot;')}"
-            >Obriši</button>
-          </div>
+          </details>
         ` : `
           ${item.notes ? `<div class="addr-row" style="margin-top:1rem;"><span class="addr-label">Napomena:</span> ${escapeHtml(item.notes)}</div>` : ''}
         `}
@@ -4138,31 +4207,6 @@
 
       selectedAddressDetailsEl.querySelector('[data-delete-id]')?.addEventListener('click', () => {
         deleteAddress(item.id, item.full_address_label ?? 'Bez naziva')
-      })
-
-      // Status change — mark as dirty (pending), do NOT auto-save
-      const statusSelectEl = selectedAddressDetailsEl.querySelector('[data-status-id]')
-      if (statusSelectEl) {
-        statusSelectEl.addEventListener('change', (e) => {
-          const sel      = e.target
-          const original = sel.dataset.originalStatus
-          const pending  = selectedAddressDetailsEl.querySelector(`#pending-${item.id}`)
-          if (sel.value !== original) {
-            sel.classList.add('is-dirty')
-            if (pending) pending.style.display = 'inline'
-          } else {
-            sel.classList.remove('is-dirty')
-            if (pending) pending.style.display = 'none'
-          }
-        })
-      }
-
-      // "Primeni status" button — saves to Supabase
-      selectedAddressDetailsEl.querySelector('[data-apply-status-id]')?.addEventListener('click', () => {
-        const sel = selectedAddressDetailsEl.querySelector('[data-status-id]')
-        if (sel) {
-          updateCensusStatus(sel.dataset.statusId, sel.value)
-        }
       })
 
       // Brza izmena statusa — quick status chips (1-tap)
@@ -4191,6 +4235,27 @@
         const textarea = selectedAddressDetailsEl.querySelector(`#notes-${item.id}`)
         if (textarea) updateNotes(item.id, textarea.value)
       })
+
+      // Quick notes templates — klik dodaje template tekst u textarea
+      selectedAddressDetailsEl.querySelectorAll('[data-note-template]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const targetId = btn.dataset.noteTarget
+          const tmpl = btn.dataset.noteTemplate
+          const ta = document.getElementById(targetId)
+          if (!ta) return
+          // Prepend ako već ima sadržaj, inače setuj
+          const current = (ta.value || '').trim()
+          ta.value = current ? `${tmpl}. ${current}` : tmpl
+          ta.focus()
+          triggerHapticFeedback(20)
+        })
+      })
+
+      // "Pokaži na mapi" — pan/zoom mape na ovaj marker i otvori modal
+      selectedAddressDetailsEl.querySelector('[data-pan-to-map-id]')?.addEventListener('click', (e) => {
+        const id = e.currentTarget.dataset.panToMapId
+        panMapToAddress(id)
+      })
     }
 
     // Type toggle button
@@ -4207,7 +4272,129 @@
     // Apply latin enforcement to new unit inputs
     applyLatinEnforcement()
 
-    // (Map toggle iframe je sklonjen — koristi se Mapa sekcija + Google Maps navigacija)
+    // Render multi-unit list ispod detail kartice (ako adresa pripada multi-unit grupi)
+    if (isMultiUnit) {
+      renderBuildingUnitsList(item, itemBuildingKey)
+    }
+  }
+
+  // ── Lista svih stanova u zgradi sa quick-edit per row ──────────────────────
+  // Renderuje se ispod detail kartice za multi-unit zgrade/kuće.
+  // Svaki red ima: stan broj, status badge, 6 quick chip-ova za status.
+  function renderBuildingUnitsList(currentItem, buildingKey) {
+    const siblings = (allAddresses || []).filter(a => getBuildingKey(a) === buildingKey)
+    const effItems = getEffectiveItems(siblings)
+    if (effItems.length <= 1) return
+
+    // Sortiraj po unit_number (1, 2, 10, 11 prirodno)
+    const sortedItems = [...effItems].sort((a, b) =>
+      naturalCompare(String(a.unit_number || ''), String(b.unit_number || ''))
+    )
+
+    const groupKind = getAddressGroupKind(siblings)
+    const wordSingle = groupKind === 'building' ? 'Stan' : 'Jedinica'
+    const wordPlural = pluralizeSr(sortedItems.length, {
+      one: groupKind === 'building' ? 'stan' : 'jedinica',
+      few: groupKind === 'building' ? 'stana' : 'jedinice',
+      many: groupKind === 'building' ? 'stanova' : 'jedinica'
+    })
+
+    const STATUS_CHIPS = [
+      { val: 'students_win', icon: '✌️' },
+      { val: 'sns',          icon: '💩' },
+      { val: 'visited',      icon: '✓' },
+      { val: 'not_found',    icon: '❌' },
+      { val: 'scheduled',    icon: '⏰' },
+      { val: 'not_visited',  icon: '↩' }
+    ]
+
+    const rowsHtml = sortedItems.map(it => {
+      const num = it.unit_number ? `${wordSingle} ${escapeHtml(String(it.unit_number))}` : wordSingle
+      const status = it.census_status || 'not_visited'
+      const isCurrent = String(it.id) === String(currentItem.id)
+      const chipsHtml = canEdit() ? STATUS_CHIPS.map(c => `
+        <button type="button"
+          class="unit-list-chip ${status === c.val ? 'is-active chip-' + c.val : ''}"
+          data-unit-list-status="${c.val}"
+          data-unit-list-id="${it.id}"
+          title="${getStatusLabel(c.val)}">
+          ${c.icon}
+        </button>
+      `).join('') : ''
+      return `
+        <div class="unit-list-row ${isCurrent ? 'is-current' : ''}" data-unit-list-row-id="${it.id}">
+          <div class="unit-list-row-head">
+            <span class="unit-list-row-num">${getStatusEmoji(status)} ${num}</span>
+            <span class="unit-list-row-status status-badge ${getStatusClass(status)}" style="font-size:0.7rem;padding:0.15rem 0.5rem;">${getStatusLabel(status)}</span>
+          </div>
+          ${chipsHtml ? `<div class="unit-list-row-chips">${chipsHtml}</div>` : ''}
+        </div>
+      `
+    }).join('')
+
+    const listHtml = `
+      <div class="unit-list-card" style="margin-top:var(--space-4);">
+        <div class="unit-list-header">
+          <strong>📋 Svi stanovi u zgradi</strong>
+          <span style="color:#666;font-size:0.85rem;">${sortedItems.length} ${wordPlural}</span>
+        </div>
+        <div class="unit-list-body">
+          ${rowsHtml}
+        </div>
+      </div>
+    `
+    selectedAddressDetailsEl.insertAdjacentHTML('beforeend', listHtml)
+
+    // Wire quick-status chips u listi
+    selectedAddressDetailsEl.querySelectorAll('[data-unit-list-status]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation()
+        const id = btn.dataset.unitListId
+        const newStatus = btn.dataset.unitListStatus
+        if (id && newStatus) updateCensusStatus(id, newStatus)
+      })
+    })
+
+    // Klik na red (ne na chip) → fokusira detail karticu na taj stan
+    selectedAddressDetailsEl.querySelectorAll('[data-unit-list-row-id]').forEach(row => {
+      row.addEventListener('click', (e) => {
+        // Ne radi ako je klik bio na chip (već zaustavljen propagation)
+        const id = row.dataset.unitListRowId
+        if (id && String(id) !== String(currentItem.id)) {
+          selectedAddressId = String(id)
+          renderAddresses()
+        }
+      })
+    })
+  }
+
+  // ── Pan/zoom mape na konkretnu adresu + auto-otvori marker modal ──────────
+  function panMapToAddress(addressId) {
+    const item = (allAddresses || []).find(a => String(a.id) === String(addressId))
+    if (!item) return
+    const lat = parseFloat(item.latitude)
+    const lng = parseFloat(item.longitude)
+    if (!isFinite(lat) || !isFinite(lng)) {
+      setStatus('❌ Ova adresa nema koordinate, ne može se prikazati na mapi.')
+      return
+    }
+    // Inicijalizuj mapu ako nije već (defer-loaded Leaflet)
+    try { window.__initMapaWhenReady && window.__initMapaWhenReady() } catch (e) {}
+    setTimeout(() => {
+      if (mapaInstance) {
+        mapaInstance.invalidateSize()
+        mapaInstance.setView([lat, lng], 18, { animate: true })
+        // Skrol mapu u vidno polje
+        document.getElementById('sectionMapa')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        // Pripremi listu svih jedinica za marker modal (svi sa istim buildingKey)
+        const buildingKey = getBuildingKey(item)
+        const items = (allAddresses || []).filter(a => getBuildingKey(a) === buildingKey)
+        // Sačekaj scroll/render pa otvori modal
+        setTimeout(() => openMarkerModal(items), 350)
+      } else {
+        setStatus('❌ Mapa još nije učitana — sačekaj sekund pa probaj ponovo.')
+      }
+    }, 200)
   }
 
   // ── Address list render ────────────────────────────────────────────────────
