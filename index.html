@@ -2753,6 +2753,9 @@
           <span class="stats-collapsible-arrow">▾</span>
         </summary>
         <div class="leaderboard-inner">
+          <div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem;">
+            <button type="button" id="leaderboardRefreshBtn" class="btn-dark" style="font-size:0.78rem;padding:0.4rem 0.85rem;">🔄 Osveži</button>
+          </div>
           <div id="leaderboardContent">
             <div class="leaderboard-empty">Otvori da učitaš podatke...</div>
           </div>
@@ -5807,16 +5810,18 @@
 
   // ── Leaderboard ────────────────────────────────────────────────────────────
   const leaderboardContentEl = document.getElementById('leaderboardContent')
-  let leaderboardLoaded      = false
 
   async function loadLeaderboard() {
-    if (leaderboardLoaded) return
+    if (!leaderboardContentEl) return
     leaderboardContentEl.innerHTML = '<div class="leaderboard-empty">Učitavanje...</div>'
 
-    // Fetch all addresses with updated_by
+    // Fetch addresses gde je status realno setovan (ne not_visited)
+    // updated_by može da bude i kreator (ako je samo kreirao bez akcije),
+    // pa filtriramo na census_status != 'not_visited' da brojimo realne posete.
     let query = supabase
       .from('addresses')
-      .select('census_status, updated_by')
+      .select('id, census_status, updated_by, street_id')
+      .neq('census_status', 'not_visited')
 
     if (!isAdmin()) {
       const allowedIds = availableStreets.map(s => s.id).filter(Boolean)
@@ -5830,9 +5835,10 @@
     }
 
     // Fetch all profiles for names
-    const { data: profiles } = await supabase
+    const { data: profiles, error: pErr } = await supabase
       .from('profiles')
       .select('id, fullname, email')
+    if (pErr) console.warn('profiles err:', pErr)
 
     const profileMap = new Map((profiles || []).map(p => [p.id, p]))
 
@@ -5848,8 +5854,7 @@
           visited:      0,
           sns:          0,
           not_found:    0,
-          scheduled:    0,
-          not_visited:  0
+          scheduled:    0
         })
       }
       const u = userMap.get(a.updated_by)
@@ -5857,17 +5862,19 @@
       if (u[a.census_status] !== undefined) u[a.census_status]++
     }
 
-    // Sort by total desc, then by visited+students_win desc
+    // Sort by total desc (broj realnih poseta), pa po pobedjujemo+visited
     const sorted = Array.from(userMap.values())
       .sort((a, b) => {
-        const aScore = (a.visited + a.students_win)
-        const bScore = (b.visited + b.students_win)
         if (b.total !== a.total) return b.total - a.total
-        return bScore - aScore
+        return (b.visited + b.students_win) - (a.visited + a.students_win)
       })
 
     if (!sorted.length) {
-      leaderboardContentEl.innerHTML = '<div class="leaderboard-empty">Nema podataka — niko još nije uneo izmene.</div>'
+      leaderboardContentEl.innerHTML = `
+        <div class="leaderboard-empty">
+          Nema podataka — niko još nije uneo izmene.
+          <br><small style="color:#888;">(Brojanje uključuje samo adrese sa stvarnim statusom — ne "Nije obiđeno".)</small>
+        </div>`
       return
     }
 
@@ -5878,8 +5885,7 @@
       <div class="leaderboard-grid">
         ${sorted.map((u, i) => {
           const profile  = profileMap.get(u.id)
-          const name     = escapeHtml(profile?.fullname || profile?.email || 'Nepoznat')
-          const pending  = u.not_visited + u.scheduled
+          const name     = escapeHtml(profile?.fullname || profile?.email || `Korisnik ${String(u.id).slice(0,8)}…`)
           return `
             <div class="leaderboard-card">
               <div class="leaderboard-rank">
@@ -5887,29 +5893,31 @@
                 <span class="leaderboard-name" title="${escapeHtml(name)}">${name}</span>
               </div>
               <div class="leaderboard-stats">
-                <span class="lb-pill lb-total">Ukupno: ${u.total}</span>
+                <span class="lb-pill lb-total">Obilazaka: ${u.total}</span>
                 ${u.students_win ? `<span class="lb-pill lb-win">✌️ ${u.students_win}</span>` : ''}
                 ${u.visited      ? `<span class="lb-pill lb-visited">✅ ${u.visited}</span>`      : ''}
                 ${u.sns          ? `<span class="lb-pill lb-sns">💩 ${u.sns}</span>`              : ''}
-                ${pending        ? `<span class="lb-pill lb-pending">⏳ ${pending}</span>`        : ''}
+                ${u.not_found    ? `<span class="lb-pill lb-pending">❌ ${u.not_found}</span>`    : ''}
+                ${u.scheduled    ? `<span class="lb-pill lb-pending">⏰ ${u.scheduled}</span>`    : ''}
               </div>
             </div>
           `
         }).join('')}
       </div>
     `
-
-    leaderboardLoaded = true
   }
 
-  // Lazy load — only when opened
+  // Učitaj svaki put kad se sekcija otvori (bez cache-a — uvek sveže)
   document.getElementById('sectionLeaderboard')?.addEventListener('toggle', (e) => {
     if (e.target.open) loadLeaderboard()
   })
+  // Manualni "Osveži" dugme
+  document.getElementById('leaderboardRefreshBtn')?.addEventListener('click', () => {
+    loadLeaderboard()
+  })
 
-  // Reset leaderboard cache when data changes so it reloads fresh
+  // Kompatibilno — ako je sekcija otvorena, osveži posle promene statusa
   function invalidateLeaderboard() {
-    leaderboardLoaded = false
     if (document.getElementById('sectionLeaderboard')?.open) {
       loadLeaderboard()
     }
@@ -6429,6 +6437,8 @@
   filterStreetEl?.addEventListener('change', () => {
     selectedBuildingKey = null
     selectedAddressId = null
+    // Resetuj pretragu kad se menja ulica (broj sa prethodne ulice obično ne važi za novu)
+    if (searchInputEl) searchInputEl.value = ''
     populateSearchSuggestions()
     renderAddresses()
   })
