@@ -3387,15 +3387,24 @@
     const buildings = getUniqueBuildings(filtered)
     if (buildingCountBadgeEl) buildingCountBadgeEl.textContent = buildings.length
 
-    // Preserve selection if still valid; ne auto-biramo prvi (default = prazno)
+    // Preserve selection if still valid
     const keys = new Set(buildings.map(b => b.key))
     if (!keys.has(selectedBuildingKey)) {
       selectedBuildingKey = null
     }
 
-    // UX: kad pretraga vrati TAČNO 1 objekat, auto-popuni dropdown da user
-    // ne mora dodatno da klikće (ulica + broj već dovoljno suzili izbor)
-    if (!selectedBuildingKey && buildings.length === 1) {
+    // UX: auto-popuni dropdown kad user suzi izbor.
+    // Trigeruje se ako:
+    //  (a) korisnik je nešto kucao u pretragu (pa zna šta traži), ILI
+    //  (b) filter daje TAČNO 1 objekat (jasna meta), ILI
+    //  (c) korisnik je izabrao ulicu (sve adrese te ulice — auto-pick prvu da
+    //      se ne čeka dodatni klik za prikaz prve adrese).
+    // Ako je sve prazno (nema filtera), ne biramo automatski.
+    const hasSearch     = !!(searchInputEl?.value || '').trim()
+    const hasStreetFlt  = !!(filterStreetEl?.value || '')
+    const hasStatusFlt  = !!(filterStatusEl?.value || '')
+    if (!selectedBuildingKey && buildings.length >= 1
+        && (hasSearch || hasStreetFlt || hasStatusFlt || buildings.length === 1)) {
       selectedBuildingKey = buildings[0].key
     }
 
@@ -4352,6 +4361,28 @@
 
   // ── CRUD ───────────────────────────────────────────────────────────────────
 
+  // Posle INSERT-a sa unit_number, briši placeholder redove (NULL unit) na istoj adresi.
+  // Sprečava nakupljanje dirty redova kad se na postojeću adresu dodaju realni stanovi.
+  // Pravilo: ako je upravo unet pravi stan/jedinica, placeholder na istoj adresi nije
+  // više potreban (tu su sad realne jedinice).
+  async function cleanupPlaceholdersAfterInsert(streetId, houseNumber, houseSuffix, justInsertedId) {
+    if (!streetId || !houseNumber) return
+    const suffix = (houseSuffix || '').trim().toLowerCase()
+    let q = supabase.from('addresses')
+      .delete()
+      .eq('street_id', streetId)
+      .eq('house_number', houseNumber)
+      .is('unit_number', null)
+    if (suffix) {
+      q = q.eq('house_number_suffix', suffix)
+    } else {
+      q = q.is('house_number_suffix', null)
+    }
+    if (justInsertedId) q = q.neq('id', justInsertedId)
+    const { error } = await q
+    if (error) console.warn('cleanupPlaceholders error:', error)
+  }
+
 
   async function addUnitToAddress(btn) {
     const streetId    = btn.dataset.streetId
@@ -4398,7 +4429,7 @@
     btn.disabled    = true
     btn.textContent = '⏳'
     try {
-      const { error } = await supabase.from('addresses').insert([{
+      const { data: inserted, error } = await supabase.from('addresses').insert([{
         street_id:           streetId,
         house_number:        houseNum,
         house_number_suffix: suffix || null,
@@ -4409,8 +4440,12 @@
         is_active:           true,
         created_by:          currentUser.id,
         updated_by:          currentUser.id
-      }])
+      }]).select('id').single()
       if (error) throw error
+      // Auto-cleanup: ako smo upravo uneli realnu jedinicu, briši placeholder na istoj adresi
+      if (unit) {
+        await cleanupPlaceholdersAfterInsert(streetId, houseNum, suffix, inserted?.id)
+      }
       setStatus(`✅ Dodato: "${fullLabel}"`)
       if (unitEl)  unitEl.value  = ''
       await loadAddresses()
@@ -4575,6 +4610,11 @@
         created_by: currentUser.id, updated_by: currentUser.id
       }]).select('id').single()
       if (error) throw error
+
+      // Auto-cleanup: ako smo upravo uneli realnu jedinicu, briši placeholder na istoj adresi
+      if (unit_number) {
+        await cleanupPlaceholdersAfterInsert(street_id, house_number, house_number_suffix, inserted?.id)
+      }
 
       setStatus(`✅ Adresa sačuvana! Unesi status i napomenu ispod.`)
       await loadAddresses()
@@ -5117,6 +5157,27 @@
       }
     }
 
+    // Auto-cleanup: za svaku jedinstvenu adresu na koju smo uneli realan stan,
+    // briši placeholder na toj adresi. Posle bulk import-a mogu da ostanu i u DB i u
+    // import fajlu, pa pokreći cleanup za sve unique (street_id, house, suffix) sa
+    // unetim unit_number-om.
+    const uniqueAddrsWithUnits = new Map()
+    toInsert.forEach(r => {
+      if (r.unit_number) {
+        const key = `${r.street_id}||${r.house_number}||${(r.house_number_suffix || '').toLowerCase()}`
+        if (!uniqueAddrsWithUnits.has(key)) {
+          uniqueAddrsWithUnits.set(key, {
+            street_id: r.street_id,
+            house_number: r.house_number,
+            house_number_suffix: r.house_number_suffix
+          })
+        }
+      }
+    })
+    for (const a of uniqueAddrsWithUnits.values()) {
+      await cleanupPlaceholdersAfterInsert(a.street_id, a.house_number, a.house_number_suffix, null)
+    }
+
     const msg = `Uvezeno: ${inserted} · Neuspešno: ${failed} · Preskočeni duplikati: ${importRows.filter(r=>r.state==='warn').length}`
     importResultMsgEl.textContent = msg
     importResultMsgEl.classList.remove('hidden')
@@ -5636,7 +5697,14 @@
         updated_by: currentUser.id
       }).select(`*, streets ( id, name, settlement_name )`).single()
       if (error) { setStatus(`Greška: ${error.message}`); return }
-      allAddresses.push(data)
+      // Auto-cleanup: ako smo upravo uneli realan stan, briši placeholder na istoj adresi
+      if (stan) {
+        await cleanupPlaceholdersAfterInsert(sid, broj, dod, data?.id)
+        // Reload da bi se in-memory niz osvežio (placeholder je možda obrisan)
+        await loadAddresses()
+      } else {
+        allAddresses.push(data)
+      }
       hideInlineAddForm()
       if (inlineAddHouseEl)  inlineAddHouseEl.value  = ''
       if (inlineAddSuffixEl) inlineAddSuffixEl.value = ''
