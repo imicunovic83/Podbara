@@ -3198,6 +3198,23 @@
     </div>
   </div>
 
+  <!-- ── Location Permission Help Modal ── -->
+  <div id="locationHelpModal" class="marker-modal hidden" role="dialog" aria-modal="true">
+    <div class="marker-modal-backdrop" data-loc-help-close></div>
+    <div class="marker-modal-card">
+      <div class="marker-modal-header">
+        <h3>📍 Kako dozvoliti pristup lokaciji</h3>
+        <button type="button" class="marker-modal-close-btn" data-loc-help-close aria-label="Zatvori">✕</button>
+      </div>
+      <div class="marker-modal-body" id="locationHelpModalBody">
+        <!-- Sadržaj se dinamički generiše prema korisnikovom browseru -->
+      </div>
+      <div class="marker-modal-footer">
+        <button type="button" class="marker-modal-saveall" id="locHelpRetryBtn">🔄 Probaj ponovo</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ── Tutorial / Help modal ── -->
   <div id="tutorialModal" class="marker-modal hidden" role="dialog" aria-modal="true">
     <div class="marker-modal-backdrop" data-tutorial-close></div>
@@ -7686,6 +7703,184 @@
     }
   }
 
+  // ── Browser/platform detekcija (za help modal sa instrukcijama) ──────────
+  function detectBrowserPlatform() {
+    const ua = navigator.userAgent
+    const isIOS = /iPad|iPhone|iPod/.test(ua) ||
+                  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+    const isAndroid = /android/i.test(ua)
+    const isCriOS = /CriOS/i.test(ua)         // Chrome na iOS-u
+    const isFxiOS = /FxiOS/i.test(ua)         // Firefox na iOS-u
+    const isChrome = /Chrome/i.test(ua) && !/Edg|OPR|Brave|CriOS/i.test(ua)
+    const isFirefox = /Firefox/i.test(ua)
+    const isSafari = /^((?!chrome|android|crios|fxios).)*safari/i.test(ua)
+
+    let platform = 'desktop-other'
+    if (isIOS && isCriOS)           platform = 'ios-chrome'
+    else if (isIOS && isFxiOS)      platform = 'ios-firefox'
+    else if (isIOS)                 platform = 'ios-safari'
+    else if (isAndroid && isChrome) platform = 'android-chrome'
+    else if (isAndroid)             platform = 'android-other'
+    else if (isChrome)              platform = 'desktop-chrome'
+    else if (isFirefox)             platform = 'desktop-firefox'
+    else if (isSafari)              platform = 'desktop-safari'
+    return { platform, isIOS, isAndroid }
+  }
+
+  // ── HTML sa instrukcijama prilagođenim za korisnikov browser ─────────────
+  function getLocationInstructionsHTML() {
+    const { platform } = detectBrowserPlatform()
+    const warningBox = `
+      <div style="background:#fef3c7;padding:0.85rem 1rem;border-radius:8px;border:1px solid #fde68a;color:#854d0e;margin-bottom:0.85rem;font-size:0.9rem;">
+        <strong>⚠ Bitno:</strong> iOS i Android pamte ako si jednom odbio/la dijalog —
+        više te neće pitati automatski. Mora se ručno dozvoliti u podešavanjima.
+      </div>
+    `
+
+    if (platform === 'ios-safari') {
+      return warningBox + `
+        <h4 style="margin:0 0 0.5rem;color:#01696f;">📱 iOS Safari — 3 nivoa dozvola</h4>
+        <ol style="padding-left:1.25rem;line-height:1.8;font-size:0.9rem;margin:0;">
+          <li><strong>Globalna lokacija</strong>: Settings → Privacy &amp; Security → Location Services → mora biti <strong>uključeno</strong></li>
+          <li><strong>Safari aplikacija</strong>: Settings → Privacy &amp; Security → Location Services → "Safari Websites" → "While Using App"</li>
+          <li><strong>Ovaj sajt (najvažnije)</strong>: u Safari-u, dok si na ovoj stranici, dodirni <strong>"AA"</strong> dugme u URL bar-u (gore levo) → "Website Settings" → Location → "Allow"</li>
+        </ol>
+        <div style="background:#dbeafe;padding:0.6rem 0.8rem;border-radius:8px;color:#075985;font-size:0.85rem;margin-top:0.85rem;">
+          💡 <strong>Ako i dalje ne radi:</strong> Settings → Safari → Advanced → Website Data → pronađi "github.io" → obriši → osveži stranicu → ponovo će te pitati za dozvolu.
+        </div>
+      `
+    }
+
+    if (platform === 'ios-chrome') {
+      return warningBox + `
+        <h4 style="margin:0 0 0.5rem;color:#01696f;">📱 Chrome na iOS-u</h4>
+        <ol style="padding-left:1.25rem;line-height:1.8;font-size:0.9rem;margin:0;">
+          <li><strong>Globalna lokacija</strong>: iOS Settings → Privacy &amp; Security → Location Services → uključeno</li>
+          <li><strong>Chrome aplikacija</strong>: iOS Settings → Privacy &amp; Security → Location Services → Chrome → "While Using App"</li>
+          <li><strong>Ovaj sajt</strong>: u Chrome-u dodirni "<strong>...</strong>" (tri tačke dole desno) → Settings → Content Settings → Location → pronađi sajt → "Allow"</li>
+        </ol>
+      `
+    }
+
+    if (platform === 'ios-firefox') {
+      return warningBox + `
+        <h4 style="margin:0 0 0.5rem;color:#01696f;">📱 Firefox na iOS-u</h4>
+        <p style="font-size:0.9rem;">Firefox na iOS koristi Apple-ov WebKit i lokacija se kontroliše kao i kod Safari-ja:</p>
+        <ol style="padding-left:1.25rem;line-height:1.8;font-size:0.9rem;margin:0;">
+          <li>iOS Settings → Privacy &amp; Security → Location Services → uključeno</li>
+          <li>iOS Settings → Privacy &amp; Security → Location Services → Firefox → "While Using App"</li>
+          <li>U Firefox-u na ovom sajtu: dodirni katanac levo od URL-a → izmeni Location na "Allow"</li>
+        </ol>
+      `
+    }
+
+    if (platform === 'android-chrome') {
+      return warningBox + `
+        <h4 style="margin:0 0 0.5rem;color:#01696f;">📱 Android Chrome</h4>
+        <ol style="padding-left:1.25rem;line-height:1.8;font-size:0.9rem;margin:0;">
+          <li><strong>Globalna lokacija</strong>: Android Settings → Location → uključeno</li>
+          <li><strong>Chrome dozvola</strong>: Settings → Apps → Chrome → Permissions → Location → "Allow only while using the app"</li>
+          <li><strong>Ovaj sajt</strong>: u Chrome-u dodirni 🔒 katanac levo od URL-a → "Permissions" → Location → "Allow"</li>
+        </ol>
+      `
+    }
+
+    if (platform === 'android-other') {
+      return warningBox + `
+        <h4 style="margin:0 0 0.5rem;color:#01696f;">📱 Android browser</h4>
+        <ol style="padding-left:1.25rem;line-height:1.8;font-size:0.9rem;margin:0;">
+          <li>Android Settings → Location → uključeno</li>
+          <li>Settings → Apps → [tvoj browser] → Permissions → Location → "Allow"</li>
+          <li>U browseru, dodirni katanac/info ikonicu levo od URL-a → izmeni Location dozvolu</li>
+        </ol>
+      `
+    }
+
+    if (platform === 'desktop-chrome') {
+      return `
+        <h4 style="margin:0 0 0.5rem;color:#01696f;">💻 Chrome (desktop)</h4>
+        <ol style="padding-left:1.25rem;line-height:1.8;font-size:0.9rem;margin:0;">
+          <li>Klikni na 🔒 <strong>katanac</strong> levo od URL-a</li>
+          <li>Pronađi "<strong>Location</strong>" u listi</li>
+          <li>Promeni na "<strong>Allow</strong>"</li>
+          <li>Osveži stranicu (F5)</li>
+        </ol>
+      `
+    }
+
+    if (platform === 'desktop-firefox') {
+      return `
+        <h4 style="margin:0 0 0.5rem;color:#01696f;">💻 Firefox (desktop)</h4>
+        <ol style="padding-left:1.25rem;line-height:1.8;font-size:0.9rem;margin:0;">
+          <li>Klikni na 🛡️ ikonu levo od URL-a</li>
+          <li>Klikni "Connection secure" → "More information"</li>
+          <li>Permissions tab → "Access Your Location" → odčekiraj "Use Default" → izaberi "Allow"</li>
+          <li>Osveži stranicu</li>
+        </ol>
+      `
+    }
+
+    if (platform === 'desktop-safari') {
+      return `
+        <h4 style="margin:0 0 0.5rem;color:#01696f;">💻 Safari (Mac)</h4>
+        <ol style="padding-left:1.25rem;line-height:1.8;font-size:0.9rem;margin:0;">
+          <li>Safari menu → Settings (Preferences) → "Websites" tab</li>
+          <li>Levo izaberi "<strong>Location</strong>"</li>
+          <li>Pronađi naš sajt u listi → izaberi "<strong>Allow</strong>"</li>
+          <li>Osveži stranicu</li>
+        </ol>
+      `
+    }
+
+    return `
+      <h4 style="margin:0 0 0.5rem;color:#01696f;">🌐 Generičke instrukcije</h4>
+      <p style="font-size:0.9rem;margin-bottom:0.75rem;">Lokacija je odbijena. Idi u podešavanja sajta u tvom browseru i dozvoli pristup lokaciji.</p>
+      <ul style="padding-left:1.25rem;line-height:1.7;font-size:0.9rem;margin:0;">
+        <li>Pokušaj da obrišeš podatke sajta i osvežiš stranicu</li>
+        <li>Ili otvori sajt u drugom browseru</li>
+      </ul>
+    `
+  }
+
+  // ── Location help modal — open/close + retry ───────────────────────────────
+  const locationHelpModalEl     = document.getElementById('locationHelpModal')
+  const locationHelpModalBodyEl = document.getElementById('locationHelpModalBody')
+  const locHelpRetryBtnEl       = document.getElementById('locHelpRetryBtn')
+  let _pendingLocationRetry = null
+
+  function openLocationHelpModal(retryFn) {
+    if (!locationHelpModalEl) return
+    locationHelpModalBodyEl.innerHTML = getLocationInstructionsHTML()
+    _pendingLocationRetry = retryFn || null
+    locationHelpModalEl.classList.remove('hidden')
+  }
+
+  function closeLocationHelpModal() {
+    locationHelpModalEl?.classList.add('hidden')
+  }
+
+  // ESC zatvara modal
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && locationHelpModalEl && !locationHelpModalEl.classList.contains('hidden')) {
+      closeLocationHelpModal()
+    }
+  })
+
+  // Klik na backdrop ili X dugme zatvara modal
+  locationHelpModalEl?.querySelectorAll('[data-loc-help-close]').forEach(el => {
+    el.addEventListener('click', closeLocationHelpModal)
+  })
+
+  // "Probaj ponovo" — zatvara modal i ponovo pokušava poslednju geolokacijsku akciju
+  locHelpRetryBtnEl?.addEventListener('click', () => {
+    const fn = _pendingLocationRetry
+    _pendingLocationRetry = null
+    closeLocationHelpModal()
+    if (typeof fn === 'function') {
+      setTimeout(fn, 100)
+    }
+  })
+
   // ── Geolocation: "Najbliže od mene" (Task #21) ────────────────────────────
   let mapaUserPositionMarker = null
   const mapaNearestBtnEl = document.getElementById('mapaNearestBtn')
@@ -7750,11 +7945,27 @@
         setStatus(`✅ Top 5 najbližih ${statusLabel}: ${summary}`)
       },
       (err) => {
-        const msg = err.code === 1 ? 'Geolokacija odbijena (dozvoli pristup lokaciji)'
-                  : err.code === 2 ? 'Lokacija nedostupna'
-                  : err.code === 3 ? 'Timeout pri traženju lokacije'
-                  : err.message
-        setStatus(`❌ ${msg}`)
+        if (err.code === 1) {
+          // PERMISSION_DENIED — interaktivni banner sa "Kako dozvoliti?" dugmetom
+          statusEl.innerHTML =
+            '❌ Geolokacija odbijena. ' +
+            '<button type="button" id="locHelpOpenBtn" style="margin-left:0.5rem;padding:0.3rem 0.7rem;background:var(--color-primary);color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:600;font-size:0.85rem;">' +
+            '📖 Kako dozvoliti?' +
+            '</button>'
+          document.getElementById('locHelpOpenBtn')?.addEventListener('click', () => {
+            openLocationHelpModal(() => showNearestAddresses({ filterFn, statusLabel }))
+          })
+          // Auto-otvori modal odmah, da korisnik ne mora dvaput da klikće
+          setTimeout(() => {
+            openLocationHelpModal(() => showNearestAddresses({ filterFn, statusLabel }))
+          }, 200)
+        } else if (err.code === 2) {
+          setStatus('❌ Lokacija nedostupna — proveri da li je GPS uključen na uređaju.')
+        } else if (err.code === 3) {
+          setStatus('❌ Timeout pri traženju lokacije — pokušaj ponovo na otvorenom (slabija veza sa satelitima u zatvorenom).')
+        } else {
+          setStatus(`❌ Greška: ${err.message}`)
+        }
       },
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 }
     )
