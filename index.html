@@ -294,6 +294,119 @@
       .mobile-nav a { padding: 0.9rem 1rem; font-size: 1rem; min-height: 48px; }
     }
 
+    /* ── Marker modal (klik na pin na mapi) ── */
+    .marker-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .marker-modal.hidden { display: none; }
+    .marker-modal-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+    }
+    .marker-modal-card {
+      position: relative;
+      background: #fff;
+      border-radius: 14px;
+      width: min(520px, 100%);
+      max-height: 88vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.35);
+      overflow: hidden;
+    }
+    .marker-modal-header {
+      padding: 0.85rem 1rem;
+      border-bottom: 2px solid var(--color-primary);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--color-primary-light);
+      gap: 0.5rem;
+    }
+    .marker-modal-header h3 {
+      margin: 0;
+      font-size: 1.05rem;
+      color: var(--color-primary);
+      font-weight: 700;
+      flex: 1;
+      min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .marker-modal-close-btn {
+      background: #fff;
+      border: 1.5px solid var(--color-primary);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-primary);
+      flex-shrink: 0;
+    }
+    .marker-modal-close-btn:hover { background: var(--color-primary); color: #fff; }
+    .marker-modal-body {
+      padding: 0.85rem 1rem;
+      overflow-y: auto;
+      flex: 1;
+      -webkit-overflow-scrolling: touch;
+    }
+    .marker-modal-footer {
+      padding: 0.75rem 1rem;
+      border-top: 1px solid #e5e7eb;
+      background: #fafafa;
+    }
+    .marker-modal-footer:empty { display: none; }
+    .marker-modal-unit {
+      padding: 0.65rem 0;
+      border-bottom: 1px solid #f0f0f0;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+      align-items: center;
+    }
+    .marker-modal-unit:last-child { border-bottom: none; }
+    .marker-modal-unit strong { font-size: 0.95rem; }
+    .marker-modal-unit select {
+      width: 100%;
+      padding: 0.55rem 0.5rem;
+      font-size: 0.9rem;
+      min-height: 42px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      background: #fff;
+    }
+    @media (max-width: 480px) {
+      .marker-modal-unit { grid-template-columns: 1fr; gap: 0.3rem; }
+      .marker-modal-header h3 { font-size: 0.95rem; }
+    }
+    .marker-modal-saveall {
+      width: 100%;
+      padding: 0.85rem;
+      min-height: 48px;
+      background: var(--color-primary);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    .marker-modal-saveall:hover { background: var(--color-primary-hover); }
+    .marker-modal-saveall:disabled { opacity: 0.6; cursor: not-allowed; }
+
     /* ── Pull-to-refresh indikator ── */
     .pull-refresh-indicator {
       position: fixed;
@@ -2931,6 +3044,19 @@
     </div><!-- /appSection -->
   </div><!-- /container -->
 
+  <!-- ── Marker modal (otvara se kad se klikne pin na mapi) ── -->
+  <div id="markerModal" class="marker-modal hidden" role="dialog" aria-modal="true">
+    <div class="marker-modal-backdrop" data-modal-close></div>
+    <div class="marker-modal-card">
+      <div class="marker-modal-header">
+        <h3 id="markerModalTitle">Adresa</h3>
+        <button type="button" class="marker-modal-close-btn" data-modal-close aria-label="Zatvori">✕</button>
+      </div>
+      <div class="marker-modal-body" id="markerModalBody"></div>
+      <div class="marker-modal-footer" id="markerModalFooter"></div>
+    </div>
+  </div>
+
 <script type="module">
   import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
 
@@ -4995,7 +5121,7 @@
     const timeText = minsAgo < 1 ? 'upravo sada' : (minsAgo < 60 ? `pre ${minsAgo} min` : `pre ${Math.round(minsAgo/60)} h`)
     const label = item.full_address_label || `${cleanStreetName(item.streets?.name || '')} ${item.house_number || ''}`
     wrap.innerHTML = `
-      <span>📍 Poslednja izmena: <strong>${escapeHtml(label)}</strong> · <em>${timeText}</em></span>
+      <span>📍 Nastavi gde si stao: <strong>${escapeHtml(label)}</strong> · <em>${timeText}</em></span>
       <button type="button" id="continueBtnOpen" style="background:#01696f;color:#fff;border:none;border-radius:6px;padding:0.4rem 0.8rem;font-weight:600;cursor:pointer;">Otvori</button>
       <button type="button" id="continueBtnDismiss" aria-label="Zatvori" style="background:transparent;border:none;font-size:1.2rem;cursor:pointer;color:#666;">×</button>
     `
@@ -6814,6 +6940,135 @@
     })
   }
 
+  // ── Marker modal (zameni Leaflet popup za detalje zgrade) ──────────────────
+  const markerModalEl       = document.getElementById('markerModal')
+  const markerModalTitleEl  = document.getElementById('markerModalTitle')
+  const markerModalBodyEl   = document.getElementById('markerModalBody')
+  const markerModalFooterEl = document.getElementById('markerModalFooter')
+
+  function closeMarkerModal() {
+    markerModalEl?.classList.add('hidden')
+  }
+  // Wire close (backdrop + X dugme)
+  markerModalEl?.querySelectorAll('[data-modal-close]').forEach(el => {
+    el.addEventListener('click', closeMarkerModal)
+  })
+  // ESC key zatvara modal
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !markerModalEl?.classList.contains('hidden')) {
+      closeMarkerModal()
+    }
+  })
+
+  function openMarkerModal(items) {
+    if (!markerModalEl || !items || !items.length) return
+    const first = items[0]
+    const street = cleanStreetName(first.streets?.name || '')
+    const num    = `${first.house_number || ''}${first.house_number_suffix || ''}`
+    const groupKind = getAddressGroupKind(items)
+    const effItems  = getEffectiveItems(items)
+    const navUrl = buildMapsNavUrl(buildMapQuery(first))
+
+    if (groupKind === 'unexplored') {
+      markerModalTitleEl.textContent = `${street} ${num} — Neistraženo`
+      markerModalBodyEl.innerHTML = `
+        <div style="padding:0.85rem;background:#fef3c7;border:1px solid #fde68a;border-radius:8px;color:#854d0e;margin-bottom:0.75rem;">
+          <strong>⚠ Ova zgrada nema unete stanove.</strong><br>
+          Da bi mogao/la da unosiš statuse, prvo dodaj makar Stan 1.
+        </div>
+        <a href="${navUrl}" target="_blank" rel="noopener" style="display:inline-block;color:var(--color-primary);font-weight:600;text-decoration:underline;font-size:0.85rem;">↗ Otvori u Google Maps</a>
+      `
+      markerModalFooterEl.innerHTML = canEdit()
+        ? `<button type="button" class="marker-modal-saveall" id="markerModalAddFirstBtn">➕ Dodaj prvi stan</button>`
+        : ''
+      document.getElementById('markerModalAddFirstBtn')?.addEventListener('click', () => {
+        closeMarkerModal()
+        openInlineAddForUnexploredBuilding(first)
+      })
+      markerModalEl.classList.remove('hidden')
+      return
+    }
+
+    const cnt = effItems.length
+    const word = pluralizeSr(cnt, { one: 'stan', few: 'stana', many: 'stanova' })
+    markerModalTitleEl.textContent = `${street} ${num} — ${cnt} ${word}`
+
+    const sortedItems = [...effItems].sort((a, b) =>
+      naturalCompare(String(a.unit_number || ''), String(b.unit_number || ''))
+    )
+
+    const unitsHtml = sortedItems.map(item => {
+      const unitLabel = item.unit_number ? `Stan ${escapeHtml(String(item.unit_number))}` : 'Jedan unos'
+      const status = item.census_status || 'not_visited'
+      const emoji  = getStatusEmoji(status)
+      const statusOpts = Object.keys(mapaStatusLabels).map(s =>
+        `<option value="${s}" ${s === status ? 'selected' : ''}>${mapaStatusLabels[s]}</option>`
+      ).join('')
+      return `
+        <div class="marker-modal-unit">
+          <strong>${emoji} ${unitLabel}</strong>
+          ${canEdit()
+            ? `<select data-modal-unit-status="${item.id}" data-original-status="${status}">${statusOpts}</select>`
+            : `<div style="font-size:0.85rem;color:#555;">${mapaStatusLabels[status] || status}</div>`}
+        </div>
+      `
+    }).join('')
+
+    markerModalBodyEl.innerHTML = `
+      <div style="margin-bottom:0.75rem;">
+        <a href="${navUrl}" target="_blank" rel="noopener" style="display:inline-block;color:var(--color-primary);font-weight:600;text-decoration:underline;font-size:0.85rem;">↗ Otvori u Google Maps</a>
+      </div>
+      <div>${unitsHtml}</div>
+    `
+    markerModalFooterEl.innerHTML = canEdit()
+      ? `<button type="button" class="marker-modal-saveall" id="markerModalSaveBtn">💾 Sačuvaj sve izmene</button>`
+      : ''
+
+    document.getElementById('markerModalSaveBtn')?.addEventListener('click', async (e) => {
+      const btn = e.currentTarget
+      btn.disabled = true
+      btn.textContent = 'Čuvam...'
+      const updates = []
+      sortedItems.forEach(item => {
+        const sel = markerModalBodyEl.querySelector(`[data-modal-unit-status="${item.id}"]`)
+        if (sel && sel.value !== item.census_status) {
+          updates.push({ id: item.id, status: sel.value })
+        }
+      })
+      if (updates.length === 0) {
+        setStatus('Nema izmena za snimanje.')
+        btn.disabled = false
+        btn.textContent = '💾 Sačuvaj sve izmene'
+        return
+      }
+      try {
+        for (const upd of updates) {
+          const { error } = await supabase.from('addresses')
+            .update({ census_status: upd.status, updated_by: currentUser.id })
+            .eq('id', upd.id)
+          if (error) throw error
+          const idx = allAddresses.findIndex(a => String(a.id) === String(upd.id))
+          if (idx !== -1) allAddresses[idx].census_status = upd.status
+        }
+        triggerHapticFeedback()
+        rememberLastEdit(updates[0].id)
+        updates.forEach(() => bumpTodayCounter())
+        invalidateLeaderboard()
+        setStatus(`✅ Sačuvano ${updates.length} ${pluralizeSr(updates.length, { one:'izmena', few:'izmene', many:'izmena' })} sa mape.`)
+        closeMarkerModal()
+        refreshMapa()
+        renderAddresses()
+        try { loadDashboardStats() } catch (e2) {}
+      } catch (err) {
+        setStatus(`Greška: ${err.message}`)
+        btn.disabled = false
+        btn.textContent = '💾 Sačuvaj sve izmene'
+      }
+    })
+
+    markerModalEl.classList.remove('hidden')
+  }
+
   function buildPopupHtml(item) {
     const street  = cleanStreetName(item.streets?.name || '')
     const num     = `${item.house_number || ''}${item.house_number_suffix || ''}`
@@ -6887,33 +7142,17 @@
         effStatusCounts[st] = (effStatusCounts[st] || 0) + 1
       })
       const total = effItems.length
-      let icon, popupHtmlFn, attachFn
+      let icon
       if (groupKind === 'unexplored') {
-        // Neistražena zgrada — sivi "?" marker, popup sa CTA "Dodaj prvi stan"
         icon = buildUnexploredIcon(32)
-        popupHtmlFn = () => buildUnexploredPopupHtml(b.items)
-        attachFn = (e) => attachUnexploredPopupHandlers(e, b.items)
       } else {
-        // Pie chart za sve ostalo (kuća, kuća sa više jedinica, zgrada sa stanovima)
         icon = buildPieIcon(effStatusCounts, total, total > 1 ? 42 : 28)
-        popupHtmlFn = () => buildBuildingPopupHtml(effItems)
-        attachFn = (e) => attachBuildingPopupHandlers(e, effItems)
       }
       const marker = L.marker([b.lat, b.lng], { icon })
-      // Popup veličina prilagođena mobile-u: max-width 280px, max-height 320px (scroll unutra).
-      // autoPan + keepInView garantuje da popup uvek ostaje vidljiv kad se klikne.
-      const popupMaxWidth = Math.min(window.innerWidth - 40, 320)
-      const popupMaxHeight = Math.min(window.innerHeight - 100, 380)
-      marker.bindPopup(popupHtmlFn, {
-        minWidth: 220,
-        maxWidth: popupMaxWidth,
-        maxHeight: popupMaxHeight,
-        autoPan: true,
-        autoPanPadding: [10, 10],
-        keepInView: true,
-        closeButton: true
+      // Klik na marker → otvori fullscreen modal (umesto Leaflet popup-a)
+      marker.on('click', () => {
+        openMarkerModal(b.items)
       })
-      marker.on('popupopen', attachFn)
       mapaMarkersLayer.addLayer(marker)
       plotted++
     })
