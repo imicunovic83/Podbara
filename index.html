@@ -3354,16 +3354,32 @@
     return getEffectiveItems(items).length
   }
 
+  // Srpska pluralizacija: 1 → one, 2-4 → few, 5+ → many (i 11-14 → many).
+  function pluralizeSr(count, forms) {
+    const n  = Math.abs(count) % 100
+    const n1 = n % 10
+    if (n > 10 && n < 20) return forms.many
+    if (n1 === 1)         return forms.one
+    if (n1 >= 2 && n1 <= 4) return forms.few
+    return forms.many
+  }
+
   // Label za dropdown — "33 — Kuća", "17 — Kuća · 2 jedinice",
-  // "24a — Zgrada · 2 stana", "45 — Zgrada · neistraženo"
+  // "24a — Zgrada · 38 stanova", "45 — Zgrada · neistraženo"
   function getBuildingDropdownLabel(items) {
     const first = items[0]
     const num   = `${first.house_number || ''}${first.house_number_suffix || ''}`.trim()
     const kind  = getAddressGroupKind(items)
     const cnt   = getEffectiveItems(items).length
-    if (kind === 'unexplored')   return `${num} — Zgrada · neistraženo`
-    if (kind === 'building')     return `${num} — Zgrada · ${cnt} ${cnt === 1 ? 'stan' : 'stana'}`
-    if (kind === 'house_multi')  return `${num} — Kuća · ${cnt} ${cnt === 1 ? 'jedinica' : 'jedinice'}`
+    if (kind === 'unexplored') return `${num} — Zgrada · neistraženo`
+    if (kind === 'building') {
+      const word = pluralizeSr(cnt, { one: 'stan', few: 'stana', many: 'stanova' })
+      return `${num} — Zgrada · ${cnt} ${word}`
+    }
+    if (kind === 'house_multi') {
+      const word = pluralizeSr(cnt, { one: 'jedinica', few: 'jedinice', many: 'jedinica' })
+      return `${num} — Kuća · ${cnt} ${word}`
+    }
     return `${num} — Kuća`
   }
 
@@ -3786,7 +3802,7 @@
     const streets = Array.from(streetMap.values()).sort((a, b) => naturalCompare(a.name, b.name))
 
     const streetCountBadgeEl = document.getElementById('streetStatsStreetCount')
-    if (streetCountBadgeEl) streetCountBadgeEl.textContent = `${streets.length} ulica`
+    if (streetCountBadgeEl) streetCountBadgeEl.textContent = `${streets.length} ${pluralizeSr(streets.length, { one: 'ulica', few: 'ulice', many: 'ulica' })}`
 
     // Zahtev #9: prikazuj uvek SVE statuse (i 0) i napravi pill-ove klikabilnim
     streetStatsEl.innerHTML = streets.map(s => {
@@ -6069,7 +6085,7 @@
       `
     }).join('')
 
-    const headerCount = cnt === 1 ? '1 unos' : (cnt + ' jedinica')
+    const headerCount = `${cnt} ${pluralizeSr(cnt, { one: 'jedinica', few: 'jedinice', many: 'jedinica' })}`
     return `
       <div class="building-popup-header">🏠 ${escapeHtml(label)} <span style="font-weight:400;font-size:0.8rem;color:#666;">(${headerCount})</span></div>
       <div class="building-popup-list">${unitsHtml}</div>
@@ -6108,7 +6124,7 @@
           const idx = allAddresses.findIndex(a => String(a.id) === String(upd.id))
           if (idx !== -1) allAddresses[idx].census_status = upd.status
         }
-        setStatus(`✅ Sačuvano ${updates.length} ${updates.length === 1 ? 'izmena' : 'izmena'} sa mape.`)
+        setStatus(`✅ Sačuvano ${updates.length} ${pluralizeSr(updates.length, { one: 'izmena', few: 'izmene', many: 'izmena' })} sa mape.`)
         mapaInstance.closePopup()
         refreshMapa()
         renderAddresses()
