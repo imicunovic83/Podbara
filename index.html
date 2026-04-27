@@ -2416,9 +2416,6 @@
         <span class="topbar-hint">Odjava → ☰ meni</span>
       </div>
 
-      <!-- "Nastavi gde si stao" banner -->
-      <div id="continueBanner" class="continue-banner hidden"></div>
-
       <!-- Undo banner (5-sek za poništavanje poslednje izmene) -->
       <div id="undoBanner" class="undo-banner hidden"></div>
 
@@ -2519,12 +2516,12 @@
             <div>
               <label for="inlineStatusSelect">Status obilaska</label>
               <select id="inlineStatusSelect">
-                <option value="not_visited">Nije obiđeno</option>
-                <option value="visited">Obiđeno</option>
+                <option value="not_visited">↩ Nije obiđeno</option>
+                <option value="visited">✓ Obiđeno</option>
                 <option value="students_win">✌️ Studenti pobedjuju</option>
                 <option value="sns">💩 SNS</option>
-                <option value="not_found">Nije zatečen</option>
-                <option value="scheduled">Zakazano</option>
+                <option value="not_found">❌ Nije zatečen</option>
+                <option value="scheduled">⏰ Zakazano</option>
               </select>
             </div>
             <div>
@@ -2553,12 +2550,12 @@
             <div>
               <label for="quickEntryStatus">Status adrese</label>
               <select id="quickEntryStatus">
-                <option value="not_visited">Nije obiđeno</option>
+                <option value="not_visited">↩ Nije obiđeno</option>
                 <option value="students_win">✌️ Studenti pobedjuju</option>
                 <option value="sns">💩 SNS</option>
-                <option value="visited">Obiđeno</option>
-                <option value="not_found">Nije zatečen</option>
-                <option value="scheduled">Zakazano</option>
+                <option value="visited">✓ Obiđeno</option>
+                <option value="not_found">❌ Nije zatečen</option>
+                <option value="scheduled">⏰ Zakazano</option>
               </select>
             </div>
             <div>
@@ -2572,6 +2569,9 @@
           </div>
         </div>
       </div>
+
+      <!-- "Nastavi gde si stao" banner — pozicioniran direktno iznad Evidencije -->
+      <div id="continueBanner" class="continue-banner hidden"></div>
 
       <!-- ── 4+5. EVIDENCIJA OBILAZAKA (merged) ── -->
       <div class="evidencija-card" id="sectionEvidencija">
@@ -2591,10 +2591,10 @@
               <option value="">Svi statusi</option>
               <option value="students_win">✌️ Studenti pobedjuju</option>
               <option value="sns">💩 SNS</option>
-              <option value="not_visited">Nije obiđeno</option>
-              <option value="visited">Obiđeno</option>
-              <option value="not_found">Nije zatečen</option>
-              <option value="scheduled">Zakazano</option>
+              <option value="not_visited">↩ Nije obiđeno</option>
+              <option value="visited">✓ Obiđeno</option>
+              <option value="not_found">❌ Nije zatečen</option>
+              <option value="scheduled">⏰ Zakazano</option>
             </select>
           </div>
           <div class="field" style="position:relative;">
@@ -2711,8 +2711,13 @@
             <button type="button" id="mapaNearestBtn" class="btn-dark" style="font-size:0.78rem;padding:0.4rem 0.85rem;">📍 Najbliže od mene</button>
           </div>
         </div>
-        <div id="mapaContainer" style="position:relative;">
-          <div class="mapa-empty">Mapa se učitava...</div>
+        <!-- Wrapper za map + overlay-e (legenda + FAB).
+             BITNO: legenda i FAB MORAJU biti VAN mapaContainer-a jer Leaflet pri
+             inicijalizaciji radi `container.innerHTML = ''` i briše sve unutra. -->
+        <div class="mapa-wrapper" style="position:relative;">
+          <div id="mapaContainer">
+            <div class="mapa-empty">Mapa se učitava...</div>
+          </div>
           <!-- Plutajuća legenda boja (donji-levi ugao mape) -->
           <div id="mapaLegend" class="mapa-legend">
             <strong>Legenda</strong>
@@ -3924,10 +3929,10 @@
               <select class="status-select" id="status-${item.id}" data-status-id="${item.id}" data-original-status="${item.census_status}">
                 <option value="students_win" ${item.census_status === 'students_win' ? 'selected' : ''}>✌️ Studenti pobedjuju</option>
                 <option value="sns"          ${item.census_status === 'sns'          ? 'selected' : ''}>💩 SNS</option>
-                <option value="not_visited"  ${item.census_status === 'not_visited'  ? 'selected' : ''}>Nije obiđeno</option>
-                <option value="visited"      ${item.census_status === 'visited'      ? 'selected' : ''}>Obiđeno</option>
-                <option value="not_found"    ${item.census_status === 'not_found'    ? 'selected' : ''}>Nije zatečen</option>
-                <option value="scheduled"    ${item.census_status === 'scheduled'    ? 'selected' : ''}>Zakazano</option>
+                <option value="not_visited"  ${item.census_status === 'not_visited'  ? 'selected' : ''}>↩ Nije obiđeno</option>
+                <option value="visited"      ${item.census_status === 'visited'      ? 'selected' : ''}>✓ Obiđeno</option>
+                <option value="not_found"    ${item.census_status === 'not_found'    ? 'selected' : ''}>❌ Nije zatečen</option>
+                <option value="scheduled"    ${item.census_status === 'scheduled'    ? 'selected' : ''}>⏰ Zakazano</option>
               </select>
               <div class="status-apply-row">
                 <button type="button" data-apply-status-id="${item.id}" style="font-size:0.8rem;padding:0.4rem 0.9rem;">✅ Primeni status</button>
@@ -3964,12 +3969,12 @@
               <div class="field">
                 <label>Status</label>
                 <select id="newUnitStatus-${item.id}">
-                  <option value="not_visited">Nije obiđeno</option>
+                  <option value="not_visited">↩ Nije obiđeno</option>
                   <option value="students_win">✌️ Studenti pobedjuju</option>
                   <option value="sns">💩 SNS</option>
-                  <option value="visited">Obiđeno</option>
-                  <option value="not_found">Nije zatečen</option>
-                  <option value="scheduled">Zakazano</option>
+                  <option value="visited">✓ Obiđeno</option>
+                  <option value="not_found">❌ Nije zatečen</option>
+                  <option value="scheduled">⏰ Zakazano</option>
                 </select>
               </div>
               <button type="button" class="btn-success" data-add-unit-id="${item.id}"
@@ -6895,13 +6900,18 @@
         attachFn = (e) => attachBuildingPopupHandlers(e, effItems)
       }
       const marker = L.marker([b.lat, b.lng], { icon })
+      // Popup veličina prilagođena mobile-u: max-width 280px, max-height 320px (scroll unutra).
+      // autoPan + keepInView garantuje da popup uvek ostaje vidljiv kad se klikne.
+      const popupMaxWidth = Math.min(window.innerWidth - 40, 320)
+      const popupMaxHeight = Math.min(window.innerHeight - 100, 380)
       marker.bindPopup(popupHtmlFn, {
-        minWidth: 240,
-        maxWidth: 360,
-        maxHeight: 480,        // dozvoli scroll u popup-u kad ima puno stanova
+        minWidth: 220,
+        maxWidth: popupMaxWidth,
+        maxHeight: popupMaxHeight,
         autoPan: true,
-        autoPanPadding: [20, 20],
-        keepInView: true
+        autoPanPadding: [10, 10],
+        keepInView: true,
+        closeButton: true
       })
       marker.on('popupopen', attachFn)
       mapaMarkersLayer.addLayer(marker)
