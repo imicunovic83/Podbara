@@ -172,6 +172,7 @@ Nakon `git push`, GitHub Pages automatski deploy-uje za 1-2 min.
 Vidi `git log --oneline` za potpunu istoriju. Ključne sesije:
 
 - **2026-04-27**: Geolokacija fix — dodat `locationHelpModal` sa platform-specifičnim instrukcijama (iOS Safari, iOS Chrome, Android, desktop varijante). Trigger se automatski na `PERMISSION_DENIED`. Funkcije: `detectBrowserPlatform()`, `getLocationInstructionsHTML()`, `openLocationHelpModal()`. Commit: `4f909b0`.
+- **2026-04-27**: Najbliže adrese UX poboljšanje — rezultate "Najbliže od mene" / "Najbliže neobiđeno" više ne prikazujemo u status banner-u gore (jer korisnik mora da skroluje), nego u **modal-u nad mapom** (`nearestResultsModal`). Lista je **klikabilna** — klik na adresu pan-uje mapu i otvara marker modal sa svim stanovima. Funkcije: `openNearestResultsModal()`, `closeNearestResultsModal()`. Modifikovan success callback u `showNearestAddresses`.
 
 ---
 

@@ -3198,6 +3198,23 @@
     </div>
   </div>
 
+  <!-- ── Nearest Addresses Results Modal ── -->
+  <div id="nearestResultsModal" class="marker-modal hidden" role="dialog" aria-modal="true">
+    <div class="marker-modal-backdrop" data-nearest-close></div>
+    <div class="marker-modal-card">
+      <div class="marker-modal-header">
+        <h3 id="nearestResultsTitle">📍 Najbliže adrese</h3>
+        <button type="button" class="marker-modal-close-btn" data-nearest-close aria-label="Zatvori">✕</button>
+      </div>
+      <div class="marker-modal-body" id="nearestResultsBody">
+        <!-- Dinamički sadržaj — lista najbližih adresa -->
+      </div>
+      <div class="marker-modal-footer">
+        <p style="margin:0;font-size:0.8rem;color:#666;text-align:center;">💡 Klikni na adresu za prikaz na mapi</p>
+      </div>
+    </div>
+  </div>
+
   <!-- ── Location Permission Help Modal ── -->
   <div id="locationHelpModal" class="marker-modal hidden" role="dialog" aria-modal="true">
     <div class="marker-modal-backdrop" data-loc-help-close></div>
@@ -7703,6 +7720,74 @@
     }
   }
 
+  // ── Nearest Results Modal — lista najbližih adresa sa klikabilnim redovima ──
+  const nearestResultsModalEl = document.getElementById('nearestResultsModal')
+  const nearestResultsTitleEl = document.getElementById('nearestResultsTitle')
+  const nearestResultsBodyEl  = document.getElementById('nearestResultsBody')
+
+  function openNearestResultsModal(nearest, title) {
+    if (!nearestResultsModalEl) return
+    if (nearestResultsTitleEl) nearestResultsTitleEl.textContent = title || '📍 Najbliže adrese'
+
+    if (!nearest || !nearest.length) {
+      nearestResultsBodyEl.innerHTML = '<div class="empty">Nema rezultata.</div>'
+    } else {
+      nearestResultsBodyEl.innerHTML = nearest.map((n, i) => {
+        const item     = n.item
+        const street   = cleanStreetName(item.streets?.name || '')
+        const num      = `${item.house_number || ''}${item.house_number_suffix || ''}`
+        const unit     = item.unit_number ? ` / ${item.unit_number}` : ''
+        const status   = item.census_status || 'not_visited'
+        const distance = Math.round(n.dist)
+        return `
+          <div class="nearest-result-item" data-nearest-id="${item.id}"
+               style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem;border-bottom:1px solid #eee;cursor:pointer;transition:background 0.12s;">
+            <div style="width:32px;height:32px;border-radius:50%;background:var(--color-primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;">${i + 1}</div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-weight:600;font-size:0.95rem;margin-bottom:0.2rem;">${escapeHtml(street)} ${escapeHtml(num)}${escapeHtml(unit)}</div>
+              <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">
+                <span class="status-badge ${getStatusClass(status)}" style="font-size:0.7rem;padding:0.15rem 0.5rem;">${getStatusLabel(status)}</span>
+                <span style="font-size:0.78rem;color:#666;font-weight:600;">📏 ${distance} m</span>
+              </div>
+            </div>
+            <div style="font-size:1.2rem;color:var(--color-primary);flex-shrink:0;">→</div>
+          </div>
+        `
+      }).join('')
+
+      // Hover effect
+      nearestResultsBodyEl.querySelectorAll('.nearest-result-item').forEach(el => {
+        el.addEventListener('mouseenter', () => { el.style.background = '#f9fafb' })
+        el.addEventListener('mouseleave', () => { el.style.background = '' })
+        el.addEventListener('click', () => {
+          const id = el.dataset.nearestId
+          if (!id) return
+          closeNearestResultsModal()
+          // Pan mape na tu adresu i otvori marker modal sa svim stanovima
+          panMapToAddress(id)
+        })
+      })
+    }
+
+    nearestResultsModalEl.classList.remove('hidden')
+  }
+
+  function closeNearestResultsModal() {
+    nearestResultsModalEl?.classList.add('hidden')
+  }
+
+  // ESC zatvara modal
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && nearestResultsModalEl && !nearestResultsModalEl.classList.contains('hidden')) {
+      closeNearestResultsModal()
+    }
+  })
+
+  // Klik na backdrop ili X dugme zatvara modal
+  nearestResultsModalEl?.querySelectorAll('[data-nearest-close]').forEach(el => {
+    el.addEventListener('click', closeNearestResultsModal)
+  })
+
   // ── Browser/platform detekcija (za help modal sa instrukcijama) ──────────
   function detectBrowserPlatform() {
     const ua = navigator.userAgent
@@ -7936,13 +8021,12 @@
           ...nearest.map(n => [parseFloat(n.item.latitude), parseFloat(n.item.longitude)])
         ])
         mapaInstance.fitBounds(bounds, { padding: [60, 60], maxZoom: 18 })
-        const summary = nearest.map((n, i) => {
-          const street = cleanStreetName(n.item.streets?.name || '')
-          const num    = `${n.item.house_number || ''}${n.item.house_number_suffix || ''}`
-          const unit   = n.item.unit_number ? `/${n.item.unit_number}` : ''
-          return `${i+1}. ${street} ${num}${unit} (${Math.round(n.dist)}m)`
-        }).join('  •  ')
-        setStatus(`✅ Top 5 najbližih ${statusLabel}: ${summary}`)
+        // UX poboljšanje: prikaži rezultate u modalu na mapi (ne u status banner-u gore),
+        // tako da korisnik ne mora da skroluje na vrh aplikacije.
+        // Lista je klikabilna — klik pan-uje mapu na tu adresu i otvara marker modal.
+        const modalTitle = `📍 Top ${nearest.length} najbližih ${statusLabel}`
+        openNearestResultsModal(nearest, modalTitle)
+        setStatus(`✅ Pronađeno ${nearest.length} najbližih ${statusLabel} (vidi listu).`)
       },
       (err) => {
         if (err.code === 1) {
