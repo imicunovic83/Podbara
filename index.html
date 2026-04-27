@@ -784,17 +784,31 @@
     .unit-list-chip {
       padding: 0.4rem 0;
       min-height: 38px;
-      border: 1.5px solid #e5e7eb;
-      background: #fff;
+      border: 1.5px solid #f0f0f0;
+      background: #fafafa;
       border-radius: 8px;
       font-size: 1rem;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: all 0.1s ease;
+      transition: all 0.12s ease;
+      /* Inaktivni chip — desaturisan i transparentan tako da vizuelno tone u pozadinu.
+         Active chip ima reset (filter:none, opacity:1) pa POPS-uje. */
+      filter: grayscale(0.9);
+      opacity: 0.4;
     }
-    .unit-list-chip:hover { border-color: var(--color-primary); }
+    .unit-list-chip:hover {
+      filter: grayscale(0.4);
+      opacity: 0.85;
+      border-color: var(--color-primary);
+    }
+    .unit-list-chip.is-active {
+      filter: none;
+      opacity: 1;
+      border-width: 2.5px;
+      box-shadow: 0 0 0 2px rgba(0,0,0,0.04);
+    }
     .unit-list-chip.is-active.chip-students_win { background: #dcfce7; border-color: #22c55e; }
     .unit-list-chip.is-active.chip-sns          { background: #fee2e2; border-color: #dc2626; }
     .unit-list-chip.is-active.chip-not_visited  { background: #fef3c7; border-color: #f59e0b; }
@@ -853,14 +867,25 @@
       line-height: 1.1;
       color: #374151;
       transition: all 0.12s ease;
+      /* Inaktivni — desaturisani da aktivni POPS-uje */
+      filter: grayscale(0.85);
+      opacity: 0.5;
     }
-    .quick-status-chip:hover { transform: translateY(-1px); box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
+    .quick-status-chip:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      filter: grayscale(0.3);
+      opacity: 0.9;
+    }
     .quick-status-chip:active { transform: translateY(0); }
     .quick-status-chip .chip-icon { font-size: 1.4rem; line-height: 1; }
     .quick-status-chip.is-active {
+      filter: none;
+      opacity: 1;
       border-color: var(--color-primary);
       background: var(--color-primary-light);
       color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(0,0,0,0.04);
     }
     .quick-status-chip.chip-students_win.is-active { background: #dcfce7; border-color: #22c55e; color: #166534; }
     .quick-status-chip.chip-sns.is-active          { background: #fee2e2; border-color: #dc2626; color: #991b1b; }
