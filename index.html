@@ -4361,6 +4361,20 @@
 
   // ── CRUD ───────────────────────────────────────────────────────────────────
 
+  // Pri unosu novog stana u postojeću zgradu, nasleđujemo koordinate od bilo kog
+  // postojećeg reda iste adrese. Stanovi u istoj zgradi su na istoj fizičkoj lokaciji.
+  function getInheritedCoords(streetId, houseNumber, houseSuffix) {
+    const suffix = (houseSuffix || '').toLowerCase()
+    const sibling = (allAddresses || []).find(a =>
+      String(a.street_id) === String(streetId) &&
+      String(a.house_number || '') === String(houseNumber) &&
+      (a.house_number_suffix || '').toLowerCase() === suffix &&
+      isFinite(parseFloat(a.latitude)) && isFinite(parseFloat(a.longitude))
+    )
+    if (!sibling) return { latitude: null, longitude: null }
+    return { latitude: parseFloat(sibling.latitude), longitude: parseFloat(sibling.longitude) }
+  }
+
   // Posle INSERT-a sa unit_number, briši placeholder redove (NULL unit) na istoj adresi.
   // Sprečava nakupljanje dirty redova kad se na postojeću adresu dodaju realni stanovi.
   // Pravilo: ako je upravo unet pravi stan/jedinica, placeholder na istoj adresi nije
@@ -4429,6 +4443,8 @@
     btn.disabled    = true
     btn.textContent = '⏳'
     try {
+      // Nasledi koordinate od postojećih redova iste zgrade (svi stanovi su na istoj lokaciji)
+      const coords = getInheritedCoords(streetId, houseNum, suffix)
       const { data: inserted, error } = await supabase.from('addresses').insert([{
         street_id:           streetId,
         house_number:        houseNum,
@@ -4437,6 +4453,8 @@
         full_address_label:  fullLabel,
         address_type:        addressType,
         census_status:       status,
+        latitude:            coords.latitude,
+        longitude:           coords.longitude,
         is_active:           true,
         created_by:          currentUser.id,
         updated_by:          currentUser.id
@@ -4601,12 +4619,16 @@
         .maybeSingle()
       if (existingError) throw existingError
       if (existing) { setStatus('⚠️ Adresa već postoji!'); return }
+      // Nasledi koordinate od postojećih redova iste zgrade
+      const coords = getInheritedCoords(street_id, house_number, house_number_suffix)
       const { data: inserted, error } = await supabase.from('addresses').insert([{
         street_id, house_number,
         house_number_suffix: house_number_suffix || null,
         unit_number: unit_number || null,
         full_address_label, address_type,
         census_status: 'not_visited', is_active: true,
+        latitude:  coords.latitude,
+        longitude: coords.longitude,
         created_by: currentUser.id, updated_by: currentUser.id
       }]).select('id').single()
       if (error) throw error
@@ -5684,6 +5706,8 @@
     const fullLabel = `${cleanStreetName(street.name)} ${broj}${dod}${stan ? ' / ' + stan : ''}`
     setStatus('Snimam adresu...')
     try {
+      // Nasledi koordinate od postojećih redova iste zgrade
+      const coords = getInheritedCoords(sid, broj, dod)
       const { data, error } = await supabase.from('addresses').insert({
         street_id: sid,
         house_number: broj,
@@ -5692,6 +5716,8 @@
         full_address_label: fullLabel,
         address_type: tip,
         census_status: 'not_visited',
+        latitude:  coords.latitude,
+        longitude: coords.longitude,
         is_active: true,
         created_by: currentUser.id,
         updated_by: currentUser.id
@@ -6235,22 +6261,36 @@
       pool = pool.filter(a => allowed.has(String(a.street_id)))
     }
 
-    // Grupisanje po zgradi (street_id + house_number + suffix)
+    // Grupisanje po zgradi (street_id + house_number + suffix).
+    // BITNO: stanovi u istoj zgradi su na istoj geo lokaciji. Dovoljno je
+    // da BAR JEDAN red ima validne koordinate da bi marker mogao da se postavi —
+    // svi ostali stanovi te zgrade nasleđuju istu poziciju.
     const buildings = new Map()
     pool.forEach(item => {
-      const lat = parseFloat(item.latitude)
-      const lng = parseFloat(item.longitude)
-      if (!isFinite(lat) || !isFinite(lng)) return
       const status = item.census_status || 'not_visited'
       if (!activeStatuses.has(status)) return
       const key = `${item.street_id}||${item.house_number || ''}||${(item.house_number_suffix || '').toLowerCase()}`
       if (!buildings.has(key)) {
-        buildings.set(key, { lat, lng, items: [], statusCounts: {} })
+        buildings.set(key, { lat: null, lng: null, items: [], statusCounts: {} })
       }
       const b = buildings.get(key)
+      // Postavi lat/lng zgrade iz prvog reda koji ih ima
+      if (b.lat === null) {
+        const itemLat = parseFloat(item.latitude)
+        const itemLng = parseFloat(item.longitude)
+        if (isFinite(itemLat) && isFinite(itemLng)) {
+          b.lat = itemLat
+          b.lng = itemLng
+        }
+      }
       b.items.push(item)
       b.statusCounts[status] = (b.statusCounts[status] || 0) + 1
     })
+
+    // Ukloni zgrade bez ijednog reda sa koordinatama (ne mogu se prikazati na mapi)
+    for (const [key, b] of buildings) {
+      if (b.lat === null || b.lng === null) buildings.delete(key)
+    }
 
     let plotted = 0
     buildings.forEach((b) => {
