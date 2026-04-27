@@ -2309,7 +2309,7 @@
     <a href="#sectionEvidencija"><span class="nav-icon">📋</span>Evidencija obilazaka</a>
     <a href="#sectionMapa" id="mapNavLink"><span class="nav-icon">🗺️</span>Mapa</a>
     <a href="#sectionStatistika"><span class="nav-icon">📈</span>Statistika po ulicama</a>
-    <a href="#sectionLeaderboard"><span class="nav-icon">🏆</span>Ko je obišao najviše</a>
+    <a href="#sectionLeaderboard"><span class="nav-icon">🏆</span>Ko je obišao/la najviše</a>
     <a href="#adminPanelSection" id="adminNavLink" class="hidden"><span class="nav-icon">⚙️</span>Admin panel</a>
     <a href="#sectionMojProfil"><span class="nav-icon">👤</span>Moj profil</a>
     <!-- Logout je u hamburger meniju da se korisnik ne odjavi slučajno -->
@@ -2706,7 +2706,8 @@
             <label><input type="checkbox" data-mapa-status="not_found" checked> Nije zatečen</label>
             <label><input type="checkbox" data-mapa-status="scheduled" checked> Zakazano</label>
           </div>
-          <div class="mapa-control-group" style="margin-left:auto;">
+          <div class="mapa-control-group" style="margin-left:auto;display:flex;gap:0.4rem;flex-wrap:wrap;">
+            <button type="button" id="mapaResetFiltersBtn" class="btn-dark" style="font-size:0.78rem;padding:0.4rem 0.85rem;background:#f59e0b;color:#fff;">🔄 Resetuj filtere</button>
             <button type="button" id="mapaNearestBtn" class="btn-dark" style="font-size:0.78rem;padding:0.4rem 0.85rem;">📍 Najbliže od mene</button>
           </div>
         </div>
@@ -2748,7 +2749,7 @@
       <details class="leaderboard-collapsible" id="sectionLeaderboard">
         <summary>
           <span class="stats-collapsible-header-left">
-            🏆 Ko je obišao najviše
+            🏆 Ko je obišao/la najviše
           </span>
           <span class="stats-collapsible-arrow">▾</span>
         </summary>
@@ -4795,6 +4796,9 @@
       if (unit) {
         await cleanupPlaceholdersAfterInsert(streetId, houseNum, suffix, inserted?.id)
       }
+      // Pamti za "Nastavi gde si stao" — svaka akcija na adresi se računa
+      if (inserted?.id) rememberLastEdit(inserted.id)
+      triggerHapticFeedback()
       setStatus(`✅ Dodato: "${fullLabel}"`)
       if (unitEl)  unitEl.value  = ''
       await loadAddresses()
@@ -4953,7 +4957,7 @@
     if (!el) return
     const v = getTodayCount()
     if (v > 0) {
-      el.textContent = `✅ Obišao danas: ${v}`
+      el.textContent = `✅ Obišao/la danas: ${v}`
       el.classList.remove('hidden')
     } else {
       el.classList.add('hidden')
@@ -4986,7 +4990,7 @@
     const timeText = minsAgo < 1 ? 'upravo sada' : (minsAgo < 60 ? `pre ${minsAgo} min` : `pre ${Math.round(minsAgo/60)} h`)
     const label = item.full_address_label || `${cleanStreetName(item.streets?.name || '')} ${item.house_number || ''}`
     wrap.innerHTML = `
-      <span>📍 Poslednje obišao: <strong>${escapeHtml(label)}</strong> · <em>${timeText}</em></span>
+      <span>📍 Poslednja izmena: <strong>${escapeHtml(label)}</strong> · <em>${timeText}</em></span>
       <button type="button" id="continueBtnOpen" style="background:#01696f;color:#fff;border:none;border-radius:6px;padding:0.4rem 0.8rem;font-weight:600;cursor:pointer;">Otvori</button>
       <button type="button" id="continueBtnDismiss" aria-label="Zatvori" style="background:transparent;border:none;font-size:1.2rem;cursor:pointer;color:#666;">×</button>
     `
@@ -5049,6 +5053,8 @@
       .update({ notes: notesValue || null, updated_by: currentUser.id })
       .eq('id', addressId)
     if (error) { setStatus(`❌ Greška pri čuvanju napomene: ${error.message}`); return }
+    rememberLastEdit(addressId)
+    triggerHapticFeedback()
     setStatus('✅ Napomena sačuvana.')
   }
 
@@ -5133,6 +5139,8 @@
       if (unit_number) {
         await cleanupPlaceholdersAfterInsert(street_id, house_number, house_number_suffix, inserted?.id)
       }
+      if (inserted?.id) rememberLastEdit(inserted.id)
+      triggerHapticFeedback()
 
       setStatus(`✅ Adresa sačuvana! Unesi status i napomenu ispod.`)
       await loadAddresses()
@@ -6278,6 +6286,8 @@
       } else {
         allAddresses.push(data)
       }
+      if (data?.id) rememberLastEdit(data.id)
+      triggerHapticFeedback()
       hideInlineAddForm()
       if (inlineAddHouseEl)  inlineAddHouseEl.value  = ''
       if (inlineAddSuffixEl) inlineAddSuffixEl.value = ''
@@ -6885,7 +6895,14 @@
         attachFn = (e) => attachBuildingPopupHandlers(e, effItems)
       }
       const marker = L.marker([b.lat, b.lng], { icon })
-      marker.bindPopup(popupHtmlFn, { minWidth: 240, maxWidth: 320 })
+      marker.bindPopup(popupHtmlFn, {
+        minWidth: 240,
+        maxWidth: 360,
+        maxHeight: 480,        // dozvoli scroll u popup-u kad ima puno stanova
+        autoPan: true,
+        autoPanPadding: [20, 20],
+        keepInView: true
+      })
       marker.on('popupopen', attachFn)
       mapaMarkersLayer.addLayer(marker)
       plotted++
@@ -6997,6 +7014,14 @@
 
   mapaNearestBtnEl?.addEventListener('click', showNearestUnvisited)
   document.getElementById('mapaNearestFab')?.addEventListener('click', showNearestUnvisited)
+
+  // Reset filtera mape — sve checkbox-eve čekira, status filter u Evidenciji čisti
+  document.getElementById('mapaResetFiltersBtn')?.addEventListener('click', () => {
+    document.querySelectorAll('[data-mapa-status], [data-mapa-layer]').forEach(c => { c.checked = true })
+    if (filterStatusEl) filterStatusEl.value = ''
+    try { typeof refreshMapa === 'function' && refreshMapa() } catch (e) {}
+    setStatus('✅ Mapa filteri resetovani — prikazane su sve adrese.')
+  })
 
   // Inicijalizacija mape posle login-a — pozovi iz renderLoggedIn flow-a
   window.__initMapaWhenReady = function () {
