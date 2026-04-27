@@ -3299,14 +3299,48 @@
   //  - 'building'      = Zgrada sa unetim stanovima
   //  - 'house_multi'   = Kuća sa više jedinica (npr. Almaška 17 — 2 kuće u dvorištu)
   //  - 'house_single'  = Klasična porodična kuća (1 red)
+  //
+  // BITNO: tip određujemo po redovima koji imaju unit_number (oni su pravi/validni).
+  // Ako u grupi postoji "dirty" red (npr. type=Kuća, unit=NULL u suštinski Zgrada
+  // adresi), takav red ne sme da skrene klasifikaciju.
   function getAddressGroupKind(items) {
     if (!items || !items.length) return 'house_single'
-    const allBuilding = items.every(it => it.address_type === 'Zgrada')
-    const anyHasUnit  = items.some(it => String(it.unit_number || '').trim().length > 0)
-    if (allBuilding && !anyHasUnit) return 'unexplored'
-    if (allBuilding) return 'building'
-    if (items.length > 1 || anyHasUnit) return 'house_multi'
+
+    // Realni redovi = oni sa unit_number (stanovi/jedinice)
+    const realItems = items.filter(it => String(it.unit_number || '').trim().length > 0)
+
+    // Nema nijedan red sa unit_number — proveri da li je to placeholder zgrada
+    if (realItems.length === 0) {
+      const anyBuilding = items.some(it => it.address_type === 'Zgrada')
+      if (anyBuilding) return 'unexplored'
+      return 'house_single'
+    }
+
+    // Tip određen po realnim redovima (oni su autoritativni)
+    const buildingCount = realItems.filter(it => it.address_type === 'Zgrada').length
+    const houseCount    = realItems.filter(it => it.address_type === 'Kuća').length
+
+    // Ako je makar 1 realni red Zgrada, tretiraj cele grupe kao Zgradu
+    // (jer pravi stan je odlučujući indikator zgrade)
+    if (buildingCount > 0) return 'building'
+
+    // Sve realne su Kuća
+    if (houseCount > 1) return 'house_multi'
     return 'house_single'
+  }
+
+  // Vraća redove iz grupe koji nose status (eliminiše dirty placeholdere u zgradi).
+  // Za 'building': samo redovi sa unit_number
+  // Za 'house_multi': samo redovi sa unit_number
+  // Za 'house_single': sve redove (1 red bez unit_number)
+  // Za 'unexplored': prazna lista (ništa se ne računa)
+  function getEffectiveItems(items) {
+    const kind = getAddressGroupKind(items)
+    if (kind === 'unexplored') return []
+    if (kind === 'building' || kind === 'house_multi') {
+      return items.filter(it => String(it.unit_number || '').trim().length > 0)
+    }
+    return items
   }
 
   // Da li grupa nosi validne (status-noseće) jedinice?
@@ -3316,9 +3350,8 @@
   }
 
   // Broji koliko stvarnih jedinica nosi grupa za potrebe brojanja "Ukupno".
-  // Neistražena zgrada = 0; ostale = broj redova.
   function getEffectiveUnitCount(items) {
-    return isValidUnitGroup(items) ? items.length : 0
+    return getEffectiveItems(items).length
   }
 
   // Label za dropdown — "33 — Kuća", "17 — Kuća · 2 jedinice",
@@ -3327,9 +3360,10 @@
     const first = items[0]
     const num   = `${first.house_number || ''}${first.house_number_suffix || ''}`.trim()
     const kind  = getAddressGroupKind(items)
+    const cnt   = getEffectiveItems(items).length
     if (kind === 'unexplored')   return `${num} — Zgrada · neistraženo`
-    if (kind === 'building')     return `${num} — Zgrada · ${items.length} ${items.length === 1 ? 'stan' : 'stana'}`
-    if (kind === 'house_multi')  return `${num} — Kuća · ${items.length} ${items.length === 1 ? 'jedinica' : 'jedinice'}`
+    if (kind === 'building')     return `${num} — Zgrada · ${cnt} ${cnt === 1 ? 'stan' : 'stana'}`
+    if (kind === 'house_multi')  return `${num} — Kuća · ${cnt} ${cnt === 1 ? 'jedinica' : 'jedinice'}`
     return `${num} — Kuća`
   }
 
@@ -3341,6 +3375,12 @@
     const keys = new Set(buildings.map(b => b.key))
     if (!keys.has(selectedBuildingKey)) {
       selectedBuildingKey = null
+    }
+
+    // UX: kad pretraga vrati TAČNO 1 objekat, auto-popuni dropdown da user
+    // ne mora dodatno da klikće (ulica + broj već dovoljno suzili izbor)
+    if (!selectedBuildingKey && buildings.length === 1) {
+      selectedBuildingKey = buildings[0].key
     }
 
     if (buildingSelectEl) {
@@ -3710,27 +3750,24 @@
 
     // Varijanta C: Ukupno = stvarne jedinice (kuće + sve unete jedinice/stanovi).
     // Neistražene zgrade (Zgrada bez ijednog unetog stana) se NE računaju u total.
-    // Vide se samo na mapi kao sivi "?" marker.
-    // Najpre grupiši redove po adresi (street_id||house_number||suffix) da bismo znali
-    // koje grupe su "neistražene" (placeholder zgrade).
+    // Takođe se isključuju "dirty" redovi unutar Zgrade/Kuće (npr. red bez unit_number
+    // u Zgradi koja inače ima unete stanove — to je placeholder, a ne validan stan).
     const groupBuckets = new Map()
     for (const row of addressRows) {
       const key = `${row.street_id}||${row.house_number || ''}||${(row.house_number_suffix || '').toLowerCase()}`
       if (!groupBuckets.has(key)) groupBuckets.set(key, [])
       groupBuckets.get(key).push(row)
     }
-    // Za svaki red zapamti da li pripada neistraženoj grupi
-    const unexploredRowIds = new Set()
+    // Sakupi ID-jeve redova koji se UKLJUČUJU u brojanje (samo "effective" redovi)
+    const countableIds = new Set()
     groupBuckets.forEach(items => {
-      if (getAddressGroupKind(items) === 'unexplored') {
-        items.forEach(it => unexploredRowIds.add(String(it.id)))
-      }
+      getEffectiveItems(items).forEach(it => countableIds.add(String(it.id)))
     })
 
     const streetMap = new Map()
     for (const row of addressRows) {
-      // Preskoči redove koji čine neistraženu zgradu
-      if (unexploredRowIds.has(String(row.id))) continue
+      // Preskoči redove koji nisu "effective" (neistražene zgrade i dirty placeholderi)
+      if (!countableIds.has(String(row.id))) continue
       const streetName = cleanStreetName(row.streets?.name || 'Nepoznata ulica')
       if (!streetMap.has(streetName)) {
         streetMap.set(streetName, {
@@ -4261,20 +4298,18 @@
 
     const rawRows = addresses || []
 
-    // Varijanta C: isključi neistražene zgrade (Zgrada bez ijednog stana) iz brojanja.
+    // Varijanta C: isključi neistražene zgrade i dirty placeholdere iz brojanja.
     const groupBucketsForStats = new Map()
     for (const row of rawRows) {
       const key = `${row.street_id}||${row.house_number || ''}||${(row.house_number_suffix || '').toLowerCase()}`
       if (!groupBucketsForStats.has(key)) groupBucketsForStats.set(key, [])
       groupBucketsForStats.get(key).push(row)
     }
-    const unexploredIds = new Set()
+    const countableIds = new Set()
     groupBucketsForStats.forEach(items => {
-      if (getAddressGroupKind(items) === 'unexplored') {
-        items.forEach(it => unexploredIds.add(String(it.id)))
-      }
+      getEffectiveItems(items).forEach(it => countableIds.add(String(it.id)))
     })
-    const rows = rawRows.filter(a => !unexploredIds.has(String(a.id)))
+    const rows = rawRows.filter(a => countableIds.has(String(a.id)))
 
     const total = rows.length
     // FIX: was a.censusstatus — correct field is a.census_status
@@ -6135,8 +6170,16 @@
 
     let plotted = 0
     buildings.forEach((b) => {
-      const total = b.items.length
       const groupKind = getAddressGroupKind(b.items)
+      // Effective items = redovi koji nose status (eliminiše dirty placeholdere)
+      const effItems = getEffectiveItems(b.items)
+      // Preračunaj status counts na osnovu effective items (dirty redovi se ignorišu)
+      const effStatusCounts = {}
+      effItems.forEach(it => {
+        const st = it.census_status || 'not_visited'
+        effStatusCounts[st] = (effStatusCounts[st] || 0) + 1
+      })
+      const total = effItems.length
       let icon, popupHtmlFn, attachFn
       if (groupKind === 'unexplored') {
         // Neistražena zgrada — sivi "?" marker, popup sa CTA "Dodaj prvi stan"
@@ -6145,9 +6188,9 @@
         attachFn = (e) => attachUnexploredPopupHandlers(e, b.items)
       } else {
         // Pie chart za sve ostalo (kuća, kuća sa više jedinica, zgrada sa stanovima)
-        icon = buildPieIcon(b.statusCounts, total, total > 1 ? 42 : 28)
-        popupHtmlFn = () => buildBuildingPopupHtml(b.items)
-        attachFn = (e) => attachBuildingPopupHandlers(e, b.items)
+        icon = buildPieIcon(effStatusCounts, total, total > 1 ? 42 : 28)
+        popupHtmlFn = () => buildBuildingPopupHtml(effItems)
+        attachFn = (e) => attachBuildingPopupHandlers(e, effItems)
       }
       const marker = L.marker([b.lat, b.lng], { icon })
       marker.bindPopup(popupHtmlFn, { minWidth: 240, maxWidth: 320 })
