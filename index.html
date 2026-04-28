@@ -3725,18 +3725,19 @@
       const allowedIds = new Set(availableStreets.map(s => String(s.id)))
       pool = pool.filter(a => allowedIds.has(String(a.street_id)))
     }
+    // Sugestije pretrage prikazuju samo zgradu/kuću (npr. "24a"), ne i pojedinačne
+    // stanove (24a / 1, 24a / 2, ...). Stanove korisnik bira u "Stan" picker-u
+    // ispod, kad otvori zgradu — dvostruki nivo u dropdown-u je samo zatrpavao
+    // listu (zgrada sa 38 stanova → 39 redova u predlozima).
     const suggestions = new Set()
     pool.forEach(item => {
       const street = cleanStreetName(item.streets?.name || '')
       const num    = `${item.house_number || ''}${item.house_number_suffix || ''}`.trim()
-      const unit   = String(item.unit_number || '').trim()
       if (selectedStreetId) {
         if (num) suggestions.add(num)
-        if (num && unit) suggestions.add(`${num} / ${unit}`)
       } else {
         const baseLabel = `${street}${num ? ' ' + num : ''}`.trim()
         if (baseLabel) suggestions.add(baseLabel)
-        if (baseLabel && unit) suggestions.add(`${baseLabel} / ${unit}`)
         if (street) suggestions.add(street)
       }
     })
