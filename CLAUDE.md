@@ -116,7 +116,7 @@ Ako padne internet, izmene se čuvaju u localStorage i sinhronizuju kad se vrati
 ### Tehnička sredina
 - **OS**: Windows
 - **Editor**: nije specificiran (verovatno Notepad / VS Code)
-- **Lokalni Podbara folder**: `C:\Users\ilija\OneDrive\Desktop\Podbara`
+- **Lokalni Podbara folder**: `C:\Users\ilija\Projects\Podbara` (van OneDrive-a — premešten 2026-04-28 da Linux sandbox može da piše u `.git/`)
 - **PowerShell**: ima
 - **Git**: instaliran (cloniraje radi)
 - **Node.js**: ima (preko `npx serve` radi)
@@ -162,12 +162,14 @@ GitHub Actions je **isključen** za backup (košta na privatnom repo-u). Sve rad
 
 ## Push workflow
 
-Korisnik ima `push-podbara.bat` na Desktop-u koji automatizuje:
-```
-git status → git add . → git commit -m "..." → git push
-```
+`push-podbara.bat` se nalazi **unutar samog repo-a** (`C:\Users\ilija\Projects\Podbara\push-podbara.bat`) — putuje sa folderom, koristi `cd /d "%~dp0"` da uvek radi iz pravog direktorijuma. Skripta:
+1. Pokaže `git status --short`
+2. Ako ima neuncommit-ovanih izmena (od korisnika ručno) — pita commit poruku, radi `add` + `commit`
+3. Radi `git push`
 
-Nakon `git push`, GitHub Pages automatski deploy-uje za 1-2 min.
+**Tipičan scenario:** Claude commit-uje izmene iz svog Linux sandboksa (sad kad repo nije više u OneDrive-u, lock fajlovi i `.git/objects` permission greške su prošlost). Korisnik samo dupli klik na `push-podbara.bat` → push prolazi (auth iz Windows Credential Manager-a).
+
+Nakon `git push`, GitHub Pages automatski deploy-uje za 1-2 min. Browser cache: **Ctrl+Shift+R**.
 
 ---
 
@@ -175,6 +177,7 @@ Nakon `git push`, GitHub Pages automatski deploy-uje za 1-2 min.
 
 Vidi `git log --oneline` za potpunu istoriju. Ključne sesije:
 
+- **2026-04-28**: Repo premešten van OneDrive-a — sa `C:\Users\ilija\OneDrive\Desktop\Podbara` na `C:\Users\ilija\Projects\Podbara`. Razlog: Linux sandbox nije mogao da piše u `.git/` na OneDrive folderu (Operation not permitted na `index.lock` i `tmp_obj_*`), zbog čega su Claude-ovi commit pokušaji ostavljali zaglavljene lock fajlove i blokirali push-podbara.bat. Klon urađen preko `setup-novi-podbara.bat`. Stari OneDrive folder ostaje (može korisnik da obriše kad potvrdi da sve radi). Novi `push-podbara.bat` je unutar samog repo-a (više nije na Desktop-u).
 - **2026-04-28**: Pretraga u Evidenciji — uklonjeni pojedinačni stanovi iz dropdown predloga (`populateSearchSuggestions`, oko linije 3728). Pre: zgrada 24a sa 38 stanova generisala je 39 sugestija (`24a`, `24a / 1`, ..., `24a / 38`). Posle: samo `24a`. Stanove korisnik bira u "Stan" picker-u ispod kad otvori zgradu. Filter `getFilteredAddresses` i dalje pretražuje po `unit_number` ako neko ručno ukuca, ali sugestije više ne predlažu pojedinačne stanove. Komentar dodat u kodu da se ne vrati slučajno.
 - **2026-04-28 (HOTFIX)**: Login je pukao posle prethodnog cleanup-a. Migracija `grant_execute_on_role_helpers` daje `GRANT EXECUTE` na `is_admin(uuid)`, `is_editor()` i `is_editor(uuid)` rolama `authenticated` i `anon`. Te helper funkcije su SECURITY DEFINER ali im je proacl bio `{postgres=X/postgres,service_role=X/postgres}` — bez authenticated/anon. Zato je svaka RLS policy koja zove `is_admin(...)` padala kad je upit dolazio iz app-a. Ranije je radilo jer je na `profiles` postojala duplikat-policy `Users can read own profile` (`auth.uid() = id`) koja ne zove is_admin — Postgres je OR-ovao i ta jednostavnija je prolazila pre nego što se stigne do is_admin. U cleanup-u sam je dropovao kao "subsumiranu" pa je login fallback nestao. **Pravilo za ubuduće**: kad pišeš RLS koja zove SECURITY DEFINER helper, proveri `has_function_privilege('authenticated', oid, 'EXECUTE')` PRE deploy-a.
 - **2026-04-28**: Supabase performance/security cleanup kroz Supabase MCP. Primenjene 4 migracije:
@@ -194,27 +197,4 @@ Vidi `git log --oneline` za potpunu istoriju. Ključne sesije:
 1. **Pročitaj ovaj fajl** (već radiš to ako si stigao do dna)
 2. **Pogledaj `git log --oneline -20`** za skorašnje izmene
 3. **Pitaj korisnika šta je cilj** — ne pretpostavljaj
-4. **Ako se referenciraš na deo koda u `index.html`**, koristi `Grep` za precizno lociranje umesto čitanja celog fajla
-
-### Supabase MCP — pristup je već odobren
-
-Korisnik je **trajno odobrio** pristup Supabase MCP konektoru za ovaj projekat. Ako vidiš da su Supabase tools dostupni (`list_projects`, `get_advisors`, `execute_sql`, `apply_migration`, itd.), **slobodno ih koristi bez pitanja** kad god je relevantno za zadatak — npr. provera advisor-a, čitanje RLS policies, gledanje šeme tabela, primena migracija. Ne moraš svaki put da pitaš korisnika "da te povežem" niti "da li smem da pogledam bazu". Korisnik to očekuje.
-
-Project ref: `wdmipyooncrcdmvlloou`. Region: `eu-west-1`.
-
-**Izuzetak — uvek pitaj pre:**
-- Brisanja podataka (`DELETE`, `TRUNCATE`)
-- Drop-ovanja tabela/kolona/indeksa koji bi mogli biti u upotrebi
-- Pauziranja ili menjanja projekta na nivou organizacije
-- Bilo čega što menja ponašanje aplikacije za žive korisnike
-
----
-
-## Update ovaj fajl
-
-Kad završiš značajnu sesiju, **dodaj liniju u "Skorašnje izmene"** sa:
-- datumom
-- kratkim opisom izmena
-- commit hash-om
-
-Tako budući Claude vidi šta je rađeno bez gledanja celog `git log`-a.
+4. **A
