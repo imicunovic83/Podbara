@@ -1,0 +1,30 @@
+# Default — Git auto-detektuje tekst vs binarno; tekst se u repo čuva sa LF.
+* text=auto
+
+# Eksplicitno binarni fajlovi (ne diraj line endings, ne diff-uj)
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.zip binary
+*.gz binary
+*.pdf binary
+*.woff binary
+*.woff2 binary
+
+# Web fajlovi — uvek LF u repo (Windows lokalno može i dalje koristi CRLF u radu)
+*.html  text eol=lf
+*.css   text eol=lf
+*.js    text eol=lf
+*.json  text eol=lf
+*.md    text eol=lf
+*.txt   text eol=lf
+*.yml   text eol=lf
+*.yaml  text eol=lf
+*.svg   text eol=lf
+
+# Windows skripte — eksplicitno CRLF (PowerShell je osetljiv ako ih neko prebaci na LF)
+*.bat   text eol=crlf
+*.cmd   text eol=crlf
+*.ps1   text eol=crlf
