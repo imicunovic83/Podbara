@@ -150,9 +150,13 @@ Za rezervu Supabase baze postoji **odvojen GitHub repo**: `imicunovic83/podbara-
 - `config.txt` — sadrži Supabase connection string sa pravom lozinkom (NE u Git-u)
 - `logs/backup.log` — audit log
 
-**Task Scheduler**: zadatak `Podbara Daily Backup` pokreće `backup.ps1` svaki dan u 04:00.
+**Task Scheduler**: zadatak `Podbara Daily Backup` pokreće `backup.ps1` svaki dan u **10:00** sa opcijom `StartWhenAvailable=$true` (ako je računar ugašen u tom trenutku, task se izvršava čim se upali). Korisnikov računar je obično ugašen pre 9h i posle 15h, zato je vreme pomereno sa 04:00 na 10:00 (commit u CLAUDE.md 2026-04-28).
+
+`backup.ps1` od 2026-04-28 hvata pg_dump stderr u `logs/pg_dump_last_stderr.txt` i upisuje u glavni log — kad se sledeći put pojavi `pg_dump exit code 1`, log će reći zašto.
 
 GitHub Actions je **isključen** za backup (košta na privatnom repo-u). Sve radi lokalno.
+
+`podbara-backups/.gitignore` (od 2026-04-28) ignoriše: `config.txt` (sadrži lozinku!), `*.html` (slučajno kopirani Podbara fajlovi), `Deploy GitHub.txt`, `*.local.*`. Ako vidiš da se nešto sa lozinkom pojavljuje kao "Untracked" — proveri prvo .gitignore pre nego što ti ode u commit.
 
 ---
 
