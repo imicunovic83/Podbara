@@ -197,4 +197,27 @@ Vidi `git log --oneline` za potpunu istoriju. Ključne sesije:
 1. **Pročitaj ovaj fajl** (već radiš to ako si stigao do dna)
 2. **Pogledaj `git log --oneline -20`** za skorašnje izmene
 3. **Pitaj korisnika šta je cilj** — ne pretpostavljaj
-4. **A
+4. **Ako se referenciraš na deo koda u `index.html`**, koristi `Grep` za precizno lociranje umesto čitanja celog fajla
+
+### Supabase MCP — pristup je već odobren
+
+Korisnik je **trajno odobrio** pristup Supabase MCP konektoru za ovaj projekat. Ako vidiš da su Supabase tools dostupni (`list_projects`, `get_advisors`, `execute_sql`, `apply_migration`, itd.), **slobodno ih koristi bez pitanja** kad god je relevantno za zadatak — npr. provera advisor-a, čitanje RLS policies, gledanje šeme tabela, primena migracija. Ne moraš svaki put da pitaš korisnika "da te povežem" niti "da li smem da pogledam bazu". Korisnik to očekuje.
+
+Project ref: `wdmipyooncrcdmvlloou`. Region: `eu-west-1`.
+
+**Izuzetak — uvek pitaj pre:**
+- Brisanja podataka (`DELETE`, `TRUNCATE`)
+- Drop-ovanja tabela/kolona/indeksa koji bi mogli biti u upotrebi
+- Pauziranja ili menjanja projekta na nivou organizacije
+- Bilo čega što menja ponašanje aplikacije za žive korisnike
+
+---
+
+## Update ovaj fajl
+
+Kad završiš značajnu sesiju, **dodaj liniju u "Skorašnje izmene"** sa:
+- datumom
+- kratkim opisom izmena
+- commit hash-om
+
+Tako budući Claude vidi šta je rađeno bez gledanja celog `git log`-a.
