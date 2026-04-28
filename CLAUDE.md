@@ -167,10 +167,17 @@ Nakon `git push`, GitHub Pages automatski deploy-uje za 1-2 min.
 
 ---
 
-## Skorašnje izmene (do 2026-04-27)
+## Skorašnje izmene (do 2026-04-28)
 
 Vidi `git log --oneline` za potpunu istoriju. Ključne sesije:
 
+- **2026-04-28**: Supabase performance/security cleanup kroz Supabase MCP. Primenjene 4 migracije:
+  - `optimize_rls_policies_initplan` — sve RLS policies prepravljene da koriste `(SELECT auth.uid())` / `(SELECT auth.jwt())` (40 fix-eva za `auth_rls_initplan`). Usput obrisane redundantne policies: `your policy name` (test) na addresses, `Users can read own profile` (subsumirana) na profiles, `streets_select_admin_all` (subsumirana). Admin ALL policies na `roles` i `survey_statuses` razbijene na zasebne INSERT/UPDATE/DELETE.
+  - `add_fk_covering_indexes` — 11 novih indeksa za FK kolone bez covering index-a (npr. `idx_addresses_created_by`, `idx_resident_entries_survey_record_id` itd.).
+  - `fix_streets_multiple_permissive_select` — odvojene SELECT policies na `streets` da viewer/editor ne overlap-uju.
+  - `consolidate_streets_select_into_one` — finalno spojeno u jedan `streets_select` policy (admin/editor/assigned-viewer u jednom OR-u).
+  - **Rezultat**: performance advisor pao sa 63 → 18 lints (svi preostali su INFO `unused_index` — najviše to su novi FK indeksi koji još nisu korišćeni, plus kritičan `idx_addresses_geom` PostGIS spatial koji se NE SME brisati).
+  - **Security advisor**: ostao isti (PostGIS warning-i koji su deo postgis ekstenzije + `auth_leaked_password_protection` koji traži Pro plan).
 - **2026-04-27**: Geolokacija fix — dodat `locationHelpModal` sa platform-specifičnim instrukcijama (iOS Safari, iOS Chrome, Android, desktop varijante). Trigger se automatski na `PERMISSION_DENIED`. Funkcije: `detectBrowserPlatform()`, `getLocationInstructionsHTML()`, `openLocationHelpModal()`. Commit: `4f909b0`.
 - **2026-04-27**: Najbliže adrese UX poboljšanje — rezultate "Najbliže od mene" / "Najbliže neobiđeno" više ne prikazujemo u status banner-u gore (jer korisnik mora da skroluje), nego u **modal-u nad mapom** (`nearestResultsModal`). Lista je **klikabilna** — klik na adresu pan-uje mapu i otvara marker modal sa svim stanovima. Funkcije: `openNearestResultsModal()`, `closeNearestResultsModal()`. Modifikovan success callback u `showNearestAddresses`.
 
