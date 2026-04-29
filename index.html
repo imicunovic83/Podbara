@@ -3817,21 +3817,31 @@
     const selectedStreet = filterStreetEl.value
     const selectedStatus = filterStatusEl.value
     const search         = searchInputEl.value.trim().toLowerCase()
+    // Normalizuj: razmaci oko "/" → bez razmaka. Tako "24a / 33" i "24a/33" rade isto.
+    const searchNorm     = search.replace(/\s*\/\s*/g, '/')
     return allAddresses.filter(item => {
-      const streetName  = cleanStreetName(item.streets?.name || '').toLowerCase()
-      const fullLabel   = String(item.full_address_label || '').toLowerCase()
-      const houseNumber = String(item.house_number || '').toLowerCase()
-      const houseSuffix = String(item.house_number_suffix || '').toLowerCase()
-      const unitNumber  = String(item.unit_number || '').toLowerCase()
+      const streetName     = cleanStreetName(item.streets?.name || '').toLowerCase()
+      const houseNumber    = String(item.house_number || '').toLowerCase()
+      const houseSuffix    = String(item.house_number_suffix || '').toLowerCase()
+      const unitNumber     = String(item.unit_number || '').toLowerCase()
+      const combinedNumber = `${houseNumber}${houseSuffix}`            // npr. "24a"
+      const houseAndUnit   = unitNumber ? `${combinedNumber}/${unitNumber}` : combinedNumber
+
       const matchStreet = !selectedStreet || String(item.street_id) === String(selectedStreet)
       const matchStatus = !selectedStatus || String(item.census_status) === String(selectedStatus)
+
+      // Pretraga matchuje:
+      //   • ulicu — uvek (kucanje "Bele" daje sve Bele Njive adrese)
+      //   • broj + suffix spojeno ("33", "24a") — adrese, NE pojedinačne stanove
+      //   • stan SAMO kad korisnik eksplicitno kuca "/" u upitu (npr. "24a/33" ili "24a / 33")
+      //
+      // Razlog: bez ovoga "33" hvata i kuću 33 i SVAKI stan 33 u svim zgradama (bug 2026-04-29).
+      // Stanove korisnik bira u "Stan" picker-u ispod kad otvori zgradu.
       const matchSearch =
-        !search ||
-        streetName.includes(search) ||
-        fullLabel.includes(search) ||
-        houseNumber.includes(search) ||
-        houseSuffix.includes(search) ||
-        unitNumber.includes(search)
+        !searchNorm ||
+        streetName.includes(searchNorm) ||
+        combinedNumber.includes(searchNorm) ||
+        (searchNorm.includes('/') && houseAndUnit.includes(searchNorm))
       return matchStreet && matchStatus && matchSearch
     })
   }
@@ -5380,27 +5390,69 @@
   async function updateAddressType(addressId, currentType) {
     if (!canEdit()) { setStatus('❌ Nemaš dozvolu.'); return }
     const newType = currentType === 'Kuća' ? 'Zgrada' : 'Kuća'
-    // Provera: pri prelasku Kuća → Zgrada, mora postojati unit_number da ne napravimo placeholder
-    if (newType === 'Zgrada') {
-      const row = allAddresses.find(a => String(a.id) === String(addressId))
-      if (row && !String(row.unit_number || '').trim()) {
-        setStatus('❌ Pre konverzije u Zgradu, dodaj broj stana koristeći "➕ Dodaj novu jedinicu" panel ispod.')
+    const row = allAddresses.find(a => String(a.id) === String(addressId))
+    if (!row) { setStatus('❌ Adresa nije pronađena.'); return }
+
+    // Plan upisa: počinje sa promenom tipa; po potrebi dopunimo unit_number.
+    const updates = { address_type: newType, updated_by: currentUser.id }
+    let promptedUnit = false   // true ako smo već dobili eksplicitnu potvrdu kroz prompt
+
+    // ── Kuća → Zgrada ───────────────────────────────────────────────────────
+    // Zgrada bez stana je placeholder (unexplored). Pitamo korisnika za broj
+    // prvog stana i upišemo oba polja u jednom upitu.
+    if (newType === 'Zgrada' && !String(row.unit_number || '').trim()) {
+      const firstUnit = (prompt(
+        'Pretvaraš Kuću u Zgradu — unesi broj prvog stana:',
+        '1'
+      ) || '').trim()
+      if (!firstUnit) {
+        setStatus('Otkazano. Tip nije promenjen.')
         return
       }
+      updates.unit_number = firstUnit
+      promptedUnit = true   // prompt sluzi i kao confirm — preskačemo dvostruki dialog
     }
-    const confirmed = confirm(`Promeniti tip adrese u "${newType}"?`)
-    if (!confirmed) return
+
+    // ── Zgrada → Kuća ───────────────────────────────────────────────────────
+    // Ako zgrada ima više od jednog stana, blokiramo konverziju da ne pravimo
+    // mix tipova u istoj zgradi (1 red Kuća + N redova Zgrada = haos).
+    // Ako ima samo jedan stan, čistimo unit_number da ostane uredna Kuća.
+    if (newType === 'Kuća' && currentType === 'Zgrada') {
+      const buildingKey = getBuildingKey(row)
+      const sameBuilding = (allAddresses || []).filter(a => getBuildingKey(a) === buildingKey)
+      if (sameBuilding.length > 1) {
+        alert(
+          `Ne mogu da pretvorim u Kuću jer ova zgrada ima ${sameBuilding.length} stanova.\n\n` +
+          `Pre konverzije, obriši višak stanova (preko Edit moda) tako da ostane samo jedan red.`
+        )
+        return
+      }
+      // Samo 1 stan → očisti broj stana da ne ostane "Kuća sa stanom 1"
+      updates.unit_number = null
+    }
+
+    // Confirm dialog — preskočimo ako je prompt već poslužio kao potvrda
+    if (!promptedUnit) {
+      if (!confirm(`Promeniti tip adrese u "${newType}"?`)) return
+    }
+
     // Update in-memory
     const idx = allAddresses.findIndex(a => String(a.id) === String(addressId))
-    if (idx !== -1) allAddresses[idx].address_type = newType
+    if (idx !== -1) {
+      allAddresses[idx].address_type = newType
+      if ('unit_number' in updates) allAddresses[idx].unit_number = updates.unit_number
+    }
     if (!isOnline) {
       addToQueue({ field: 'address_type', addressId, value: newType, userId: currentUser.id })
+      if ('unit_number' in updates) {
+        addToQueue({ field: 'unit_number', addressId, value: updates.unit_number, userId: currentUser.id })
+      }
       setStatus(`📵 Offline — tip promenjen u "${newType}", sinhronizuje se kada se vrati internet.`)
       renderAddresses()
       return
     }
     const { error } = await supabase.from('addresses')
-      .update({ address_type: newType, updated_by: currentUser.id })
+      .update(updates)
       .eq('id', addressId)
     if (error) { setStatus(`❌ Greška: ${error.message}`); return }
     setStatus(`✅ Tip adrese promenjen u "${newType}".`)
