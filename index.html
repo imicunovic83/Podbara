@@ -8183,4 +8183,59 @@
           })
           // Auto-otvori modal odmah, da korisnik ne mora dvaput da klikće
           setTimeout(() => {
-            openLocationHelpModal(() => showNearestAddresses({ filterFn
+            openLocationHelpModal(() => showNearestAddresses({ filterFn, statusLabel }))
+          }, 200)
+        } else if (err.code === 2) {
+          setStatus('❌ Lokacija nedostupna — proveri da li je GPS uključen na uređaju.')
+        } else if (err.code === 3) {
+          setStatus('❌ Timeout pri traženju lokacije — pokušaj ponovo na otvorenom (slabija veza sa satelitima u zatvorenom).')
+        } else {
+          setStatus(`❌ Greška: ${err.message}`)
+        }
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 }
+    )
+  }
+
+  // "Najbliže neobiđeno" — samo adrese sa status=not_visited
+  function showNearestUnvisited() {
+    showNearestAddresses({
+      filterFn:    a => a.census_status === 'not_visited',
+      statusLabel: 'neobiđenih'
+    })
+  }
+  // "Najbliže od mene" — bilo koja adresa, bez obzira na status
+  function showNearestAny() {
+    showNearestAddresses({
+      filterFn:    a => true,
+      statusLabel: 'adresa'
+    })
+  }
+
+  // Wire dugmeta — različite funkcije za različite namene
+  mapaNearestBtnEl?.addEventListener('click', showNearestAny)         // "Najbliže od mene" (sve)
+  document.getElementById('mapaNearestFab')?.addEventListener('click', showNearestUnvisited)  // FAB (samo neobiđeno)
+
+  // Reset filtera mape — sve checkbox-eve čekira, status filter u Evidenciji čisti
+  document.getElementById('mapaResetFiltersBtn')?.addEventListener('click', () => {
+    document.querySelectorAll('[data-mapa-status], [data-mapa-layer]').forEach(c => { c.checked = true })
+    if (filterStatusEl) filterStatusEl.value = ''
+    try { typeof refreshMapa === 'function' && refreshMapa() } catch (e) {}
+    setStatus('✅ Mapa filteri resetovani — prikazane su sve adrese.')
+  })
+
+  // Inicijalizacija mape posle login-a — pozovi iz renderLoggedIn flow-a
+  window.__initMapaWhenReady = function () {
+    showOrHideMapaForRole()
+    if (typeof L === 'undefined') {
+      // Sačekaj malo, Leaflet se učitava async (defer)
+      setTimeout(window.__initMapaWhenReady, 300)
+      return
+    }
+    initMapa()
+    setupMapaControls()
+    refreshMapa()
+  }
+</script>
+</body>
+</html>
