@@ -162,12 +162,12 @@ GitHub Actions je **isključen** za backup (košta na privatnom repo-u). Sve rad
 
 ## Push workflow
 
-`push-podbara.bat` se nalazi **unutar samog repo-a** (`C:\Users\ilija\Projects\Podbara\push-podbara.bat`) — putuje sa folderom, koristi `cd /d "%~dp0"` da uvek radi iz pravog direktorijuma. Skripta:
+`push-podbara.bat` se nalazi **na Desktop-u** (`C:\Users\ilija\Desktop\push-podbara.bat`) — NE u samom repo-u (od 2026-04-29). Skripta interno radi `cd /d C:\Users\ilija\Projects\Podbara` ili sličan jump u pravi folder. Skripta:
 1. Pokaže `git status --short`
 2. Ako ima neuncommit-ovanih izmena (od korisnika ručno) — pita commit poruku, radi `add` + `commit`
 3. Radi `git push`
 
-**Tipičan scenario:** Claude commit-uje izmene iz svog Linux sandboksa (sad kad repo nije više u OneDrive-u, lock fajlovi i `.git/objects` permission greške su prošlost). Korisnik samo dupli klik na `push-podbara.bat` → push prolazi (auth iz Windows Credential Manager-a).
+**Tipičan scenario:** Claude commit-uje izmene iz svog Linux sandboksa (sad kad repo nije više u OneDrive-u, lock fajlovi i `.git/objects` permission greške su prošlost). Korisnik samo dupli klik na `push-podbara.bat` na Desktop-u → push prolazi (auth iz Windows Credential Manager-a).
 
 Nakon `git push`, GitHub Pages automatski deploy-uje za 1-2 min. Browser cache: **Ctrl+Shift+R**.
 
