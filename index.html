@@ -2077,6 +2077,29 @@
       color: var(--color-primary);
       box-shadow: none;
     }
+    /* Uvek-vidljivo "Dodaj novu adresu" dugme u Evidenciji (admin/editor only) */
+    .evidencija-add-action {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: var(--space-3);
+      margin-bottom: var(--space-3);
+      padding: var(--space-3);
+      background: var(--color-primary-light);
+      border: 1px solid var(--color-primary);
+      border-radius: var(--radius-lg);
+    }
+    .evidencija-add-action button {
+      flex: 0 0 auto;
+    }
+    .evidencija-add-hint {
+      font-size: 0.85rem;
+      color: var(--color-text-muted);
+    }
+    @media (max-width: 540px) {
+      .evidencija-add-action { padding: var(--space-2) var(--space-3); }
+      .evidencija-add-hint { font-size: 0.8rem; }
+    }
     .inline-add-cta {
       margin-top: var(--space-4);
       padding: var(--space-4);
@@ -2883,6 +2906,12 @@
         <!-- Divider -->
         <div class="evidencija-divider"></div>
 
+        <!-- Uvek-vidljivo dugme za unos nove adrese (Admin + Editor). Hidden za viewer. -->
+        <div class="evidencija-add-action hidden" id="evidencijaAddAction">
+          <button type="button" id="evidencijaAddBtn">➕ Dodaj novu adresu</button>
+          <span class="evidencija-add-hint">Adresa nije na listi? Klikni i dodaj je odmah.</span>
+        </div>
+
         <!-- Two-level picker -->
         <div class="evidencija-picker-row">
           <div class="field">
@@ -3652,6 +3681,10 @@
     document.querySelectorAll('.admin-only').forEach(el => {
       el.classList.toggle('hidden', !isAdmin())
     })
+
+    // Uvek-vidljivo "Dodaj novu adresu" dugme u Evidenciji — admin + editor
+    const addActionEl = document.getElementById('evidencijaAddAction')
+    addActionEl?.classList.toggle('hidden', !canEdit())
   }
 
   function resetForm() {
@@ -6843,6 +6876,10 @@
   const inlineAddUnitLabelEl = document.getElementById('inlineAddUnitLabel')
   const inlineAddSaveBtnEl   = document.getElementById('inlineAddSaveBtn')
   const inlineAddCancelBtnEl = document.getElementById('inlineAddCancelBtn')
+  // Uvek-vidljivo dugme (admin + editor) — dodato 2026-04-29 jer je stara logika
+  // pokazivala CTA samo kad pretraga vrati 0 rezultata, što je netransparentno.
+  const evidencijaAddActionEl = document.getElementById('evidencijaAddAction')
+  const evidencijaAddBtnEl    = document.getElementById('evidencijaAddBtn')
 
   function showInlineAddCta() {
     if (!inlineAddCtaEl) return
@@ -6852,7 +6889,9 @@
   function hideInlineAddCta() { inlineAddCtaEl?.classList.add('hidden') }
   function hideInlineAddForm() { inlineAddFormEl?.classList.add('hidden') }
 
-  inlineAddCtaBtnEl?.addEventListener('click', () => {
+  // Helper koji otvara inline "Nova adresa" formu — koristi i CTA dugme (kad pretraga nema rezultata)
+  // i uvek-vidljivo dugme iznad picker-a.
+  function openInlineAddForm() {
     if (!canEdit()) return
     hideInlineAddCta()
     if (inlineAddFormEl) inlineAddFormEl.classList.remove('hidden')
@@ -6871,8 +6910,15 @@
       if (inlineAddHouseEl)  inlineAddHouseEl.value  = m[1]
       if (inlineAddSuffixEl) inlineAddSuffixEl.value = m[2] || ''
     }
-    inlineAddHouseEl?.focus()
-  })
+    // Skroluj formu u vidno polje (jer je nova-adresa dugme iznad picker-a, a forma ispod)
+    setTimeout(() => {
+      inlineAddFormEl?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      inlineAddHouseEl?.focus()
+    }, 50)
+  }
+
+  inlineAddCtaBtnEl?.addEventListener('click', openInlineAddForm)
+  evidencijaAddBtnEl?.addEventListener('click', openInlineAddForm)
 
   // Otvara inline-add formu predpopunjenu za neistraženu zgradu, fokus na polje "Stan"
   function openInlineAddForUnexploredBuilding(item) {
@@ -8137,59 +8183,4 @@
           })
           // Auto-otvori modal odmah, da korisnik ne mora dvaput da klikće
           setTimeout(() => {
-            openLocationHelpModal(() => showNearestAddresses({ filterFn, statusLabel }))
-          }, 200)
-        } else if (err.code === 2) {
-          setStatus('❌ Lokacija nedostupna — proveri da li je GPS uključen na uređaju.')
-        } else if (err.code === 3) {
-          setStatus('❌ Timeout pri traženju lokacije — pokušaj ponovo na otvorenom (slabija veza sa satelitima u zatvorenom).')
-        } else {
-          setStatus(`❌ Greška: ${err.message}`)
-        }
-      },
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 }
-    )
-  }
-
-  // "Najbliže neobiđeno" — samo adrese sa status=not_visited
-  function showNearestUnvisited() {
-    showNearestAddresses({
-      filterFn:    a => a.census_status === 'not_visited',
-      statusLabel: 'neobiđenih'
-    })
-  }
-  // "Najbliže od mene" — bilo koja adresa, bez obzira na status
-  function showNearestAny() {
-    showNearestAddresses({
-      filterFn:    a => true,
-      statusLabel: 'adresa'
-    })
-  }
-
-  // Wire dugmeta — različite funkcije za različite namene
-  mapaNearestBtnEl?.addEventListener('click', showNearestAny)         // "Najbliže od mene" (sve)
-  document.getElementById('mapaNearestFab')?.addEventListener('click', showNearestUnvisited)  // FAB (samo neobiđeno)
-
-  // Reset filtera mape — sve checkbox-eve čekira, status filter u Evidenciji čisti
-  document.getElementById('mapaResetFiltersBtn')?.addEventListener('click', () => {
-    document.querySelectorAll('[data-mapa-status], [data-mapa-layer]').forEach(c => { c.checked = true })
-    if (filterStatusEl) filterStatusEl.value = ''
-    try { typeof refreshMapa === 'function' && refreshMapa() } catch (e) {}
-    setStatus('✅ Mapa filteri resetovani — prikazane su sve adrese.')
-  })
-
-  // Inicijalizacija mape posle login-a — pozovi iz renderLoggedIn flow-a
-  window.__initMapaWhenReady = function () {
-    showOrHideMapaForRole()
-    if (typeof L === 'undefined') {
-      // Sačekaj malo, Leaflet se učitava async (defer)
-      setTimeout(window.__initMapaWhenReady, 300)
-      return
-    }
-    initMapa()
-    setupMapaControls()
-    refreshMapa()
-  }
-</script>
-</body>
-</html>
+            openLocationHelpModal(() => showNearestAddresses({ filterFn
