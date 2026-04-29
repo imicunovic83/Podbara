@@ -196,6 +196,12 @@ Ako baš mora emoji u poruci — alternativa je da unapredim bat da koristi temp
 
 Vidi `git log --oneline` za potpunu istoriju. Ključne sesije:
 
+- **2026-04-29 (UX uvek-vidljivo Dodaj novu adresu)**: U Evidenciji se ranije CTA "➕ Dodaj novu adresu" pokazivala **samo** kad pretraga vrati 0 rezultata — korisnik je u produkciji prijavio da to nije transparentno (tip ne vidi opciju ako samo skroluje listu). Rešenje:
+  - Dodat novi `<div id="evidencijaAddAction">` sa dugmetom `evidencijaAddBtn`, postavljen **između divider-a i picker-row-a** (linija ~2906-2912 u index.html). Stil `.evidencija-add-action` (zeleni/plavi primary background, hint tekst).
+  - Logika otvaranja forme izvučena iz `inlineAddCtaBtn` event handler-a u helper `openInlineAddForm()` (linija ~6894). Oba dugmeta — postojeći CTA fallback i novo uvek-vidljivo dugme — zovu isti helper. Helper sad i `scrollIntoView({behavior:'smooth',block:'center'})` jer je dugme iznad forme.
+  - Vidljivost se kontroliše u `applyRolePermissions()` preko `canEdit()`. Admin + editor vide dugme, viewer ne. Default class `hidden` u HTML-u dok `applyRolePermissions` ne odluči.
+  - Stari uslovni CTA (`showInlineAddCta` kad pretraga vrati 0) ostaje kao kontekstualni hint sa drugim stilom (warning žuto, "🔍 Adresa nije pronađena u bazi").
+  - Commit: `642606a`.
 - **2026-04-29 (security advisor)**: Supabase je promovisao `rls_disabled_in_public` na ERROR za tabelu **`public.spatial_ref_sys`** (PostGIS reference tabela sa SRID definicijama). **Wontfix na free tier-u** — tabela je u vlasništvu `supabase_admin` role, a postgres rola koju MCP koristi NIJE član te role (`pg_has_role('postgres','supabase_admin','MEMBER')` = false). Zato:
   - `REVOKE INSERT/UPDATE/DELETE/TRUNCATE ... FROM anon, authenticated` prolazi bez greške ali bez efekta (REVOKE radi samo grantor, a grants su `/supabase_admin`).
   - `ALTER TABLE ... ENABLE ROW LEVEL SECURITY` baca `42501: must be owner of table spatial_ref_sys`.
@@ -234,27 +240,4 @@ Vidi `git log --oneline` za potpunu istoriju. Ključne sesije:
 1. **Pročitaj ovaj fajl** (već radiš to ako si stigao do dna)
 2. **Pogledaj `git log --oneline -20`** za skorašnje izmene
 3. **Pitaj korisnika šta je cilj** — ne pretpostavljaj
-4. **Ako se referenciraš na deo koda u `index.html`**, koristi `Grep` za precizno lociranje umesto čitanja celog fajla
-
-### Supabase MCP — pristup je već odobren
-
-Korisnik je **trajno odobrio** pristup Supabase MCP konektoru za ovaj projekat. Ako vidiš da su Supabase tools dostupni (`list_projects`, `get_advisors`, `execute_sql`, `apply_migration`, itd.), **slobodno ih koristi bez pitanja** kad god je relevantno za zadatak — npr. provera advisor-a, čitanje RLS policies, gledanje šeme tabela, primena migracija. Ne moraš svaki put da pitaš korisnika "da te povežem" niti "da li smem da pogledam bazu". Korisnik to očekuje.
-
-Project ref: `wdmipyooncrcdmvlloou`. Region: `eu-west-1`.
-
-**Izuzetak — uvek pitaj pre:**
-- Brisanja podataka (`DELETE`, `TRUNCATE`)
-- Drop-ovanja tabela/kolona/indeksa koji bi mogli biti u upotrebi
-- Pauziranja ili menjanja projekta na nivou organizacije
-- Bilo čega što menja ponašanje aplikacije za žive korisnike
-
----
-
-## Update ovaj fajl
-
-Kad završiš značajnu sesiju, **dodaj liniju u "Skorašnje izmene"** sa:
-- datumom
-- kratkim opisom izmena
-- commit hash-om
-
-Tako budući Claude vidi šta je rađeno bez gledanja celog `git log`-a.
+4
