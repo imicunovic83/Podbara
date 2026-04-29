@@ -743,6 +743,39 @@
     .status-not_found    { background: var(--color-not_found-bg); color: var(--color-not_found-text); }
     .status-scheduled    { background: var(--color-scheduled-bg); color: var(--color-scheduled-text); }
 
+    /* ── Type badge (klikabilni Kuća/Zgrada chip u headeru) ── */
+    .type-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.3rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      background: #e0f2fe;
+      color: #075985;
+      border: 1.5px solid #bae6fd;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s, transform 0.1s;
+      user-select: none;
+      white-space: nowrap;
+    }
+    .type-badge:hover {
+      background: #bae6fd;
+      border-color: #7dd3fc;
+    }
+    .type-badge:active {
+      transform: scale(0.96);
+    }
+    .type-badge.is-readonly {
+      cursor: default;
+    }
+    .type-badge.is-readonly:hover {
+      background: #e0f2fe;
+      border-color: #bae6fd;
+    }
+
     /* ── Unit list (lista svih stanova u zgradi sa quick-edit per row) ── */
     .unit-list-card {
       background: #fff;
@@ -4206,7 +4239,15 @@
         <!-- Kompaktan header -->
         <div class="address-detail-header">
           <h3 class="address-detail-title">${escapeHtml(item.full_address_label) || 'Bez naziva'}</h3>
-          <span class="status-badge ${getStatusClass(item.census_status)}" id="statusBadge-${item.id}">${getStatusLabel(item.census_status)}</span>
+          <div style="display:flex;gap:var(--space-2);flex-wrap:wrap;align-items:center;">
+            ${(() => {
+              const t = item.address_type === 'Zgrada' ? '🏢 Zgrada' : '🏠 Kuća'
+              return canEdit()
+                ? `<span class="type-badge" data-toggle-type-id="${item.id}" data-current-type="${item.address_type ?? 'Kuća'}" title="Klikni da promeniš tip adrese">${t}</span>`
+                : `<span class="type-badge is-readonly">${t}</span>`
+            })()}
+            <span class="status-badge ${getStatusClass(item.census_status)}" id="statusBadge-${item.id}">${getStatusLabel(item.census_status)}</span>
+          </div>
         </div>
         <div class="updated-at-info">🕐 Izmenjeno <strong>${updatedAt}</strong> · <strong>${updaterName}</strong></div>
 
@@ -4293,6 +4334,7 @@
           <div class="address-detail-actions" style="margin-top:var(--space-4);display:flex;gap:0.5rem;flex-wrap:wrap;">
             <a href="${buildMapsNavUrl(buildMapQuery(item))}" target="_blank" rel="noopener" class="map-nav-btn" style="font-size:0.8rem;padding:0.45rem 0.85rem;text-decoration:none;background:#fff;border:1px solid var(--color-border);border-radius:6px;color:var(--color-primary);font-weight:600;">↗ Google Maps</a>
             <button type="button" class="btn-dark" data-pan-to-map-id="${item.id}" style="font-size:0.8rem;padding:0.45rem 0.85rem;">🗺️ Pokaži na mapi</button>
+            ${canEdit() ? `<button type="button" class="btn-dark" data-toggle-type-id="${item.id}" data-current-type="${item.address_type ?? 'Kuća'}" style="font-size:0.8rem;padding:0.45rem 0.85rem;">🔄 Promeni tip</button>` : ''}
             <button type="button" class="btn-dark" data-edit-id="${item.id}" style="font-size:0.8rem;padding:0.45rem 0.85rem;">✏️ Edit mod</button>
             <button type="button" class="btn-danger" data-delete-id="${item.id}"
               data-delete-label="${(item.full_address_label ?? 'Bez naziva').replace(/"/g, '&quot;')}"
@@ -4308,10 +4350,7 @@
               <div class="addr-row"><span class="addr-label">Broj:</span> ${escapeHtml(item.house_number) || '-'}</div>
               <div class="addr-row"><span class="addr-label">Dodatak:</span> ${escapeHtml(item.house_number_suffix) || '-'}</div>
               <div class="addr-row"><span class="addr-label">Stan:</span> ${escapeHtml(item.unit_number) || '-'}</div>
-              <div class="addr-row" style="display:flex;align-items:center;gap:var(--space-3);flex-wrap:wrap;">
-                <span><span class="addr-label">Tip:</span> <span id="tipLabel-${item.id}">${escapeHtml(item.address_type) || '-'}</span></span>
-                ${canEdit() ? `<button type="button" class="type-toggle-btn" data-toggle-type-id="${item.id}" data-current-type="${item.address_type ?? 'Kuća'}">🔄 Promeni tip</button>` : ''}
-              </div>
+              <div class="addr-row"><span class="addr-label">Tip:</span> <span id="tipLabel-${item.id}">${escapeHtml(item.address_type) || '-'}</span></div>
               <div class="addr-row"><span class="addr-label">Aktivna:</span> ${item.is_active ? 'Da' : 'Ne'}</div>
             </div>
           </details>
@@ -4416,10 +4455,13 @@
       })
     }
 
-    // Type toggle button
-    selectedAddressDetailsEl.querySelector('[data-toggle-type-id]')?.addEventListener('click', (e) => {
-      const btn = e.currentTarget
-      updateAddressType(btn.dataset.toggleTypeId, btn.dataset.currentType)
+    // Type toggle — postoji na 2 mesta: header badge (B) + action row dugme (A).
+    // querySelectorAll da oba dobiju listener; klik na bilo koji vodi do iste funkcije.
+    selectedAddressDetailsEl.querySelectorAll('[data-toggle-type-id]').forEach(el => {
+      el.addEventListener('click', (e) => {
+        const target = e.currentTarget
+        updateAddressType(target.dataset.toggleTypeId, target.dataset.currentType)
+      })
     })
 
     // Add unit button

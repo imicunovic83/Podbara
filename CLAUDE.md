@@ -177,6 +177,12 @@ Nakon `git push`, GitHub Pages automatski deploy-uje za 1-2 min. Browser cache: 
 
 Vidi `git log --oneline` za potpunu istoriju. Ključne sesije:
 
+- **2026-04-29 (kasnije)**: "Promeni tip" dugme premešteno na **dva nova vidljiva mesta**:
+  - **Header badge** (klikabilan chip pored status badge-a, npr. `🏠 Kuća` / `🏢 Zgrada`) — info-display + click-to-toggle. Read-only za viewer-e (`.type-badge.is-readonly`).
+  - **Action row dugme** sa uniformnim labelom `🔄 Promeni tip` (bez direkcije — direkcioni labeli su bili konfuzni pri vraćanju nazad). Stoji između "Pokaži na mapi" i "Edit mod".
+  - Staro dugme u "Detalji adrese" `<details>` sekciji obrisano — Tip ostaje samo kao read-only label.
+  - Listener u `renderSelectedAddressDetails` promenjen sa `querySelector` na `querySelectorAll().forEach()` jer sad imamo 2 elementa sa `data-toggle-type-id`. Klik na bilo koji vodi u isti `updateAddressType()`.
+  - Dodat CSS `.type-badge` (oko linije 746) — pill chip sa svetloplavom pozadinom, hover/active animacija.
 - **2026-04-29**: Tri fixa u jednoj sesiji:
   - **PWA meta tag**: Dodat `<meta name="mobile-web-app-capable" content="yes">` (linija 12) iznad starog `apple-mobile-web-app-capable` jer je Apple varijanta deprecated u Chrome/Edge konzoli. Stari ostaje za iOS Safari kompatibilnost. Commit: `d620526`.
   - **Pretraga u Evidenciji — completeni rewrite `getFilteredAddresses`** (linija 3816). Pre: kucanje "33" je matchovalo i kuću 33 i SVAKI stan 33 u svim zgradama (preko `fullLabel.includes` i `unitNumber.includes`) → korisnik tražeći kuću 33 dobijao "Bele Njive 24a / 33". Sad: matchuje `streetName` + `combinedNumber` (`houseNumber` + `houseSuffix`, npr "24a"). Stan se matchuje SAMO ako pretraga sadrži "/" (npr. "24a/33") — eksplicitna sintaksa. Razmaci oko "/" se normalizuju (`24a / 33` → `24a/33`).
