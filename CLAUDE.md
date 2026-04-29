@@ -196,6 +196,13 @@ Ako baš mora emoji u poruci — alternativa je da unapredim bat da koristi temp
 
 Vidi `git log --oneline` za potpunu istoriju. Ključne sesije:
 
+- **2026-04-29 (security advisor)**: Supabase je promovisao `rls_disabled_in_public` na ERROR za tabelu **`public.spatial_ref_sys`** (PostGIS reference tabela sa SRID definicijama). **Wontfix na free tier-u** — tabela je u vlasništvu `supabase_admin` role, a postgres rola koju MCP koristi NIJE član te role (`pg_has_role('postgres','supabase_admin','MEMBER')` = false). Zato:
+  - `REVOKE INSERT/UPDATE/DELETE/TRUNCATE ... FROM anon, authenticated` prolazi bez greške ali bez efekta (REVOKE radi samo grantor, a grants su `/supabase_admin`).
+  - `ALTER TABLE ... ENABLE ROW LEVEL SECURITY` baca `42501: must be owner of table spatial_ref_sys`.
+  - Migracija `revoke_writes_on_spatial_ref_sys` ostala u listi kao no-op (dokumentuje pokušaj).
+  - **Praktičan rizik je nizak**: anon sa anon ključem može teoretski `DELETE FROM spatial_ref_sys WHERE srid=4326` što bi razbilo PostGIS upite, ali nema motivacije — anon NE dobija pristup `addresses`/`profiles`/`streets`. Sve naše tabele imaju RLS.
+  - **Trajno rešenje** zahteva ili Supabase support tiket (besplatno preko Dashboard → Help) ili Pro plan ili premeštanje PostGIS ekstenzije u zasebnu `extensions` šemu (drastično, može razbiti `idx_addresses_geom`).
+  - **Pravilo za buduće sesije**: kad se opet pojavi ovaj advisor, **ne troši vreme pokušavajući SQL fix** — preusmeri korisnika na support tiket ako baš hoće da ga utiša. Ostali warning-i (postgis extension u public, st_estimatedextent, is_admin/is_editor SECURITY DEFINER, auth_leaked_password_protection) su već dokumentovani kao non-issues ili Pro-only.
 - **2026-04-29 (kasnije)**: "Promeni tip" dugme premešteno na **dva nova vidljiva mesta**:
   - **Header badge** (klikabilan chip pored status badge-a, npr. `🏠 Kuća` / `🏢 Zgrada`) — info-display + click-to-toggle. Read-only za viewer-e (`.type-badge.is-readonly`).
   - **Action row dugme** sa uniformnim labelom `🔄 Promeni tip` (bez direkcije — direkcioni labeli su bili konfuzni pri vraćanju nazad). Stoji između "Pokaži na mapi" i "Edit mod".
