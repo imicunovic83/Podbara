@@ -171,6 +171,25 @@ GitHub Actions je **isključen** za backup (košta na privatnom repo-u). Sve rad
 
 Nakon `git push`, GitHub Pages automatski deploy-uje za 1-2 min. Browser cache: **Ctrl+Shift+R**.
 
+### ⚠ Pravila za predlaganje commit poruka
+
+Korisnik kopira commit poruku iz chat-a u `set /p MSG=` prompt u `push-podbara.bat`. Bat interno radi `git commit -m "!MSG!"`. Zato **commit poruke koje predlažeš MORAJU**:
+
+- **Bez ikakvih navodnika unutar poruke** (ni `"`, ni `'`, ni back-tick). Navodnici razbijaju `-m` parametar — git ih tretira kao kraj poruke i ostatak gleda kao filename → greška `pathspec '...' did not match any file(s)`.
+- **Bez emoji-a** ili specijalnih Unicode karaktera koji se ne prenose pouzdano kroz Windows clipboard / cmd.exe (npr. 🔄, 📦). Korisnik ih vidi kao `??` i bat ih može prosleđivati pogrešno.
+- Kratko, ASCII-only, bez backslash-eva.
+
+**OK primeri:**
+- `ux: Promeni tip vidljiviji - header badge + action row dugme`
+- `fix: pretraga match-uje samo adresu`
+- `chore: dodaj mobile-web-app-capable meta tag PWA standard`
+
+**LOŠE primeri (NE predlagati):**
+- `ux: Promeni tip vidljiviji - "🔄 Promeni tip" dugme` (navodnici + emoji)
+- `feat: dodaj novi "smart" filter` (navodnici)
+
+Ako baš mora emoji u poruci — alternativa je da unapredim bat da koristi temp fajl preko `git commit -F file.txt`. Ali to je ekstra komplikacija; jednostavnije je samo ASCII commit poruke.
+
 ---
 
 ## Skorašnje izmene (do 2026-04-29)
