@@ -145,7 +145,7 @@ Format pooler username-a: `postgres.wdmipyooncrcdmvlloou` (sa project ref-om, ne
 
 Za rezervu Supabase baze postoji **odvojen GitHub repo**: `imicunovic83/podbara-backups` (PRIVATE).
 
-**Lokalni helper**: `C:\Users\ilija\OneDrive\Desktop\podbara-backup-script\`
+**Lokalni helper**: `C:\Users\ilija\Projects\podbara-backup-script\` (premešten sa OneDrive 2026-05-12)
 - `backup.ps1` — PowerShell skripta za `pg_dump` → zip → git push
 - `config.txt` — sadrži Supabase connection string sa pravom lozinkom (NE u Git-u)
 - `logs/backup.log` — audit log
@@ -192,9 +192,12 @@ Ako baš mora emoji u poruci — alternativa je da unapredim bat da koristi temp
 
 ---
 
-## Skorašnje izmene (do 2026-04-29)
+## Skorašnje izmene (do 2026-05-12)
 
 Vidi `git log --oneline` za potpunu istoriju. Ključne sesije:
+
+- **2026-05-12**: **Backup folderi premešteni sa OneDrive na `C:\Users\ilija\Projects\`** (konzistentnost sa glavnim repo-om). `podbara-backup-script` i `podbara-backups` sad pod `Projects\`. Ažurirano: `backup.ps1` (`$RepoDir`), Task Scheduler "Podbara Daily Backup" (Execute path), CLAUDE.md (backup sekcija). Stari OneDrive folderi fizički obrisani. Test backup uspešno prošao iz nove lokacije.
+- **2026-05-12 (Supabase cleanup — KOMPLETIRANO u istom danu)**: Migracije `legacy_rename_unused_tables` + `drop_legacy_unused_tables`. **10 neiskorišćenih tabela obrisano**: `users`, `roles`, `user_roles`, `address_units`, `survey_statuses`, `survey_records`, `resident_entries`, `address_change_requests`, `audit_logs`, `editor_streets` — sve su imale 0 redova, app ih nije dirao (grep `index.html` + Edge Function + DB funkcije + `pg_depend` graf potvrdili). Pristup: prvo rename u `_legacy_*`, korisnik uradio smoke test live app-a (login, evidencija, status promena, pretraga, mapa, admin panel — sve radi), pa drop CASCADE u istoj sesiji. Pred rename napravljen svež pg_dump backup kao rollback tačka. **Šema sada: 6 živih tabela** (`addresses` 754, `user_street_assignments` 3, `profiles` 1, `streets`, `note_templates`, `spatial_ref_sys`). **Advisor: performance 25 → 11, security 15 → 14**. Preostali lint-ovi su poznati non-issues (PostGIS, `is_admin`/`is_editor`, leaked_password_protection na Pro plan-u, unused indeksi na živim tabelama).
 
 - **2026-04-29 (UX uvek-vidljivo Dodaj novu adresu)**: U Evidenciji se ranije CTA "➕ Dodaj novu adresu" pokazivala **samo** kad pretraga vrati 0 rezultata — korisnik je u produkciji prijavio da to nije transparentno (tip ne vidi opciju ako samo skroluje listu). Rešenje:
   - Dodat novi `<div id="evidencijaAddAction">` sa dugmetom `evidencijaAddBtn`, postavljen **između divider-a i picker-row-a** (linija ~2906-2912 u index.html). Stil `.evidencija-add-action` (zeleni/plavi primary background, hint tekst).
