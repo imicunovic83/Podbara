@@ -4424,6 +4424,14 @@
         ` : `
           ${item.notes ? `<div class="addr-row" style="margin-top:1rem;"><span class="addr-label">Napomena:</span> ${escapeHtml(item.notes)}</div>` : ''}
         `}
+
+        <!-- Istorija statusa (skupljen po default-u, lazy-loaded na otvaranje) -->
+        <details class="addr-collapsible" data-history-details-id="${item.id}" style="margin-top:0.5rem;background:#fafafa;border-radius:8px;padding:0.5rem 0.75rem;">
+          <summary style="cursor:pointer;font-weight:600;font-size:0.85rem;color:#374151;">▾ 📜 Istorija statusa</summary>
+          <div class="status-history-container" id="statusHistory-${item.id}" style="margin-top:var(--space-3);font-size:0.85rem;">
+            <div class="empty" style="color:#6b7280;">Otvori za prikaz istorije.</div>
+          </div>
+        </details>
       </div>
     `
 
@@ -4500,6 +4508,48 @@
     // Add unit button
     selectedAddressDetailsEl.querySelector('[data-add-unit-id]')?.addEventListener('click', (e) => {
       addUnitToAddress(e.currentTarget)
+    })
+
+    // Istorija statusa — lazy-load kad korisnik otvori <details>
+    selectedAddressDetailsEl.querySelector(`[data-history-details-id="${item.id}"]`)?.addEventListener('toggle', async (e) => {
+      if (!e.target.open) return
+      const container = document.getElementById(`statusHistory-${item.id}`)
+      if (!container) return
+      container.innerHTML = '<div class="empty" style="color:#6b7280;">Učitavanje...</div>'
+      const { data, error } = await supabase
+        .from('address_status_log')
+        .select('old_status, new_status, changed_at, profiles(fullname, email)')
+        .eq('address_id', item.id)
+        .order('changed_at', { ascending: false })
+      if (error) {
+        container.innerHTML = `<div class="empty" style="color:#dc2626;">Greška: ${escapeHtml(error.message)}</div>`
+        return
+      }
+      if (!data || !data.length) {
+        container.innerHTML = '<div class="empty" style="color:#6b7280;">Nema istorije.</div>'
+        return
+      }
+      container.innerHTML = data.map(r => {
+        const when = formatRelativeTime(r.changed_at)
+        const fullDate = new Date(r.changed_at).toLocaleString('sr-RS')
+        const who = r.profiles?.fullname || r.profiles?.email || 'Sistem'
+        const newLabel = getStatusLabel(r.new_status)
+        const newClass = getStatusClass(r.new_status)
+        const prevTxt = r.old_status
+          ? `(bilo: ${getStatusLabel(r.old_status)})`
+          : '(početno stanje)'
+        return `
+          <div class="history-row" style="padding:0.5rem 0;border-bottom:1px solid #e5e7eb;">
+            <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+              <span class="status-badge ${newClass}" style="font-size:0.75rem;padding:0.15rem 0.5rem;">${newLabel}</span>
+              <span style="color:#6b7280;font-size:0.78rem;">${escapeHtml(prevTxt)}</span>
+            </div>
+            <div style="color:#6b7280;font-size:0.78rem;margin-top:0.25rem;">
+              🕐 <span title="${escapeHtml(fullDate)}">${escapeHtml(when)}</span> · <strong>${escapeHtml(who)}</strong>
+            </div>
+          </div>
+        `
+      }).join('')
     })
 
     // Apply latin enforcement to new unit inputs
