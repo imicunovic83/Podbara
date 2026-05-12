@@ -3146,6 +3146,15 @@
           </div>
         </div>
 
+        <!-- ── Istorija dodela ulica (admin-only audit log) ── -->
+        <div class="assignments-box" style="margin-top:var(--space-4);">
+          <h2>📜 Istorija dodela ulica</h2>
+          <p class="note">Audit log: ko je kome dodelio, deaktivirao, reaktivirao ili uklonio koju ulicu. Pokazuje poslednjih 100 promena.</p>
+          <div id="adminAssignmentHistoryList" style="max-height:400px;overflow-y:auto;font-size:0.85rem;background:#fafafa;border-radius:8px;padding:0.5rem 0.75rem;">
+            <div class="empty">Učitavanje...</div>
+          </div>
+        </div>
+
         <!-- ── IMPORT SECTION ── -->
         <div class="import-box">
           <h2>📥 Import adresa iz Excela</h2>
@@ -4965,7 +4974,7 @@
       await loadAllowedStreets()
       await loadAddresses()
       await loadDashboardStats()
-      if (isAdmin()) { await loadAdminProfiles(); await loadAllSystemStreets(); renderAdminNoteTemplates() }
+      if (isAdmin()) { await loadAdminProfiles(); await loadAllSystemStreets(); renderAdminNoteTemplates(); renderAssignmentHistory() }
       await loadNoteTemplates()
       try { maybeAutoShowTutorial() } catch (e) {}
       // Zahtev #10: inicijalizuj mapu posle prijave
@@ -5046,7 +5055,7 @@
         await loadAllowedStreets()
         await loadAddresses()
         await loadDashboardStats()
-        if (isAdmin()) { await loadAdminProfiles(); await loadAllSystemStreets(); renderAdminNoteTemplates() }
+        if (isAdmin()) { await loadAdminProfiles(); await loadAllSystemStreets(); renderAdminNoteTemplates(); renderAssignmentHistory() }
       await loadNoteTemplates()
       try { maybeAutoShowTutorial() } catch (e) {}
       }
@@ -5152,6 +5161,61 @@
       console.warn('note_templates exception:', e)
       noteTemplates = []
     }
+  }
+
+  // Renderuj istoriju dodela ulica (admin-only audit log)
+  async function renderAssignmentHistory() {
+    const wrap = document.getElementById('adminAssignmentHistoryList')
+    if (!wrap) return
+    if (!isAdmin()) { wrap.innerHTML = '<div class="empty">Samo admin.</div>'; return }
+    wrap.innerHTML = '<div class="empty">Učitavanje...</div>'
+
+    const { data, error } = await supabase
+      .from('assignment_log')
+      .select(`
+        action, changed_at,
+        user_profile:profiles!assignment_log_user_id_fkey(fullname, email),
+        street:streets(name),
+        changed_by_profile:profiles!assignment_log_changed_by_fkey(fullname, email)
+      `)
+      .order('changed_at', { ascending: false })
+      .limit(100)
+
+    if (error) {
+      wrap.innerHTML = `<div class="empty" style="color:#dc2626;">Greška: ${escapeHtml(error.message)}</div>`
+      return
+    }
+    if (!data || !data.length) {
+      wrap.innerHTML = '<div class="empty">Nema unosa u istoriji.</div>'
+      return
+    }
+
+    const ACTIONS = {
+      assigned:    { icon: '➕', label: 'Dodeljen',    color: '#16a34a' },
+      deactivated: { icon: '⏸️', label: 'Deaktiviran', color: '#f59e0b' },
+      reactivated: { icon: '▶️', label: 'Reaktiviran', color: '#0ea5e9' },
+      removed:     { icon: '🗑️', label: 'Uklonjen',   color: '#dc2626' }
+    }
+
+    wrap.innerHTML = data.map(r => {
+      const when = formatRelativeTime(r.changed_at)
+      const fullDate = new Date(r.changed_at).toLocaleString('sr-RS')
+      const userName = r.user_profile?.fullname || r.user_profile?.email || '(nepoznat)'
+      const streetName = cleanStreetName(r.street?.name) || '(nepoznata)'
+      const byName = r.changed_by_profile?.fullname || r.changed_by_profile?.email || 'Sistem'
+      const a = ACTIONS[r.action] || { icon: '•', label: r.action, color: '#6b7280' }
+      return `
+        <div class="history-row" style="padding:0.5rem 0;border-bottom:1px solid #e5e7eb;">
+          <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+            <span style="font-weight:600;color:${a.color};">${a.icon} ${a.label}</span>
+            <span><strong>${escapeHtml(userName)}</strong> ↔ <strong>${escapeHtml(streetName)}</strong></span>
+          </div>
+          <div style="color:#6b7280;font-size:0.78rem;margin-top:0.25rem;">
+            🕐 <span title="${escapeHtml(fullDate)}">${escapeHtml(when)}</span> · od <strong>${escapeHtml(byName)}</strong>
+          </div>
+        </div>
+      `
+    }).join('')
   }
 
   // Renderuj admin UI za templates (lista + add form)
@@ -7081,7 +7145,7 @@
       await loadAllowedStreets()
       await loadAddresses()
       await loadDashboardStats()
-      if (isAdmin()) { await loadAdminProfiles(); await loadAllSystemStreets(); renderAdminNoteTemplates() }
+      if (isAdmin()) { await loadAdminProfiles(); await loadAllSystemStreets(); renderAdminNoteTemplates(); renderAssignmentHistory() }
       await loadNoteTemplates()
       try { maybeAutoShowTutorial() } catch (e) {}
       // Fix: inicijalizuj mapu i kada se sesija restore-uje (mobile cached)
